@@ -14,6 +14,14 @@
   --color-sky-900: #0c4a6e;
   --color-sky-800: #075985;
   --color-sky-300: #7dd3fc;
+
+  --color-brand-light: #90c2e0; /* Fidele a la couleur de fond bleu clair */
+  --color-brand-dark: #004a6e;  /* Bleu marine profond */
+  --color-brand-accent: #0c6e40; /* Vert foret pour la fille */
+  
+  /* Formes organiques */
+  --radius-blob-boy: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  --radius-blob-girl: 60% 40% 30% 70% / 60% 30% 70% 40%;
 }
 
 @media (prefers-color-scheme: dark) {
