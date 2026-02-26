@@ -8,16 +8,17 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-montserrat: "Montserrat", sans-serif;
-  --font-inter: "Inter", sans-serif;
+  --font-montserrat: var(--font-montserrat);
+  --font-inter: var(--font-inter);
+  --font-sans: var(--font-montserrat);
 
   --color-sky-900: #0c4a6e;
   --color-sky-800: #075985;
   --color-sky-300: #7dd3fc;
 
-  --color-brand-light: #90c2e0; /* Fidele a la couleur de fond bleu clair */
-  --color-brand-dark: #004a6e;  /* Bleu marine profond */
-  --color-brand-accent: #0c6e40; /* Vert foret pour la fille */
+  --color-brand-light: #96D0EE; /* Fidele a la couleur de fond bleu clair */
+  --color-brand-dark: #004B70;  /* Bleu marine profond */
+  --color-brand-accent: #0F673B; /* Vert foret pour la fille */
   
   /* Formes organiques */
   --radius-blob-boy: 40% 60% 70% 30% / 40% 50% 60% 50%;
@@ -31,8 +32,62 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Bordure verticale discontinue personnalisée */
+@utility border-dashed-v {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 0%);
+  background-position: right;
+  background-size: 2px 10px;
+  background-repeat: repeat-y;
+  border-right: none;
+}
+
+/* Animations CSS "Senior Pro" */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes float-delayed {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@utility animate-float-delayed {
+  animation: float-delayed 8s ease-in-out infinite;
+}
+
+@utility animate-reveal-up {
+  animation: reveal-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Effet Shimmer pour le chargement d'image */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@utility shimmer {
+  background: linear-gradient(to right, #f6f7f8 4%, #edeef1 25%, #f6f7f8 36%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
 }
