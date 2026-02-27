@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -11,6 +12,7 @@ const fadeInUp = {
 };
 
 const staggerContainer = {
+  initial: {},
   animate: {
     transition: {
       staggerChildren: 0.1
@@ -19,22 +21,41 @@ const staggerContainer = {
 };
 
 export default function Home() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white font-sans overflow-x-hidden">
       {/* --- Header / Navigation --- */}
       <motion.header 
-        initial={{ y: -20, opacity: 0 }}
+        initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="bg-brand-light px-6 py-4"
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
+          isScrolled 
+            ? "bg-brand-light/95 backdrop-blur-md shadow-lg" 
+            : "bg-brand-light"
+        }`}
       >
         <nav className="max-w-7xl mx-auto flex items-center justify-between">
-          <motion.div 
+          <motion.a 
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             whileHover={{ scale: 1.05 }}
-            className="text-2xl font-bold text-brand-dark cursor-default"
+            className="text-2xl font-bold text-brand-dark cursor-pointer flex items-center gap-2"
           >
             E-TD Cotonou
-          </motion.div>
+          </motion.a>
           
           <div className="hidden md:flex items-center space-x-12 text-black font-semibold">
             {['Fonctionnalités', 'Comment ça marche ?', 'A propos'].map((item) => (
@@ -62,7 +83,7 @@ export default function Home() {
       </motion.header>
 
       {/* --- Main Hero Content --- */}
-      <main className="max-w-7xl mx-auto px-6 pt-20 pb-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <main className="max-w-7xl mx-auto px-6 pt-32 pb-24 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         
         {/* Left Column: Text Content */}
         <motion.div 
@@ -107,7 +128,7 @@ export default function Home() {
             className="absolute right-[-5%] top-[-15px] w-[65%] h-[80%] z-10 animate-float"
           >
             <Image 
-              src="https://ik.imagekit.io/hwjv8hvj0/student-boy.png" 
+              src="https://ik.imagekit.io/hwjv8hvj0/Group%201171277702%20(1).png" 
               alt="Étudiant avec sac à dos"
               fill
               className="object-contain object-right-top"
@@ -141,7 +162,7 @@ export default function Home() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1 }}
-        className="bg-brand-dark py-15 px-6 md:px-20 mt-12"
+        className="bg-brand-dark py-15 px-6 md:px-20"
       >
         <motion.div 
           variants={staggerContainer}
@@ -159,7 +180,11 @@ export default function Home() {
             <motion.div 
               key={i}
               variants={fadeInUp}
-              className="text-center space-y-3 border-dashed-v last:border-none"
+              className={`text-center space-y-3 border-dashed-v ${
+                i === 3 ? "lg:bg-none" : ""
+              } ${
+                i % 2 === 1 ? "max-lg:bg-none" : ""
+              }`}
             >
               <div className="text-5xl font-semibold tracking-tight">{stat.val}</div>
               <div className="text-2xl font-medium opacity-90 tracking-wide">{stat.label}</div>
@@ -174,10 +199,11 @@ export default function Home() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 1 }}
           className="text-center space-y-6"
         >
-          <h2 className="text-6xl font-extrabold text-slate-900 tracking-tight">Une solution pour chaque rôle</h2>
-          <p className="text-2xl text-slate-600 max-w-4xl mx-auto font-medium">Des outils adaptés spécifiquement pour les enseignants, les administrateurs et les comptables</p>
+          <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">Une solution pour chaque <span className="text-brand-dark">rôle</span></h2>
+          <p className="text-xl text-slate-600 max-w-4xl mx-auto font-medium">Des outils adaptés spécifiquement pour les enseignants, les administrateurs et les comptables</p>
         </motion.div>
 
         {/* Teachers */}
@@ -202,7 +228,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="flex-1 shrink-0"
           >
-            <Image src="/teacher_dashboard.png" alt="Teacher Dashboard" width={600} height={400} className="rounded-3xl shadow-2xl border border-slate-100 hover:scale-105 transition-transform duration-500" />
+            <Image src="https://ik.imagekit.io/hwjv8hvj0/Rectangle%2034624521.png" alt="Teacher Dashboard" width={600} height={400} className="rounded-3xl border border-slate-100 hover:scale-105 transition-transform duration-500" />
           </motion.div>
         </div>
 
@@ -228,7 +254,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="flex-1 shrink-0"
           >
-            <Image src="/admin_dashboard.png" alt="Admin Dashboard" width={600} height={400} className="rounded-3xl shadow-2xl border border-slate-100 hover:scale-105 transition-transform duration-500" />
+            <Image src="https://ik.imagekit.io/hwjv8hvj0/Rectangle%20346245.png" alt="Admin Dashboard" width={600} height={400} className="rounded-3xl border border-slate-100 hover:scale-105 transition-transform duration-500" />
           </motion.div>
         </div>
 
@@ -254,64 +280,154 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="flex-1 shrink-0"
           >
-            <Image src="/accountant_dashboard.png" alt="Accountant Dashboard" width={600} height={400} className="rounded-3xl shadow-2xl border border-slate-100 hover:scale-105 transition-transform duration-500" />
+            <Image src="https://ik.imagekit.io/hwjv8hvj0/Rectangle462452.png" alt="Accountant Dashboard" width={600} height={400} className="rounded-3xl border border-slate-100 hover:scale-105 transition-transform duration-500" />
           </motion.div>
         </div>
       </section>
 
       {/* How it works */}
-      <section id="how-it-works" className="py-40 bg-slate-50 px-6 md:px-20">
-        <div className="max-w-7xl mx-auto space-y-24">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center space-y-6"
+      <section id="how-it-works" className="py-24 bg-white px-6 md:px-20 overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        {/* Header content staggered reveal */}
+        <motion.div 
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={staggerContainer}
+          className="text-center mb-20 space-y-4"
+        >
+          <motion.h2 
+            variants={fadeInUp}
+            className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
           >
-            <h2 className="text-6xl font-extrabold text-slate-900 tracking-tight">Comment ça marche ?</h2>
-            <p className="text-2xl text-slate-600 max-w-4xl mx-auto font-medium">Nous avons simplifié chaque étape pour vous permettre de comprendre notre fonctionnement en un clin d&apos;œil.</p>
-          </motion.div>
+            Comment <span className="text-[#004d71]">ça marche ?</span>
+          </motion.h2>
+          <motion.p 
+            variants={fadeInUp}
+            className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium"
+          >
+            Nous avons simplifié chaque étape pour vous permettre de comprendre notre fonctionnement en un clin d'œil.
+          </motion.p>
+        </motion.div>
+        
+        <motion.div 
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start"
+        >
           
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-12"
-          >
-            {[
-              {
-                title: "Création de compte",
-                desc: "Inscrivez-vous et accédez à votre espace adapté en fonction de votre profil",
-                icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>,
-                dark: true
-              },
-              {
-                title: "Configuration",
-                desc: "Configurez vos informations, ajoutez des travaux dirigés et suivez leur statut en temps réel",
-                icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></>
-              },
-              {
-                title: "Gestion & suivi",
-                desc: "Recevez des notifications, suivez les performances et assurez le succès des candidats",
-                icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-              }
-            ].map((step, i) => (
+          {/* Colonne Gauche - Cartes Empilées */}
+          <div className="space-y-8 order-2 lg:order-1">
+            {/* Création de compte */}
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ 
+                y: -10, 
+                boxShadow: "0 20px 40px -15px rgba(0,77,113,0.3)",
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
+              className="bg-[#004d71] text-white p-8 rounded-2xl shadow-xl relative group overflow-hidden"
+            >
+              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                <svg className="w-6 h-6 text-[#004d71]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  <circle cx="18" cy="8" r="3" className="opacity-50" />
+                </svg>
+              </div>
+              <h4 className="text-xl font-bold mb-3">Création de compte</h4>
+              <p className="text-blue-50/90 leading-snug">
+                Inscrivez-vous et accédez à votre espace adaptée en fonction de votre profil
+              </p>
+            </motion.div>
+
+            {/* Configuration */}
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ 
+                y: -10, 
+                boxShadow: "0 20px 40px -15px rgba(150,208,238,0.2)",
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
+              className="bg-white text-slate-900 p-8 rounded-2xl border border-brand-light/50 shadow-sm transition-all duration-300 group"
+            >
+              <div className="w-12 h-12 bg-[#004d71] rounded-lg flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform duration-500">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
+              <h4 className="text-xl font-bold mb-3">Configuration</h4>
+              <p className="text-slate-600 leading-snug">
+                Configurez vos informations, ajoutez des travaux dirigés et suivez leur statut en temps réel
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Colonne Centrale - Image Visuelle */}
+          <div className="order-1 lg:order-2 flex justify-center">
+            <motion.div 
+              variants={{
+                initial: { opacity: 0, scale: 0.8, y: 30 },
+                animate: { 
+                  opacity: 1, 
+                  scale: 1, 
+                  y: 0,
+                  transition: { duration: 1, ease: [0.16, 1, 0.3, 1] }
+                }
+              }}
+              className="relative w-full max-w-[400px] aspect-square lg:aspect-auto lg:h-[500px]"
+            >
+               {/* Floating Animation Wrapper */}
               <motion.div 
-                key={i}
-                variants={fadeInUp}
-                whileHover={{ y: -10, transition: { duration: 0.3 } }}
-                className={`${step.dark ? 'bg-brand-dark text-white' : 'bg-white text-slate-900'} p-12 rounded-[40px] space-y-8 shadow-xl border border-slate-100`}
+                animate={{ 
+                  y: [0, -20, 0],
+                  rotate: [0, 1, 0]
+                }}
+                transition={{ 
+                  duration: 6, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                className="w-full h-full"
               >
-                <div className={`w-16 h-16 ${step.dark ? 'bg-white' : 'bg-brand-dark'} rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:rotate-12`}>
-                  <svg className={`w-8 h-8 ${step.dark ? 'text-brand-dark' : 'text-white'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">{step.icon}</svg>
-                </div>
-                <h4 className="text-2xl font-bold tracking-tight">{step.title}</h4>
-                <p className={`text-xl ${step.dark ? 'opacity-90' : 'text-slate-600'} leading-relaxed font-medium`}>{step.desc}</p>
+                <Image 
+                  src="https://ik.imagekit.io/hwjv8hvj0/Group171277704.png"
+                  alt="Illustration aide"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </motion.div>
-            ))}
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
+
+          {/* Colonne Droite - Gestion & Suivi */}
+          <div className="flex items-start order-3 lg:mt-0">
+            <motion.div 
+              variants={fadeInUp}
+              whileHover={{ 
+                y: -10, 
+                boxShadow: "0 20px 40px -15px rgba(150,208,238,0.2)",
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
+              className="bg-white text-slate-900 p-8 rounded-2xl border border-brand-light/50 shadow-sm w-full group transition-all duration-300"
+            >
+              <div className="w-12 h-12 bg-[#004d71] rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-500">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <h4 className="text-xl font-bold mb-3">Gestion & suivi</h4>
+              <p className="text-slate-600 leading-snug">
+                Recevez des notifications, suivez les performances et assurez le succès des candidats
+              </p>
+            </motion.div>
+          </div>
+
+        </motion.div>
+      </div>
       </section>
 
       {/* Footer */}
