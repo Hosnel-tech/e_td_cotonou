@@ -1,0 +1,85 @@
+"use client";
+
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { 
+  LayoutDashboard, 
+  BookOpenCheck, 
+  CreditCard, 
+  Settings, 
+  LogOut 
+} from 'lucide-react';
+
+const navItems = [
+  { name: 'Tableau de bord', href: '/enseignant/dashboard', icon: LayoutDashboard },
+  { name: 'Gestion des TD', href: '/enseignant/dashboard/td-management', icon: BookOpenCheck },
+  { name: 'Paiements', href: '/enseignant/dashboard/payments', icon: CreditCard },
+  { name: 'Paramètres', href: '/enseignant/dashboard/settings', icon: Settings },
+];
+
+export default function Sidebar() {
+  const pathname = usePathname();
+
+  return (
+    <div className="w-72 h-screen bg-white shadow-xl flex flex-col fixed left-0 top-0 z-50">
+      {/* Logo Section */}
+      <div className="p-8 flex items-center gap-4">
+        <div className="relative w-16 h-16">
+          <Image 
+            src="https://placehold.co/125x125/004B70/FFFFFF/png?text=TD" 
+            alt="TD Hub Logo" 
+            fill
+            className="rounded-lg object-contain"
+          />
+        </div>
+        <span className="text-sky-900 text-2xl font-bold font-montserrat">E-TD Cotonou</span>
+      </div>
+
+      {/* Navigation items */}
+      <nav className="flex-1 px-4 py-8 space-y-4">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link key={item.name} href={item.href}>
+              <motion.div
+                whileHover={{ x: 5 }}
+                className={`flex items-center gap-4 px-6 py-4 rounded-md transition-all relative overflow-hidden group ${
+                  isActive 
+                    ? 'bg-blue-300/10 text-sky-900 border-r-2 border-sky-900' 
+                    : 'text-gray-500 hover:text-black'
+                }`}
+              >
+                <item.icon 
+                  size={20} 
+                  className={isActive ? 'text-sky-900' : 'text-gray-400 group-hover:text-black'} 
+                />
+                <span className={`text-base font-montserrat ${isActive ? 'font-semibold' : 'font-normal'}`}>
+                  {item.name}
+                </span>
+                {isActive && (
+                  <motion.div 
+                    layoutId="active-indicator"
+                    className="absolute right-0 top-0 bottom-0 w-1 bg-sky-900" 
+                  />
+                )}
+              </motion.div>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Logout Action */}
+      <div className="p-8 border-t border-gray-100">
+        <button 
+          className="flex items-center gap-4 text-red-600 hover:text-red-700 transition-all group w-full px-6 py-4"
+          onClick={() => console.log('Logout clicked')}
+        >
+          <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-base font-semibold font-montserrat">Déconnexion</span>
+        </button>
+      </div>
+    </div>
+  );
+}

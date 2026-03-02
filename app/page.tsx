@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
@@ -71,14 +72,16 @@ export default function Home() {
             ))}
           </div>
 
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-brand-dark text-white px-6 py-2.5 rounded-lg flex items-center gap-2 hover:bg-opacity-90 transition font-bold shadow-md"
-          >
-            Se connecter
-            <ArrowRight size={18} />
-          </motion.button>
+          <Link href="/login">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-brand-dark text-white px-6 py-2.5 rounded-lg flex items-center gap-2 hover:bg-opacity-90 transition font-bold shadow-md cursor-pointer"
+            >
+              Se connecter
+              <ArrowRight size={18} />
+            </motion.button>
+          </Link>
         </nav>
       </motion.header>
 
@@ -107,14 +110,16 @@ export default function Home() {
             et recevoir facilement vos paiements depuis votre interface
           </motion.p>
 
-          <motion.button 
-            variants={fadeInUp}
-            whileHover={{ scale: 1.02, y: -4 }}
-            whileTap={{ scale: 0.98 }}
-            className="bg-brand-dark text-white px-12 py-4 rounded-xl text-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300"
-          >
-            Se connecter
-          </motion.button>
+          <Link href="/login">
+            <motion.button 
+              variants={fadeInUp}
+              whileHover={{ scale: 1.02, y: -4 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-brand-dark text-white px-12 py-4 rounded-xl text-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer"
+            >
+              Se connecter
+            </motion.button>
+          </Link>
         </motion.div>
 
         {/* Right Column: Visuals - Senior-level Refined Alignment */}
@@ -194,7 +199,7 @@ export default function Home() {
       </motion.section>
 
       {/* Solutions Section */}
-      <section id="features" className="py-40 px-6 md:px-20 space-y-40">
+      <section id="features" className="py-30 px-6 md:px-20 space-y-40">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -430,41 +435,156 @@ export default function Home() {
       </div>
       </section>
 
-      {/* Footer */}
-      <footer id="about" className="bg-brand-dark text-white pt-40 pb-20 px-6 md:px-20 overflow-hidden relative">
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-20 relative z-10"
-        >
-          <div className="lg:col-span-12 flex flex-col items-center text-center space-y-12">
-            <motion.div 
-              whileHover={{ scale: 1.05 }}
-              className="text-5xl font-extrabold tracking-tight"
-            >
-              E-TD Cotonou
-            </motion.div>
-            <p className="text-2xl opacity-80 leading-relaxed max-w-3xl font-medium">
-              La plateforme tout en un pour gérer les travaux dirigés, suivre leur statut en temps réel et recevez facilement vos paiements depuis votre interface
-            </p>
-            <div className="flex gap-12 items-center">
-               {['Facebook', 'Twitter', 'LinkedIn'].map((social) => (
-                 <motion.a 
-                    key={social} 
-                    href="#" 
-                    whileHover={{ scale: 1.1, color: '#96D0EE' }}
-                    className="text-lg font-bold hover:underline"
-                 >
-                   {social}
-                 </motion.a>
-               ))}
+      {/* --- CTA Section: Prêt à transformer la gestion de vos TD ? --- */}
+      <section className="py-24 bg-[#EAF2F6] px-6 md:px-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto text-center">
+          <motion.div
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="space-y-12"
+          >
+            <div className="space-y-6">
+              <motion.h2 
+                variants={fadeInUp}
+                className="text-4xl md:text-5xl font-bold text-[#004d71] tracking-tight"
+              >
+                Prêt à transformer la gestion de vos TD ?
+              </motion.h2>
+              <motion.p 
+                variants={fadeInUp}
+                className="text-xl md:text-2xl text-[#004d71]/80 max-w-3xl mx-auto leading-relaxed font-medium"
+              >
+                Rejoignez de centaines d’enseignants et d’administrateurs qui font confiance à notre solution
+              </motion.p>
             </div>
+
+            <motion.div 
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row items-center justify-center gap-6"
+            >
+              <motion.button 
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto bg-[#004d71] text-white px-10 py-4 rounded-lg text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Créer un compte gratuit
+              </motion.button>
+              
+              <motion.button 
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto bg-transparent text-[#004d71] border-2 border-[#004d71]/30 px-10 py-4 rounded-lg text-lg font-bold hover:bg-[#004d71]/5 transition-all duration-300"
+              >
+                Contactez l'équipe
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer id="about" className="mt-[100px] bg-brand-dark text-white pt-24 pb-12 px-6 md:px-20 overflow-hidden relative">
+        <div className="max-w-7xl mx-auto">
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16"
+          >
+            {/* Brand & Socials */}
+            <motion.div variants={fadeInUp} className="lg:col-span-4 space-y-8">
+              <div className="text-4xl font-extrabold tracking-tight">
+                E-TD Cotonou
+              </div>
+              <p className="text-lg opacity-80 leading-relaxed max-w-sm font-medium">
+                La plateforme en un pour gérer les travaux dirigés, suivre leur statut en temps réel et recevez facilement vos paiement depuis votre interface
+              </p>
+              <div className="flex gap-6 items-center">
+                {[
+                  { name: 'Facebook', icon: (
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+                  )},
+                  { name: 'Twitter', icon: (
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                  )},
+                  { name: 'LinkedIn', icon: (
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                  )},
+                  { name: 'Instagram', icon: (
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.058-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                  )}
+                ].map((social) => (
+                  <motion.a 
+                    key={social.name} 
+                    href="#" 
+                    whileHover={{ scale: 1.2, color: '#96D0EE', y: -2 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                    className="hover:opacity-100 opacity-80"
+                  >
+                    {social.icon}
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Links Columns */}
+            <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-3 gap-8">
+              {/* Column: Produit */}
+              <motion.div variants={fadeInUp} className="space-y-6">
+                <h4 className="text-xl font-bold">Produit</h4>
+                <ul className="space-y-4 text-lg opacity-80">
+                  {['Fontionnalités', 'Tarification', 'Mise à jour'].map((item) => (
+                    <li key={item}>
+                      <a href="#" className="hover:text-brand-light transition-colors hover:pl-2 duration-300 inline-block">
+                        {item}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+
+              {/* Column: Ressources */}
+              <motion.div variants={fadeInUp} className="space-y-6">
+                <h4 className="text-xl font-bold">Ressources</h4>
+                <ul className="space-y-4 text-lg opacity-80">
+                  {['Guide d\'utilisation', 'FAQ', 'Support'].map((item) => (
+                    <li key={item}>
+                      <a href="#" className="hover:text-brand-light transition-colors hover:pl-2 duration-300 inline-block">
+                        {item}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+
+              {/* Column: Légal */}
+              <motion.div variants={fadeInUp} className="space-y-6">
+                <h4 className="text-xl font-bold">Légal</h4>
+                <ul className="space-y-4 text-lg opacity-80">
+                  {['Confidentialité', 'Condition d\'utilisation'].map((item) => (
+                    <li key={item}>
+                      <a href="#" className="hover:text-brand-light transition-colors hover:pl-2 duration-300 inline-block">
+                        {item}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            </div>
+          </motion.div>
+          
+          <div className="pt-12 border-t border-white/10 text-center">
+            <motion.p 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              className="text-xl font-semibold tracking-wide opacity-90"
+            >
+              @copywritting | Designer par Rapides Services | 2026
+            </motion.p>
           </div>
-        </motion.div>
-        
-        <div className="max-w-7xl mx-auto mt-24 pt-12 border-t border-white/20 text-center">
-          <p className="text-xl font-bold uppercase tracking-widest opacity-60">@copywritting | Designer par Rapides Services | 2026</p>
         </div>
       </footer>
     </div>

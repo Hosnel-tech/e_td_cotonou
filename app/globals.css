@@ -92,3 +92,20 @@ body {
   background-size: 1000px 100%;
   animation: shimmer 2s infinite linear;
 }
+
+/* Scrollbar Personnalisée Premium */
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
