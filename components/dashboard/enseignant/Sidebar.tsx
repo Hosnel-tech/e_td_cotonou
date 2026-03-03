@@ -48,7 +48,7 @@ export default function Sidebar() {
                 className={`flex items-center gap-4 px-6 py-4 rounded-md transition-all relative overflow-hidden group ${
                   isActive 
                     ? 'bg-blue-300/10 text-sky-900 border-r-2 border-sky-900' 
-                    : 'text-gray-500 hover:text-black'
+                    : 'text-gray-900 hover:text-black'
                 }`}
               >
                 <item.icon 

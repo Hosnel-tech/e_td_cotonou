@@ -48,31 +48,36 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <section className="flex flex-wrap gap-8">
           <StatCard 
-            label="Mes TD" 
-            value="0" 
+            label="Travaux Dirigés" 
+            value="23" 
             icon={ClipboardList} 
             variant="green" 
+            trend="12%"
             staggerIndex={0} 
           />
           <StatCard 
             label="Epreuves" 
-            value="0" 
+            value="17" 
             icon={FileText} 
             variant="red" 
+            trend="12%"
+            trendUp={false}
             staggerIndex={1} 
           />
           <StatCard 
-            label="Payés" 
-            value="0" 
+            label="TD payés" 
+            value="13" 
             icon={CheckCircle2} 
             variant="orange" 
+            trend="12%"
             staggerIndex={2} 
           />
           <StatCard 
-            label="Non payés" 
-            value="0" 
+            label="TD non payés" 
+            value="10" 
             icon={XCircle} 
-            variant="black" 
+            variant="sky" 
+            trend="12%"
             staggerIndex={3} 
           />
         </section>
