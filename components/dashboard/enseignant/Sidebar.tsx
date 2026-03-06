@@ -9,7 +9,8 @@ import {
   BookOpenCheck, 
   CreditCard, 
   Settings, 
-  LogOut 
+  LogOut,
+  ChevronRight
 } from 'lucide-react';
 
 const navItems = [
@@ -23,22 +24,23 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="w-72 h-screen bg-white shadow-xl flex flex-col fixed left-0 top-0 z-50">
+    <div className="w-72 h-screen bg-white shadow-[0px_0px_8.33px_0px_rgba(0,0,0,0.10)] flex flex-col fixed left-0 top-0 z-50">
       {/* Logo Section */}
       <div className="p-8 flex items-center gap-4">
         <div className="relative w-16 h-16">
           <Image 
-            src="https://placehold.co/125x125/004B70/FFFFFF/png?text=TD" 
+            src="https://ik.imagekit.io/hwjv8hvj0/logo-mairie-cotonou%20(1)%201.png?updatedAt=1772469936525" 
             alt="TD Hub Logo" 
-            fill
+            width={64}
+            height={64}
             className="rounded-lg object-contain"
           />
         </div>
-        <span className="text-sky-900 text-2xl font-bold font-montserrat">E-TD Cotonou</span>
+        <span className="text-sky-900 text-xl font-semibold font-montserrat">E-TD <br /> Cotonou</span>
       </div>
 
       {/* Navigation items */}
-      <nav className="flex-1 px-4 py-8 space-y-4">
+      <nav className="flex-1 px-4 py-8 space-y-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -47,22 +49,19 @@ export default function Sidebar() {
                 whileHover={{ x: 5 }}
                 className={`flex items-center gap-4 px-6 py-4 rounded-md transition-all relative overflow-hidden group ${
                   isActive 
-                    ? 'bg-blue-300/10 text-sky-900 border-r-2 border-sky-900' 
-                    : 'text-gray-900 hover:text-black'
+                    ? 'bg-[#96D0EE]/50 text-sky-900 border-r-2 border-sky-900' 
+                    : 'text-black hover:bg-gray-50'
                 }`}
               >
                 <item.icon 
                   size={20} 
-                  className={isActive ? 'text-sky-900' : 'text-gray-400 group-hover:text-black'} 
+                  className={isActive ? 'text-sky-900' : 'text-black'} 
                 />
                 <span className={`text-base font-montserrat ${isActive ? 'font-semibold' : 'font-normal'}`}>
                   {item.name}
                 </span>
                 {isActive && (
-                  <motion.div 
-                    layoutId="active-indicator"
-                    className="absolute right-0 top-0 bottom-0 w-1 bg-sky-900" 
-                  />
+                  <ChevronRight size={16} className="ml-auto text-sky-900" />
                 )}
               </motion.div>
             </Link>
@@ -71,7 +70,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Logout Action */}
-      <div className="p-8 border-t border-gray-100">
+      <div className="p-8">
         <button 
           className="flex items-center gap-4 text-red-600 hover:text-red-700 transition-all group w-full px-6 py-4"
           onClick={() => console.log('Logout clicked')}

@@ -4,11 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, 
   GraduationCap, 
-  User, 
-  BookOpen, 
-  Users, 
-  Calendar, 
-  Clock 
+  Download 
 } from 'lucide-react';
 
 interface TDDetailsModalProps {
@@ -39,7 +35,7 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/25 backdrop-blur-[2px]"
           />
 
           {/* Modal Content */}
@@ -47,95 +43,91 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-[874px] bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-[874px] max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
           >
-            {/* Header Area */}
-            <div className="p-10 flex items-start justify-between">
+            {/* Header */}
+            <div className="p-10 flex items-start justify-between shrink-0">
               <div className="flex items-center gap-6">
-                <div className="w-24 h-24 bg-sky-900/10 rounded-2xl flex items-center justify-center">
-                  <GraduationCap className="text-sky-900" size={44} />
+                <div className="w-16 h-16 bg-sky-900/10 rounded-xl flex items-center justify-center shrink-0">
+                  <GraduationCap className="text-sky-900" size={36} />
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-3xl font-semibold font-montserrat text-black">
+                  <h2 className="text-3xl font-semibold font-montserrat text-black leading-tight">
                     Détails du TD : {tdData.name}
                   </h2>
-                  <p className="text-2xl font-normal font-montserrat text-black/60">
+                  <p className="text-xl font-normal font-montserrat text-black/60">
                     Ici vous avez les informations détaillées sur un TD
                   </p>
                 </div>
               </div>
               <button 
                 onClick={onClose}
-                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Fermer"
               >
-                <X size={24} className="text-black" />
+                <X size={32} className="text-black" />
               </button>
             </div>
 
-            {/* Content Divider */}
-            <div className="h-[1px] w-full bg-sky-900/10" />
+            {/* Separator */}
+            <div className="h-px w-full bg-sky-900/10 shrink-0" />
 
-            {/* Body Content */}
-            <div className="p-10 space-y-12">
+            {/* Body - Scrollable Area */}
+            <div className="p-10 pt-6 space-y-10 overflow-y-auto flex-1 custom-scrollbar">
               
-              {/* Teacher & Status Section */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-sky-900/10 rounded-full border-2 border-sky-900/30 flex items-center justify-center">
-                    <User className="text-sky-900" size={36} />
-                  </div>
-                  <div className="space-y-1 text-left">
-                    <p className="text-xl font-semibold font-montserrat text-sky-900/50 uppercase tracking-wider">
-                      ENSEIGNANT
-                    </p>
-                    <p className="text-3xl font-semibold font-montserrat text-black">
-                      {tdData.teacher || 'Vigan Pauline'}
-                    </p>
-                  </div>
+              {/* Informations Section */}
+              <div className="space-y-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-5 bg-sky-900 rounded-sm" />
+                  <h3 className="text-xl font-semibold font-montserrat text-black uppercase tracking-tight">
+                    Informations sur le TD
+                  </h3>
                 </div>
 
-                <div className="space-y-3 text-right">
-                  <p className="text-xl font-semibold font-montserrat text-sky-900/50 uppercase tracking-wider">
-                    ETAT ACTUEL
-                  </p>
-                  <span className={`px-4 py-2 rounded-full text-xl font-semibold font-montserrat inline-block ${
-                    tdData.status === 'en cours' 
-                      ? 'bg-sky-900 text-white' 
-                      : 'bg-green-800 text-white'
+                <div className="border border-stone-300 rounded-[10px] overflow-hidden">
+                  <InfoRow label="Matière :" value={tdData.name} />
+                  <InfoRow label="Classe :" value={tdData.classe} />
+                  <InfoRow label="Heure :" value={tdData.time} />
+                  <InfoRow label="Durée :" value={tdData.duration} />
+                  <InfoRow label="Date :" value={tdData.date} />
+                  <div className="px-8 py-5 flex items-center justify-between">
+                    <span className="text-neutral-400 text-lg font-semibold font-montserrat">Epreuve :</span>
+                    <button className="p-1 hover:bg-stone-50 rounded transition-colors group">
+                      <Download size={24} className="text-green-800 transition-transform group-active:scale-90" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Statut Section */}
+              <div className="space-y-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-5 bg-sky-900 rounded-sm" />
+                  <h3 className="text-xl font-semibold font-montserrat text-black uppercase tracking-tight">
+                    Statut du TD
+                  </h3>
+                </div>
+
+                <div className="border border-stone-300 rounded-[10px] px-8 py-6 flex items-center justify-between">
+                  <span className="text-neutral-400 text-lg font-semibold font-montserrat">Statut :</span>
+                  <span className={`text-lg font-semibold font-montserrat ${
+                    tdData.status === 'en cours' ? 'text-sky-900' : 'text-green-800'
                   }`}>
                     {tdData.status === 'en cours' ? 'En cours' : 'Terminé'}
                   </span>
                 </div>
               </div>
 
-              {/* Info Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  { label: 'MATIERE', value: tdData.name, icon: BookOpen },
-                  { label: 'CLASSE', value: tdData.classe, icon: Users },
-                  { label: 'DATE', value: tdData.date, icon: Calendar },
-                  { label: 'DUREE', value: `${tdData.duration} (${tdData.time})`, icon: Clock },
-                ].map((item, idx) => (
-                  <div key={idx} className="bg-sky-900/5 rounded-lg p-6 space-y-3">
-                    <div className="flex items-center gap-2 text-sky-900/50">
-                      <item.icon size={16} />
-                      <span className="text-sm font-semibold font-montserrat uppercase tracking-wider">
-                        {item.label}
-                      </span>
-                    </div>
-                    <p className="text-2xl font-semibold font-montserrat text-black">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
               {/* Action Footer */}
-              <div className="flex items-center justify-end gap-6 pt-6">
-                <button className="px-8 py-4 bg-white text-black text-xl font-semibold font-montserrat rounded-lg hover:bg-gray-50 transition-colors">
-                  Modifier
-                </button>
-                <button className="px-8 py-4 bg-green-800 text-white text-xl font-semibold font-montserrat rounded-lg shadow-lg shadow-green-900/10 hover:bg-green-900 transition-all active:scale-95">
+              <div className="flex justify-end pt-4">
+                <button 
+                  disabled={tdData.status !== 'en cours'}
+                  className={`px-10 py-5 text-xl font-semibold font-montserrat rounded-lg shadow-lg transition-all active:scale-95 ${
+                    tdData.status === 'en cours'
+                      ? 'bg-green-800 hover:bg-green-900 text-white'
+                      : 'bg-stone-200 text-stone-500 cursor-not-allowed shadow-none'
+                  }`}
+                >
                   Marquer terminer
                 </button>
               </div>
@@ -145,5 +137,17 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
         </div>
       )}
     </AnimatePresence>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <>
+      <div className="px-8 py-5 flex items-center justify-between">
+        <span className="text-neutral-400 text-lg font-semibold font-montserrat">{label}</span>
+        <span className="text-black text-lg font-semibold font-montserrat">{value}</span>
+      </div>
+      <div className="mx-8 h-px bg-stone-300/50 last:hidden" />
+    </>
   );
 }

@@ -55,14 +55,14 @@ export default function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 * staggerIndex, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -4 }}
-      className={`relative flex-1 min-w-[260px] h-44 bg-white rounded-[10px] p-6 border border-stone-300/50 shadow-[0px_0px_8.333333015441895px_0px_rgba(0,0,0,0.10)] flex flex-col justify-between overflow-hidden cursor-pointer`}
+      whileHover={{ y: -4, boxShadow: "0px 10px 20px rgba(0,0,0,0.05)" }}
+      className={`relative flex-1 min-w-[250px] h-44 bg-white rounded-[10px] p-8 border border-stone-300/50 shadow-[0px_0px_8.33px_0px_rgba(0,0,0,0.10)] flex flex-col justify-between overflow-hidden cursor-pointer group transition-all`}
     >
       <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-md flex items-center justify-center ${styles.iconBg}`}>
+        <div className={`w-10 h-10 rounded-md flex items-center justify-center transition-transform group-hover:scale-110 shrink-0 ${styles.iconBg}`}>
           <Icon size={20} className={styles.iconColor} />
         </div>
-        <span className="text-base font-semibold font-inter text-black">{label}</span>
+        <span className="text-base font-semibold font-inter text-black truncate">{label}</span>
       </div>
 
       <div className="space-y-4">
