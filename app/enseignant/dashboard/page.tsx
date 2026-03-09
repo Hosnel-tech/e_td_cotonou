@@ -104,7 +104,7 @@ export default function DashboardPage() {
 
         {/* Main Data Table */}
         <section className="pb-10">
-          <TDTable onOpenDetails={handleOpenDetails} />
+          <TDTable onOpenDetails={handleOpenDetails} limit={4} />
         </section>
 
       </main>

@@ -47,12 +47,12 @@ export default function TDCard({
           <span className="text-black/40 text-[10px] font-semibold font-montserrat tracking-wider uppercase">MATIERE</span>
           <h3 className="text-black text-xl font-semibold font-montserrat truncate max-w-[120px]">{matter}</h3>
         </div>
-        <div className={`px-4 py-1.5 rounded-[30px] flex items-center justify-center min-w-[80px] transition-colors ${
-          isEnCours ? 'bg-sky-900/20 text-sky-900' : 
-          isTermine ? 'bg-green-800/20 text-green-800' :
-          'bg-red-600/20 text-red-600'
+        <div className={`px-3 py-1 rounded-[20px] inline-flex items-center justify-center w-fit transition-colors ${
+          isEnCours ? 'bg-sky-900/10 text-sky-900' : 
+          isTermine ? 'bg-green-800/10 text-green-800' :
+          'bg-red-600/10 text-red-600'
         }`}>
-          <span className="text-[10px] font-bold font-montserrat uppercase">
+          <span className="text-[9px] font-bold font-montserrat uppercase whitespace-nowrap">
             {status}
           </span>
         </div>

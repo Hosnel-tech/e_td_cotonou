@@ -12,20 +12,58 @@ const tdData = [
   { id: 4, subject: 'EST', class: 'CM2', date: '12/11/25', start: '14h', end: '17h', status: 'Terminé' as const, duration: '3h' },
 ];
 
-interface TDTableProps {
-  onOpenDetails?: (data: any) => void;
+export interface TDData {
+  id?: number | string;
+  subject: string;
+  class: string;
+  date: string;
+  start?: string;
+  end?: string;
+  time?: string;
+  status: 'En cours' | 'Terminé' | 'Rejeté' | 'en cours' | 'terminé' | 'rejeté' | 'Payé';
+  duration: string;
 }
 
-export default function TDTable({ onOpenDetails }: TDTableProps) {
-  const [view, setView] = useState<'list' | 'grid'>('list');
+interface TDTableProps {
+  onOpenDetails?: (data: any) => void;
+  data?: TDData[];
+  limit?: number;
+  initialView?: 'list' | 'grid';
+  showActions?: boolean;
+}
 
-  const handleOpenDetails = (td: typeof tdData[0]) => {
+export default function TDTable({ 
+  onOpenDetails, 
+  data, 
+  limit, 
+  initialView = 'list',
+  showActions = true
+}: TDTableProps) {
+  const [view, setView] = useState<'list' | 'grid'>(initialView);
+
+  // Use provided data or fallback to default mock data
+  const baseData = data || tdData.map(d => ({
+    id: d.id,
+    subject: d.subject,
+    class: d.class,
+    date: d.date,
+    start: d.start,
+    end: d.end,
+    time: `${d.start} - ${d.end}`,
+    status: d.status,
+    duration: d.duration
+  })) as TDData[];
+
+  // Apply limit if specified (dashboard mode)
+  const displayData = limit ? baseData.slice(0, limit) : baseData;
+
+  const handleOpenDetails = (td: TDData) => {
     onOpenDetails?.({
       id: td.id,
       name: td.subject,
       classe: td.class,
       date: td.date,
-      time: `${td.start} - ${td.end}`,
+      time: td.time || `${td.start} - ${td.end}`,
       duration: td.duration,
       status: td.status.toLowerCase()
     });
@@ -69,25 +107,26 @@ export default function TDTable({ onOpenDetails }: TDTableProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="overflow-x-auto -mx-8"
+              className="overflow-x-auto -mx-8 px-8"
             >
               <table className="w-full text-left">
-                <thead className="bg-sky-900/5">
+                <thead className="bg-[#F4FAFD]">
                   <tr>
                     <th className="px-8 py-5 text-sky-900 text-xl font-semibold font-montserrat">Matières</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Classe</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Date</th>
-                    <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Départ</th>
-                    <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Fin</th>
+                    <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Heure</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Statut</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Durée</th>
-                    <th className="px-8 py-5 text-sky-900 text-xl font-semibold font-montserrat text-right">Actions</th>
+                    {showActions && (
+                      <th className="px-8 py-5 text-sky-900 text-xl font-semibold font-montserrat text-right">Actions</th>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-300">
-                  {tdData.map((td, index) => (
+                  {displayData.map((td, index) => (
                     <motion.tr 
-                      key={td.id}
+                      key={td.id || index}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.05 * index }}
@@ -96,24 +135,28 @@ export default function TDTable({ onOpenDetails }: TDTableProps) {
                       <td className="px-8 py-6 text-black text-xl font-normal font-montserrat">{td.subject}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.class}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.date}</td>
-                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.start}</td>
-                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.end}</td>
+                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.time || `${td.start} - ${td.end}`}</td>
                       <td className="px-6 py-6">
-                        <span className={`px-3.5 py-1.5 rounded-2xl text-xs font-medium font-montserrat inline-flex items-center justify-center min-w-[80px] text-white ${
-                          td.status === 'En cours' ? 'bg-sky-900' : 'bg-green-800'
+                        <span className={`px-4 py-1.5 rounded-[30px] inline-flex items-center justify-center text-xs font-semibold text-white w-fit whitespace-nowrap ${
+                          td.status.toLowerCase() === 'en cours' ? 'bg-[#004B70]' : 
+                          td.status.toLowerCase() === 'terminé' ? 'bg-[#0F673B]' :
+                          td.status.toLowerCase() === 'payé' ? 'bg-[#EE2E33]' :
+                          'bg-[#EE2E33]'
                         }`}>
                           {td.status}
                         </span>
                       </td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.duration}</td>
-                      <td className="px-8 py-6 text-right">
-                        <button 
-                          onClick={() => handleOpenDetails(td)}
-                          className="px-3.5 py-2 bg-green-800 text-white rounded-[5px] text-xs font-medium font-montserrat hover:bg-green-700 transition-colors"
-                        >
-                          En savoir plus
-                        </button>
-                      </td>
+                      {showActions && (
+                        <td className="px-8 py-6 text-right">
+                          <button 
+                            onClick={() => handleOpenDetails(td)}
+                            className="px-6 py-2 bg-[#0F673B] text-white rounded-lg text-sm font-semibold font-montserrat hover:bg-green-700 transition-colors shadow-sm"
+                          >
+                            En savoir plus
+                          </button>
+                        </td>
+                      )}
                     </motion.tr>
                   ))}
                 </tbody>
@@ -127,12 +170,12 @@ export default function TDTable({ onOpenDetails }: TDTableProps) {
               exit={{ opacity: 0, scale: 1.02 }}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             >
-              {tdData.map((td) => (
+              {displayData.map((td, index) => (
                 <TDCard 
-                  key={td.id}
+                  key={td.id || index}
                   matter={td.subject}
                   classe={td.class}
-                  heure={`${td.start} - ${td.end}`}
+                  heure={td.time || `${td.start} - ${td.end}`}
                   date={td.date}
                   duree={td.duration}
                   status={td.status.toLowerCase() as 'en cours' | 'terminé'}
@@ -144,13 +187,18 @@ export default function TDTable({ onOpenDetails }: TDTableProps) {
         </AnimatePresence>
       </div>
 
-      {/* Footer CTA */}
-      <div className="p-10 flex justify-center bg-white border-t border-stone-100">
-        <button className="w-full max-w-2xl px-3.5 py-4 bg-sky-900 text-white rounded-[10px] text-xl font-medium font-inter flex items-center justify-center gap-2.5 hover:bg-sky-800 transition-all active:scale-[0.99] shadow-lg shadow-sky-900/10">
-          Accédez à tous les travaux dirigés
-          <ArrowRight size={36} className="rotate-0" />
-        </button>
-      </div>
+      {/* Footer CTA - Only show if limited (dashboard mode) */}
+      {limit && (
+        <div className="p-10 flex justify-center bg-white border-t border-stone-100">
+          <button 
+            onClick={() => window.location.href = '/enseignant/dashboard/td-management'}
+            className="w-full max-w-xl px-3 py-4 bg-sky-900 text-white rounded-[10px] text-xl font-medium font-inter flex items-center justify-center gap-2.5 hover:bg-sky-800 transition-all active:scale-[0.99] shadow-lg shadow-sky-900/10"
+          >
+            Accédez à tous les travaux dirigés
+            <ArrowRight size={36} className="rotate-0" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
