@@ -15,6 +15,7 @@ interface TDCardProps {
   date: string;
   duree: string;
   status: 'en cours' | 'terminé' | 'rejeté';
+  type?: 'Primaire' | 'Collège';
   onOpenDetails?: (data: any) => void;
 }
 
@@ -25,13 +26,14 @@ export default function TDCard({
   date,
   duree,
   status,
+  type,
   onOpenDetails
 }: TDCardProps) {
   const isEnCours = status === 'en cours';
   const isTermine = status === 'terminé';
 
   const handleDetailsClick = () => {
-    const data = { name: matter, classe, time: heure, date, duration: duree, status };
+    const data = { name: matter, classe, time: heure, date, duration: duree, status, type };
     if (onOpenDetails) {
       onOpenDetails(data);
     }
@@ -56,6 +58,13 @@ export default function TDCard({
             {status}
           </span>
         </div>
+        {type && (
+          <div className="mt-2 px-2 py-0.5 rounded-md bg-stone-100 border border-stone-200 w-fit">
+            <span className="text-[8px] font-bold text-stone-500 font-montserrat uppercase">
+              {type}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">

@@ -18,6 +18,7 @@ interface TDDetailsModalProps {
     time: string;
     duration: string;
     status: string;
+    type?: string;
     teacher?: string;
   } | null;
 }
@@ -87,6 +88,7 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
                 <div className="border border-stone-300 rounded-[10px] overflow-hidden">
                   <InfoRow label="Matière :" value={tdData.name} />
                   <InfoRow label="Classe :" value={tdData.classe} />
+                  <InfoRow label="Type :" value={tdData.type || ''} />
                   <InfoRow label="Heure :" value={tdData.time} />
                   <InfoRow label="Durée :" value={tdData.duration} />
                   <InfoRow label="Date :" value={tdData.date} />

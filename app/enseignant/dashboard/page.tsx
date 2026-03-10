@@ -98,7 +98,7 @@ export default function DashboardPage() {
             <ProchainsTD />
           </div>
           <div className="xl:col-span-5">
-            <Notifications />
+            <Notifications onOpenDetails={handleOpenDetails} />
           </div>
         </section>
 

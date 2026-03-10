@@ -10,7 +10,8 @@ import {
   Users, 
   Wallet, 
   Settings, 
-  LogOut 
+  LogOut,
+  ChevronRight
 } from 'lucide-react';
 
 const navItems = [
@@ -25,18 +26,19 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="w-72 h-screen bg-white shadow-xl flex flex-col fixed left-0 top-0 z-50 font-montserrat">
+    <div className="w-72 h-screen bg-white shadow-[0px_0px_8.33px_0px_rgba(0,0,0,0.10)] flex flex-col fixed left-0 top-0 z-50">
       {/* Logo Section */}
       <div className="p-8 flex items-center gap-4">
         <div className="relative w-16 h-16">
           <Image 
-            src="https://placehold.co/125x125/004B70/FFFFFF/png?text=TD" 
-            alt="TD Hub Logo" 
-            fill
+            src="https://ik.imagekit.io/hwjv8hvj0/logo-mairie-cotonou%20(1)%201.png?updatedAt=1772469936525" 
+            alt="E-TD Cotonou Logo" 
+            width={64}
+            height={64}
             className="rounded-lg object-contain"
           />
         </div>
-        <span className="text-sky-900 text-2xl font-bold">TD Hub</span>
+        <span className="text-sky-900 text-xl font-semibold font-montserrat">E-TD <br /> Cotonou</span>
       </div>
 
       {/* Navigation items */}
@@ -49,22 +51,19 @@ export default function AdminSidebar() {
                 whileHover={{ x: 5 }}
                 className={`flex items-center gap-4 px-6 py-4 rounded-md transition-all relative overflow-hidden group ${
                   isActive 
-                    ? 'bg-blue-300/10 text-sky-900 border-r-[1.67px] border-sky-900' 
-                    : 'text-gray-900 hover:text-black hover:bg-gray-50'
+                    ? 'bg-[#96D0EE]/50 text-sky-900 border-r-2 border-sky-900' 
+                    : 'text-black hover:bg-gray-50'
                 }`}
               >
                 <item.icon 
                   size={20} 
-                  className={isActive ? 'text-sky-900' : 'text-gray-400 group-hover:text-black'} 
+                  className={isActive ? 'text-sky-900' : 'text-black'} 
                 />
-                <span className={`text-base ${isActive ? 'font-semibold' : 'font-normal'}`}>
+                <span className={`text-base font-montserrat ${isActive ? 'font-semibold' : 'font-normal'}`}>
                   {item.name}
                 </span>
                 {isActive && (
-                  <motion.div 
-                    layoutId="admin-active-indicator"
-                    className="absolute right-0 top-0 bottom-0 w-[1.67px] bg-sky-900" 
-                  />
+                  <ChevronRight size={16} className="ml-auto text-sky-900" />
                 )}
               </motion.div>
             </Link>
@@ -73,13 +72,13 @@ export default function AdminSidebar() {
       </nav>
 
       {/* Logout Action */}
-      <div className="p-8 border-t border-gray-100">
+      <div className="p-8">
         <button 
           className="flex items-center gap-4 text-red-600 hover:text-red-700 transition-all group w-full px-6 py-4"
           onClick={() => console.log('Logout clicked')}
         >
           <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="text-base font-semibold">Déconnexion</span>
+          <span className="text-base font-semibold font-montserrat">Déconnexion</span>
         </button>
       </div>
     </div>

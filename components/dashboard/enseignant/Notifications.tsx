@@ -4,12 +4,37 @@ import { motion } from 'framer-motion';
 import { Bell, Check, X } from 'lucide-react';
 
 const notificationData = [
-  { id: 1, title: 'TD approuvé', desc: 'Marqué terminé pour être payé', time: 'Il y a 2 min', type: 'success' },
-  { id: 2, title: 'TD rejeté', desc: 'Votre TD a été rejeté', time: 'Il y a 2 min', type: 'error' },
-  { id: 3, title: 'TD approuvé', desc: 'Marqué terminé pour être payé', time: 'Il y a 2 min', type: 'success' },
+  { 
+    id: 1, 
+    title: 'TD approuvé', 
+    desc: 'Marqué terminé pour être payé', 
+    time: 'Il y a 2 min', 
+    type: 'success',
+    tdData: { id: 1, name: 'Anglais', classe: '3ème', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'terminé', type: 'Secondaire' }
+  },
+  { 
+    id: 2, 
+    title: 'TD rejeté', 
+    desc: 'Votre TD a été rejeté', 
+    time: 'Il y a 2 min', 
+    type: 'error',
+    tdData: { id: 2, name: 'Français', classe: 'Tle', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'rejeté', type: 'Secondaire' }
+  },
+  { 
+    id: 3, 
+    title: 'TD approuvé', 
+    desc: 'Marqué terminé pour être payé', 
+    time: 'Il y a 2 min', 
+    type: 'success',
+    tdData: { id: 3, name: 'SVT', classe: '3ème', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'terminé', type: 'Secondaire' }
+  },
 ];
 
-export default function Notifications() {
+interface NotificationsProps {
+  onOpenDetails?: (data: any) => void;
+}
+
+export default function Notifications({ onOpenDetails }: NotificationsProps) {
   return (
     <div className="bg-white rounded-lg p-6 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] w-full h-80 flex flex-col">
       {/* Header */}
@@ -58,7 +83,10 @@ export default function Notifications() {
             </div>
 
             {/* Absolute "Voir plus" (Bottom Right) */}
-            <button className="absolute bottom-4 right-4 group/btn">
+            <button 
+              onClick={() => onOpenDetails?.(notif.tdData)}
+              className="absolute bottom-4 right-4 group/btn"
+            >
               <span className="text-sky-900 text-[10px] font-semibold font-montserrat group-hover/btn:underline transition-all">
                 Voir plus
               </span>

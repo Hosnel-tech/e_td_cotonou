@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutList, LayoutGrid, ArrowRight } from 'lucide-react';
 import TDCard from './TDCard';
+import { getTDType } from './tdUtils';
 
 const tdData = [
   { id: 1, subject: 'Anglais', class: '3ème', date: '12/11/25', start: '14h', end: '17h', status: 'En cours' as const, duration: '3h' },
@@ -22,6 +23,7 @@ export interface TDData {
   time?: string;
   status: 'En cours' | 'Terminé' | 'Rejeté' | 'en cours' | 'terminé' | 'rejeté' | 'Payé';
   duration: string;
+  type?: 'Primaire' | 'Collège';
 }
 
 interface TDTableProps {
@@ -114,6 +116,7 @@ export default function TDTable({
                   <tr>
                     <th className="px-8 py-5 text-sky-900 text-xl font-semibold font-montserrat">Matières</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Classe</th>
+                    <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Type</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Date</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Heure</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Statut</th>
@@ -134,6 +137,7 @@ export default function TDTable({
                     >
                       <td className="px-8 py-6 text-black text-xl font-normal font-montserrat">{td.subject}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.class}</td>
+                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.type || getTDType(td.class)}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.date}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.time || `${td.start} - ${td.end}`}</td>
                       <td className="px-6 py-6">
@@ -178,8 +182,9 @@ export default function TDTable({
                   heure={td.time || `${td.start} - ${td.end}`}
                   date={td.date}
                   duree={td.duration}
+                  type={td.type || getTDType(td.class)}
                   status={td.status.toLowerCase() as 'en cours' | 'terminé'}
-                  onOpenDetails={(data) => onOpenDetails?.({ ...data, id: td.id })}
+                  onOpenDetails={(data) => onOpenDetails?.({ ...data, id: td.id, type: td.type || getTDType(td.class) })}
                 />
               ))}
             </motion.div>
