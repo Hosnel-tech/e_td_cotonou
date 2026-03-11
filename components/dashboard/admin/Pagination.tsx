@@ -10,8 +10,8 @@ interface PaginationProps {
 export default function Pagination({ currentPage, totalPages }: PaginationProps) {
   return (
     <div className="flex items-center gap-4">
-      <button className="w-8 h-8 flex items-center justify-center text-black hover:bg-gray-100 rounded-full transition-colors disabled:opacity-30">
-        <ChevronLeft size={24} />
+      <button className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black transition-colors disabled:opacity-30">
+        <ChevronLeft size={28} />
       </button>
       
       <div className="flex items-center gap-2">
@@ -21,9 +21,9 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
           return (
             <button
               key={pageNum}
-              className={`w-12 h-12 flex items-center justify-center rounded-md text-2xl font-semibold transition-all shadow-sm ${
+              className={`w-12 h-12 flex items-center justify-center rounded-md text-2xl font-semibold font-montserrat transition-all ${
                 isActive 
-                  ? 'bg-green-800 text-white' 
+                  ? 'bg-green-800 text-white shadow-md transition-transform hover:scale-105' 
                   : 'bg-white text-green-800 border border-green-800 hover:bg-green-50'
               }`}
             >
@@ -33,8 +33,8 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
         })}
       </div>
 
-      <button className="w-8 h-8 flex items-center justify-center text-black hover:bg-gray-100 rounded-full transition-colors disabled:opacity-30">
-        <ChevronRight size={24} />
+      <button className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black transition-colors disabled:opacity-30">
+        <ChevronRight size={28} />
       </button>
     </div>
   );

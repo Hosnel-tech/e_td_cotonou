@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList, Clock, CheckCircle2, Wallet,
   Search, ChevronDown, ChevronLeft, ChevronRight,
-  List, LayoutGrid, Check, X, Eye,
+  List, LayoutGrid, Check, X, Eye, Trash2
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
@@ -12,17 +12,18 @@ import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdminTDCard, { AdminTDCardProps } from '@/components/dashboard/admin/AdminTDCard';
 import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
 import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
+import { useSelection } from '@/hooks/useSelection';
 
 // ── Mock data ────────────────────────────────────────────────────────────────
-const ALL_TDS: Omit<AdminTDCardProps, 'staggerIndex' | 'onOpenDetails'>[] = [
-  { teacher: 'VIGAN Pauline', subject: 'Anglais',  status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { teacher: 'VIGAN Pauline', subject: 'Français', status: 'terminé',   classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { teacher: 'VIGAN Pauline', subject: 'SVT',      status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { teacher: 'VIGAN Pauline', subject: 'EST',      status: 'terminé',   classe: 'CM2',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { teacher: 'VIGAN Pauline', subject: 'Français', status: 'en attente', classe: 'Tle',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { teacher: 'VIGAN Pauline', subject: 'EST',      status: 'terminé',   classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { teacher: 'VIGAN Pauline', subject: 'Anglais',  status: 'en cours',  classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { teacher: 'VIGAN Pauline', subject: 'SVT',      status: 'en attente', classe: 'CM2',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
+const ALL_TDS: (Omit<AdminTDCardProps, 'staggerIndex' | 'onOpenDetails'> & { id: string })[] = [
+  { id: '1', teacher: 'VIGAN Pauline', subject: 'Anglais',  status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
+  { id: '2', teacher: 'VIGAN Pauline', subject: 'Français', status: 'terminé',   classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
+  { id: '3', teacher: 'VIGAN Pauline', subject: 'SVT',      status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
+  { id: '4', teacher: 'VIGAN Pauline', subject: 'EST',      status: 'terminé',   classe: 'CM2',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
+  { id: '5', teacher: 'VIGAN Pauline', subject: 'Français', status: 'en attente', classe: 'Tle',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
+  { id: '6', teacher: 'VIGAN Pauline', subject: 'EST',      status: 'terminé',   classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
+  { id: '7', teacher: 'VIGAN Pauline', subject: 'Anglais',  status: 'en cours',  classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
+  { id: '8', teacher: 'VIGAN Pauline', subject: 'SVT',      status: 'en attente', classe: 'CM2',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
 ];
 
 const STATUS_FILTERS = ['Tous', 'En attente', 'En cours', 'Terminé', 'Rejeté'] as const;
@@ -35,35 +36,37 @@ function Paginator({
   current, total, onChange,
 }: { current: number; total: number; onChange: (p: number) => void }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-4">
       <button
         onClick={() => onChange(Math.max(1, current - 1))}
         disabled={current === 1}
-        className="w-8 h-8 flex items-center justify-center rounded-md border border-stone-300 disabled:opacity-30 hover:bg-stone-50 transition-colors"
+        className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black disabled:opacity-30 transition-colors"
       >
-        <ChevronLeft size={18} />
+        <ChevronLeft size={28} />
       </button>
 
-      {Array.from({ length: total }, (_, i) => i + 1).map((p) => (
-        <button
-          key={p}
-          onClick={() => onChange(p)}
-          className={`w-12 h-12 rounded-md text-2xl font-semibold font-montserrat transition-all border ${
-            p === current
-              ? 'bg-green-800 text-white border-green-800 shadow-md'
-              : 'bg-white text-green-800 border-green-800 hover:bg-green-50'
-          }`}
-        >
-          {p}
-        </button>
-      ))}
+      <div className="flex items-center gap-2">
+        {Array.from({ length: total }, (_, i) => i + 1).map((p) => (
+          <button
+            key={p}
+            onClick={() => onChange(p)}
+            className={`w-12 h-12 rounded-md text-2xl font-semibold font-montserrat transition-all ${
+              p === current
+                ? 'bg-green-800 text-white shadow-md transition-transform hover:scale-105'
+                : 'bg-white text-green-800 border border-green-800 hover:bg-green-50'
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
 
       <button
         onClick={() => onChange(Math.min(total, current + 1))}
         disabled={current === total}
-        className="w-8 h-8 flex items-center justify-center rounded-md border border-stone-300 disabled:opacity-30 hover:bg-stone-50 transition-colors"
+        className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black disabled:opacity-30 transition-colors"
       >
-        <ChevronRight size={18} />
+        <ChevronRight size={28} />
       </button>
     </div>
   );
@@ -110,6 +113,8 @@ export default function AdminTDManagementPage() {
       activeFilter === 'Tous' || td.status === statusMap[activeFilter];
     return matchesSearch && matchesStatus;
   });
+
+  const { isSelected, toggleSelectOne, isAllSelected, toggleSelectAll, hasSelection, selectionCount } = useSelection(filtered);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated  = filtered.slice(
@@ -214,6 +219,23 @@ export default function AdminTDManagementPage() {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Bulk Delete Button */}
+            <AnimatePresence>
+              {hasSelection && (
+                <motion.button
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="flex items-center gap-2 h-14 bg-red-600 text-white px-6 rounded-lg shadow-lg hover:bg-red-700 transition-all font-montserrat active:scale-95 shrink-0"
+                >
+                  <Trash2 size={20} />
+                  <span className="text-lg font-semibold whitespace-nowrap">
+                    Supprimer ({selectionCount})
+                  </span>
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
@@ -279,57 +301,108 @@ export default function AdminTDManagementPage() {
               </motion.div>
             ) : (
               <motion.div
-                key="list"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.22 }}
-                className="space-y-4"
-              >
-                {paginated.map((td, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="flex items-center justify-between h-16 px-6 bg-white border border-stone-200 rounded-lg hover:bg-slate-50/50 transition-colors"
-                  >
-                    <span className="text-xl font-medium font-montserrat w-40 truncate">{td.subject}</span>
-                    <span className="text-black/60 text-xl font-normal font-montserrat w-40 truncate">{td.teacher}</span>
-                    <span className="text-black/60 text-xl font-normal font-montserrat w-24">{td.classe}</span>
-                    <span className="text-black/60 text-xl font-normal font-montserrat w-24">{td.date}</span>
-                    <span className={`px-4 py-1.5 rounded-2xl text-xs font-semibold font-montserrat min-w-[100px] text-center ${
-                      td.status === 'en cours'   ? 'bg-sky-900 text-white' :
-                      td.status === 'terminé'    ? 'bg-green-800 text-white' :
-                      td.status === 'en attente' ? 'bg-amber-400 text-white' :
-                      'bg-red-600 text-white'
-                    }`}>
-                      {td.status === 'en cours' ? 'En cours' :
-                       td.status === 'terminé' ? 'Terminé' :
-                       td.status === 'en attente' ? 'En attente' :
-                       td.status.charAt(0).toUpperCase() + td.status.slice(1)}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        disabled={td.status !== 'en attente'}
-                        className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all ${
-                          td.status === 'en attente' ? 'bg-green-800 text-white hover:bg-green-900' : 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                        }`}
-                      >✓</button>
-                      <button
-                        disabled={td.status !== 'en attente'}
-                        className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all ${
-                          td.status === 'en attente' ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-stone-200 text-stone-400 cursor-not-allowed'
-                        }`}
-                      >✕</button>
-                      <button
-                        onClick={() => handleOpenDetails(td)}
-                        className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 transition-all"
-                      >👁</button>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+              key="list"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.22 }}
+              className="overflow-x-auto"
+            >
+              <table className="w-full text-left min-w-[1100px]">
+                <thead className="bg-sky-900/5 h-20">
+                  <tr>
+                    <th className="pl-8 w-20">
+                      <div 
+                        onClick={toggleSelectAll}
+                        className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white cursor-pointer flex items-center justify-center transition-all active:scale-95"
+                      >
+                        {isAllSelected && <div className="w-4 h-4 bg-sky-900 rounded-[2px]" />}
+                      </div>
+                    </th>
+                    <th className="text-sky-900 text-xl font-semibold px-4">Enseignants</th>
+                    <th className="text-sky-900 text-xl font-semibold px-4">Matières</th>
+                    <th className="text-sky-900 text-xl font-semibold px-4">Classe</th>
+                    <th className="text-sky-900 text-xl font-semibold px-4">Type</th>
+                    <th className="text-sky-900 text-xl font-semibold px-4">Date</th>
+                    <th className="text-sky-900 text-xl font-semibold px-4">Statut</th>
+                    <th className="text-sky-900 text-xl font-semibold px-4">Durée</th>
+                    <th className="text-sky-900 text-xl font-semibold px-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-300">
+                  {paginated.map((td, idx) => {
+                    const isPending = td.status === 'en attente';
+                    return (
+                      <motion.tr
+                        key={idx}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="h-20 hover:bg-gray-50/50 transition-colors group"
+                      >
+                        <td className="pl-8">
+                          <div 
+                            onClick={() => toggleSelectOne(td.id)}
+                            className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white group-hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center active:scale-95"
+                          >
+                            {isSelected(td.id) && <div className="w-4 h-4 bg-sky-900 rounded-[2px]" />}
+                          </div>
+                        </td>
+                        <td className="text-black text-xl font-normal px-4">{td.teacher}</td>
+                        <td className="text-black text-xl font-medium px-4">{td.subject}</td>
+                        <td className="text-black text-xl font-normal px-4">{td.classe}</td>
+                        <td className="text-black text-xl font-normal px-4">{getTDType(td.classe)}</td>
+                        <td className="text-black text-xl font-normal px-4">{td.date}</td>
+                        <td className="px-4">
+                          <span className={`px-5 py-2 rounded-2xl text-xs font-semibold inline-block min-w-[100px] text-center ${
+                            td.status === 'en cours'   ? 'bg-sky-900 text-white shadow-sm' :
+                            td.status === 'terminé'    ? 'bg-green-800 text-white shadow-sm' :
+                            td.status === 'en attente' ? 'bg-amber-400 text-white shadow-sm' :
+                            'bg-red-600 text-white shadow-sm'
+                          }`}>
+                            {td.status === 'en cours'   ? 'En cours'   :
+                             td.status === 'terminé'    ? 'Terminé'    :
+                             td.status === 'en attente' ? 'En attente' :
+                             td.status.charAt(0).toUpperCase() + td.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="text-black text-xl font-normal px-4">{td.duration}</td>
+                        <td className="px-4 text-center">
+                          <div className="flex items-center justify-center gap-3">
+                            <button
+                              disabled={!isPending}
+                              className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md ${
+                                isPending
+                                  ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-105'
+                                  : 'bg-green-800/25 text-white/50 cursor-not-allowed'
+                              }`}
+                            >
+                              <Check size={20} strokeWidth={3} />
+                            </button>
+                            <button
+                              disabled={!isPending}
+                              className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md ${
+                                isPending
+                                  ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-105'
+                                  : 'bg-red-600/25 text-white/50 cursor-not-allowed'
+                              }`}
+                            >
+                              <X size={20} strokeWidth={3} />
+                            </button>
+                            <button
+                              onClick={() => handleOpenDetails(td)}
+                              className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 hover:scale-105 transition-all shadow-md"
+                            >
+                              <Eye size={20} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </motion.div>
             )}
           </AnimatePresence>
 

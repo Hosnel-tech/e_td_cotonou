@@ -51,7 +51,7 @@ export default function AdminSidebar() {
                 whileHover={{ x: 5 }}
                 className={`flex items-center gap-4 px-6 py-4 rounded-md transition-all relative overflow-hidden group ${
                   isActive 
-                    ? 'bg-[#96D0EE]/50 text-sky-900 border-r-2 border-sky-900' 
+                    ? 'bg-blue-300/25 text-sky-900 border-r-[1.67px] border-sky-900' 
                     : 'text-black hover:bg-gray-50'
                 }`}
               >

@@ -135,7 +135,7 @@ export default function AdminTDTable() {
                               className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md ${
                                 isPending
                                   ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-105'
-                                  : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                                  : 'bg-green-800/25 text-white/50 cursor-not-allowed'
                               }`}
                             >
                               <Check size={20} strokeWidth={3} />
@@ -145,7 +145,7 @@ export default function AdminTDTable() {
                               className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md ${
                                 isPending
                                   ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-105'
-                                  : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                                  : 'bg-red-600/25 text-white/50 cursor-not-allowed'
                               }`}
                             >
                               <X size={20} strokeWidth={3} />

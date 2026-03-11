@@ -89,7 +89,7 @@ export default function AdminTDCard({
           className={`flex-1 h-10 rounded-md flex items-center justify-center transition-all shadow-md ${
             isActive
               ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-105'
-              : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+              : 'bg-green-800/25 text-white/50 cursor-not-allowed'
           }`}
         >
           <Check size={20} strokeWidth={3} />
@@ -99,7 +99,7 @@ export default function AdminTDCard({
           className={`flex-1 h-10 rounded-md flex items-center justify-center transition-all shadow-md ${
             isActive
               ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-105'
-              : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+              : 'bg-red-600/25 text-white/50 cursor-not-allowed'
           }`}
         >
           <X size={20} strokeWidth={3} />
