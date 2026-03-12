@@ -5,13 +5,15 @@ import { ClipboardList } from 'lucide-react';
 
 const upcomingData = [
   { id: 1, subject: 'Anglais', class: 'Tle', time: '12/01/26 à 14h', relative: 'Il y a 2 min', status: 'Marqué terminé' },
-  { id: 2, subject: 'EST', class: 'CM2', time: '12/01/26 à 14h', relative: 'Il y a 2 min', status: 'Marqué terminé' },
-  { id: 3, subject: 'PCT', class: '3ème', time: '12/01/26 à 14h', relative: 'Il y a 2 min', status: 'Marqué terminé' },
+  { id: 2, subject: 'EST', class: 'CM2', time: '12/01/26 à 14h', relative: 'Il y a 5 min', status: 'Marqué terminé' },
+  { id: 3, subject: 'PCT', class: '3ème', time: '12/01/26 à 15h', relative: 'Il y a 12 min', status: 'Marqué terminé' },
+  { id: 4, subject: 'Mathématiques', class: '2nde', time: '13/01/26 à 08h', relative: 'Il y a 1h', status: 'Programmé' },
+  { id: 5, subject: 'SVT', class: '1ère', time: '13/01/26 à 10h', relative: 'Il y a 2h', status: 'Programmé' },
 ];
 
 export default function ProchainsTD() {
   return (
-    <div className="bg-white rounded-lg p-6 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] w-full h-80 flex flex-col">
+    <div className="bg-white rounded-lg p-6 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] w-full h-[420px] flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-6">
         <div className="w-7 h-7 flex items-center justify-center text-sky-900">

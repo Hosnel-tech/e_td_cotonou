@@ -1,15 +1,48 @@
 "use client";
 
 import { motion } from 'framer-motion';
+import { Check, Eye } from 'lucide-react';
+import { useState } from 'react';
+import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
 
-const transfers = [
-  { id: 1, bank: 'BOA', amount: '1.500.000 F FCFA' },
-  { id: 2, bank: 'ECOBANK', amount: '1.500.000 F FCFA' },
-  { id: 3, bank: 'BIIC', amount: '1.500.000 F FCFA' },
-  { id: 4, bank: 'UBA', amount: '1.500.000 F FCFA' },
+export const TRANSFERS_DATA = [
+  { id: '1', bank: 'BOA', amount: '1.500.000 F FCFA' },
+  { id: '2', bank: 'ECOBANK', amount: '1.500.000 F FCFA' },
+  { id: '3', bank: 'BIIC', amount: '1.500.000 F FCFA' },
+  { id: '4', bank: 'UBA', amount: '1.500.000 F FCFA' },
 ];
 
-export default function TransfersTable() {
+interface TransfersTableProps {
+  isSelected: (id: string) => boolean;
+  toggleSelectOne: (id: string, isShift?: boolean) => void;
+  isAllSelected: boolean;
+  isIndeterminate: boolean;
+  toggleSelectAll: () => void;
+}
+
+export default function TransfersTable({
+  isSelected,
+  toggleSelectOne,
+  isAllSelected,
+  isIndeterminate,
+  toggleSelectAll
+}: TransfersTableProps) {
+  const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenDetails = (transfer: any) => {
+    setSelectedTD({
+      subject: 'Virement Bancaire',
+      teacher: transfer.bank,
+      classe: 'Tresorerie',
+      date: '12/11/25', // Mock
+      duration: 'N/A',
+      time: '08:00 - 11:00',
+      status: 'terminé',
+    });
+    setIsModalOpen(true);
+  };
+
   return (
     <motion.section 
       initial={{ opacity: 0, y: 20 }}
@@ -18,54 +51,81 @@ export default function TransfersTable() {
       className="bg-white rounded-lg shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)]"
     >
       <div className="p-8">
-        <div className="flex items-center gap-4 mb-8">
-          <h2 className="text-black text-2xl font-semibold font-montserrat">Virements</h2>
-          <span className="px-3 py-1 bg-sky-900/10 rounded-2xl text-sky-900 text-xl font-semibold font-montserrat">
-            14 trouvés
-          </span>
+        <div className="flex items-center gap-4 mb-10">
+          <h2 className="text-black text-2xl font-bold font-montserrat tracking-tight">Virements</h2>
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-sky-900/5 h-16">
-                <th className="px-6 py-4 text-left first:rounded-l-lg w-16">
-                  <div className="w-7 h-7 bg-white rounded-[5px] border-[0.83px] border-sky-900 flex items-center justify-center cursor-pointer">
-                    <input type="checkbox" className="sr-only" />
+          <table className="w-full text-left">
+            <thead className="bg-sky-900/5 h-20">
+              <tr>
+                <th className="pl-8 w-20">
+                  <div 
+                    onClick={toggleSelectAll}
+                    className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'}`}
+                  >
+                    {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                    {!isAllSelected && isIndeterminate && <div className="w-3 h-0.5 bg-white rounded-full" />}
                   </div>
                 </th>
-                <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat text-left">Banque</th>
-                <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat text-left">Montant total</th>
-                <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat text-right last:rounded-r-lg">Actions</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Banque</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Montant total</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-right last:rounded-r-lg">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-300">
-              {transfers.map((transfer, idx) => (
-                <motion.tr 
-                  key={transfer.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + (idx * 0.1) }}
-                  className="group hover:bg-slate-50 transition-colors h-16"
-                >
-                  <td className="px-6 py-4">
-                    <div className="w-7 h-7 bg-white rounded-[5px] border-[0.83px] border-sky-900 flex items-center justify-center cursor-pointer">
-                      <input type="checkbox" className="sr-only" />
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-black text-xl font-normal font-montserrat whitespace-nowrap">{transfer.bank}</td>
-                  <td className="px-6 py-4 text-black text-xl font-semibold font-montserrat">{transfer.amount}</td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="px-4 py-2 bg-green-800 rounded-md text-white text-sm font-medium font-montserrat hover:bg-green-900 transition-colors shadow-sm">
-                      Exporter (.CSV)
-                    </button>
-                  </td>
-                </motion.tr>
-              ))}
+              {TRANSFERS_DATA.map((transfer, idx) => {
+                const selected = isSelected(transfer.id);
+                return (
+                  <motion.tr 
+                    key={transfer.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.6 + (idx * 0.1) }}
+                    className={`h-20 transition-colors group cursor-pointer ${selected ? 'bg-sky-900/[0.03]' : 'hover:bg-gray-50/50'}`}
+                    onClick={(e) => toggleSelectOne(transfer.id, e.shiftKey)}
+                  >
+                    <td className="pl-8" onClick={(e) => e.stopPropagation()}>
+                      <div 
+                        onClick={(e) => toggleSelectOne(transfer.id, e.shiftKey)}
+                        className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'}`}
+                      >
+                        {selected && <Check className="text-white" size={18} strokeWidth={4} />}
+                      </div>
+                    </td>
+                    <td className="text-black text-xl font-normal px-4 font-montserrat whitespace-nowrap">{transfer.bank}</td>
+                    <td className="text-black text-xl font-semibold px-4 font-montserrat">{transfer.amount}</td>
+                    <td className="px-4 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleOpenDetails(transfer); }}
+                          className="p-2 bg-slate-100 text-sky-900 rounded-md hover:bg-slate-200 transition-all active:scale-90"
+                          title="Voir les détails"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button className="px-5 py-2 bg-green-800 rounded-md text-white text-xs font-semibold font-montserrat hover:bg-green-900 transition-all shadow-md active:scale-95 whitespace-nowrap">
+                          Exporter (.CSV)
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
+      
+      <div className="p-8 border-t border-stone-100 flex items-center justify-between">
+        <span className="text-black text-2xl font-normal font-montserrat">Total {TRANSFERS_DATA.length}</span>
+      </div>
+
+      <AdminTDDetailsModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        data={selectedTD} 
+      />
     </motion.section>
   );
 }

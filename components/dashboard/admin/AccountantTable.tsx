@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, Check } from 'lucide-react';
 
 export interface Accountant {
   id: string;
@@ -16,8 +16,9 @@ interface AccountantTableProps {
   accountants: Accountant[];
   onView: (accountant: Accountant) => void;
   isSelected: (id: string) => boolean;
-  toggleSelectOne: (id: string) => void;
+  toggleSelectOne: (id: string, isShift?: boolean) => void;
   isAllSelected: boolean;
+  isIndeterminate: boolean;
   toggleSelectAll: () => void;
 }
 
@@ -27,79 +28,38 @@ export default function AccountantTable({
   isSelected,
   toggleSelectOne,
   isAllSelected,
+  isIndeterminate,
   toggleSelectAll
 }: AccountantTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left min-w-[1100px]">
+      <table className="w-full text-left">
         <thead>
-          <tr className="bg-sky-900/5 h-20">
+          <tr className="bg-sky-900/5 h-16">
             <th className="pl-8 w-20">
-              <div 
-                onClick={toggleSelectAll}
-                className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white cursor-pointer flex items-center justify-center transition-all active:scale-95"
-              >
-                {isAllSelected && <div className="w-4 h-4 bg-sky-900 rounded-[2px]" />}
+              <div onClick={toggleSelectAll} className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'}`}>
+                {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
               </div>
             </th>
-            <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Nom</th>
-            <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Prénoms</th>
-            <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Email</th>
-            <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Phone</th>
-            <th className="text-sky-900 text-xl font-semibold px-4 text-center font-montserrat">Statut</th>
-            <th className="text-sky-900 text-xl font-semibold px-4 text-center font-montserrat">Actions</th>
+            <th className="px-6 py-4 text-sky-900 text-xl font-semibold">Nom</th>
+            <th className="px-6 py-4 text-sky-900 text-xl font-semibold">Email</th>
+            <th className="px-6 py-4 text-sky-900 text-xl font-semibold text-center">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-stone-300">
+        <tbody className="divide-y divide-stone-200">
           {accountants.map((accountant, idx) => (
-            <motion.tr
-              key={accountant.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 * idx }}
-              className="h-20 hover:bg-slate-50 transition-colors group"
-            >
-              <td className="pl-8">
-                <div 
-                  onClick={() => toggleSelectOne(accountant.id)}
-                  className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white group-hover:bg-slate-50 transition-colors cursor-pointer flex items-center justify-center active:scale-95"
-                >
-                  {isSelected(accountant.id) && <div className="w-4 h-4 bg-sky-900 rounded-[2px]" />}
+            <tr key={accountant.id} className={`h-20 hover:bg-slate-50 transition-colors cursor-pointer ${isSelected(accountant.id) ? 'bg-sky-900/[0.03]' : ''}`} onClick={() => toggleSelectOne(accountant.id)}>
+              <td className="pl-8" onClick={(e) => e.stopPropagation()}>
+                <div className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${isSelected(accountant.id) ? 'bg-sky-900' : 'bg-white'}`}>
+                  {isSelected(accountant.id) && <Check className="text-white" size={18} strokeWidth={4} />}
                 </div>
               </td>
-              <td className="text-black text-xl font-normal px-4 font-montserrat">
-                {accountant.lastName}
+              <td className="px-6 py-4 text-black text-xl font-normal">{accountant.lastName} {accountant.firstName}</td>
+              <td className="px-6 py-4 text-black text-xl font-normal">{accountant.email}</td>
+              <td className="px-6 py-4 text-center">
+                 <button onClick={(e) => { e.stopPropagation(); onView(accountant); }} className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 transition-all"><Eye size={20} /></button>
               </td>
-              <td className="text-black text-xl font-normal px-4 font-montserrat">
-                {accountant.firstName}
-              </td>
-              <td className="text-black text-xl font-normal px-4 font-montserrat">
-                {accountant.email}
-              </td>
-              <td className="text-black text-xl font-normal px-4 font-montserrat text-nowrap">
-                {accountant.phone}
-              </td>
-              <td className="px-4 text-center">
-                <span className={`px-4 py-1.5 rounded-2xl text-white text-xs font-medium font-montserrat inline-block min-w-[80px] ${
-                  accountant.status === 'actif' ? 'bg-sky-900' : 'bg-red-600'
-                }`}>
-                  {accountant.status}
-                </span>
-              </td>
-              <td className="px-4 text-center">
-                <div className="flex items-center justify-center gap-3">
-                  <button className="p-2 bg-red-600 rounded-[5px] text-white hover:bg-red-700 transition-all hover:scale-110 shadow-sm">
-                    <Trash2 size={20} />
-                  </button>
-                  <button 
-                    onClick={() => onView(accountant)}
-                    className="p-2 bg-sky-900 rounded-[5px] text-white hover:bg-sky-950 transition-all hover:scale-110 shadow-sm"
-                  >
-                    <Eye size={20} />
-                  </button>
-                </div>
-              </td>
-            </motion.tr>
+            </tr>
           ))}
         </tbody>
       </table>

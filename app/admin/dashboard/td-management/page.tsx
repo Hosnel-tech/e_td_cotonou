@@ -9,13 +9,13 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
-import AdminTDCard, { AdminTDCardProps } from '@/components/dashboard/admin/AdminTDCard';
+import AdminTDCard from '@/components/dashboard/admin/AdminTDCard';
 import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
 import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
 import { useSelection } from '@/hooks/useSelection';
+import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 
-// ── Mock data ────────────────────────────────────────────────────────────────
-const ALL_TDS: (Omit<AdminTDCardProps, 'staggerIndex' | 'onOpenDetails'> & { id: string })[] = [
+const ALL_TDS = [
   { id: '1', teacher: 'VIGAN Pauline', subject: 'Anglais',  status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
   { id: '2', teacher: 'VIGAN Pauline', subject: 'Français', status: 'terminé',   classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
   { id: '3', teacher: 'VIGAN Pauline', subject: 'SVT',      status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
@@ -29,61 +29,18 @@ const ALL_TDS: (Omit<AdminTDCardProps, 'staggerIndex' | 'onOpenDetails'> & { id:
 const STATUS_FILTERS = ['Tous', 'En attente', 'En cours', 'Terminé', 'Rejeté'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 8;
 
-// ── Pagination component ─────────────────────────────────────────────────────
-function Paginator({
-  current, total, onChange,
-}: { current: number; total: number; onChange: (p: number) => void }) {
-  return (
-    <div className="flex items-center gap-4">
-      <button
-        onClick={() => onChange(Math.max(1, current - 1))}
-        disabled={current === 1}
-        className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black disabled:opacity-30 transition-colors"
-      >
-        <ChevronLeft size={28} />
-      </button>
-
-      <div className="flex items-center gap-2">
-        {Array.from({ length: total }, (_, i) => i + 1).map((p) => (
-          <button
-            key={p}
-            onClick={() => onChange(p)}
-            className={`w-12 h-12 rounded-md text-2xl font-semibold font-montserrat transition-all ${
-              p === current
-                ? 'bg-green-800 text-white shadow-md transition-transform hover:scale-105'
-                : 'bg-white text-green-800 border border-green-800 hover:bg-green-50'
-            }`}
-          >
-            {p}
-          </button>
-        ))}
-      </div>
-
-      <button
-        onClick={() => onChange(Math.min(total, current + 1))}
-        disabled={current === total}
-        className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black disabled:opacity-30 transition-colors"
-      >
-        <ChevronRight size={28} />
-      </button>
-    </div>
-  );
-}
-
-// ── Page ────────────────────────────────────────────────────────────────────
 export default function AdminTDManagementPage() {
-  const [viewMode,        setViewMode]        = useState<'grid' | 'list'>('grid');
-  const [searchQuery,     setSearchQuery]     = useState('');
-  const [activeFilter,    setActiveFilter]    = useState<StatusFilter>('Tous');
-  const [dropdownOpen,    setDropdownOpen]    = useState(false);
-  const [currentPage,     setCurrentPage]     = useState(1);
-  const [selectedTD,      setSelectedTD]      = useState<AdminTDDetailsData | null>(null);
-  const [isModalOpen,     setIsModalOpen]     = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -94,15 +51,6 @@ export default function AdminTDManagementPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ── Filter & search ──────────────────────────────────────────────────────
-  const statusMap: Record<StatusFilter, string> = {
-    'Tous':      '',
-    'En attente':'en attente',
-    'En cours':  'en cours',
-    'Terminé':   'terminé',
-    'Rejeté':    'rejeté',
-  };
-
   const filtered = ALL_TDS.filter((td) => {
     const matchesSearch =
       searchQuery === '' ||
@@ -110,62 +58,39 @@ export default function AdminTDManagementPage() {
       td.teacher.toLowerCase().includes(searchQuery.toLowerCase()) ||
       td.classe.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
-      activeFilter === 'Tous' || td.status === statusMap[activeFilter];
+      activeFilter === 'Tous' || td.status === activeFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
-  const { isSelected, toggleSelectOne, isAllSelected, toggleSelectAll, hasSelection, selectionCount } = useSelection(filtered);
+  const { isSelected, toggleSelectOne, isAllSelected, isIndeterminate, toggleSelectAll, selectionCount, clearSelection } = useSelection(filtered);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paginated  = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
+  const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  const handleOpenDetails = (td: typeof ALL_TDS[number]) => {
-    setSelectedTD({
-      subject:  td.subject,
-      teacher:  td.teacher,
-      classe:   td.classe,
-      time:     td.time,
-      duration: td.duration,
-      date:     td.date,
-      status:   td.status,
-    });
+  const handleOpenDetails = (td: any) => {
+    setSelectedTD({...td});
     setIsModalOpen(true);
   };
 
-  const handleFilter = (f: StatusFilter) => {
-    setActiveFilter(f);
-    setDropdownOpen(false);
-    setCurrentPage(1);
-  };
-
   return (
-    <div className="flex min-h-screen bg-slate-50 font-montserrat">
+    <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
       <AdminSidebar />
-
       <main className="flex-1 ml-72 p-10 space-y-8">
-        {/* ── Header ──────────────────────────────────────────────────── */}
         <header className="space-y-1">
-          <h1 className="text-3xl font-semibold text-black font-montserrat">Gestion des TD</h1>
+          <h1 className="text-3xl font-bold text-black font-montserrat tracking-tight">Gestion des TD</h1>
           <p className="text-xl font-normal text-black/60 font-montserrat">Gérez les travaux dirigés et séances</p>
         </header>
 
-        {/* ── Stat cards ──────────────────────────────────────────────── */}
         <section className="flex flex-wrap gap-6">
-          <StatCard label="Nombre total" value="23" icon={ClipboardList} variant="green"  trend="12%" staggerIndex={0} />
-          <StatCard label="En cours"     value="17" icon={Clock}         variant="red"    trend="12%" staggerIndex={1} />
-          <StatCard label="Terminés"     value="13" icon={CheckCircle2}  variant="orange" trend="12%" staggerIndex={2} />
-          <StatCard label="Payés"        value="10" icon={Wallet}        variant="sky"    trend="12%" staggerIndex={3} />
+          <StatCard label="Nombre total" value="23" icon={ClipboardList} variant="green" trend="12%" staggerIndex={0} />
+          <StatCard label="En cours" value="17" icon={Clock} variant="red" trend="12%" staggerIndex={1} />
+          <StatCard label="Terminés" value="13" icon={CheckCircle2} variant="orange" trend="12%" staggerIndex={2} />
+          <StatCard label="Payés" value="10" icon={Wallet} variant="sky" trend="12%" staggerIndex={3} />
         </section>
 
-        {/* ── Advanced search card ─────────────────────────────────────── */}
         <section className="bg-white rounded-[10px] p-6 space-y-4 shadow-sm border border-stone-100">
           <h2 className="text-xl font-semibold text-black font-montserrat">Recherche avancée</h2>
-
           <div className="flex items-center gap-4">
-            {/* Search bar */}
             <div className="flex-1 h-14 bg-white rounded-lg border border-neutral-300 flex items-center px-5 gap-3">
               <Search className="text-neutral-400 shrink-0" size={20} />
               <input
@@ -176,258 +101,116 @@ export default function AdminTDManagementPage() {
                 className="flex-1 bg-transparent outline-none text-base font-semibold font-montserrat placeholder:text-neutral-400 text-black"
               />
             </div>
-
-            {/* Status dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
-                onClick={() => setDropdownOpen((o) => !o)}
-                className="flex items-center gap-4 h-14 px-6 bg-white rounded-lg border border-neutral-300 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] transition-all hover:border-sky-900/50 min-w-[160px] justify-between"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-4 h-14 px-6 bg-white rounded-lg border border-neutral-300 shadow-sm transition-all hover:border-sky-900/50 min-w-[160px] justify-between"
               >
                 <span className="text-xl font-medium font-montserrat text-black">
                   {activeFilter === 'Tous' ? 'Statut' : activeFilter}
                 </span>
-                <motion.div
-                  animate={{ rotate: dropdownOpen ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
+                <motion.div animate={{ rotate: dropdownOpen ? 180 : 0 }}>
                   <ChevronDown size={20} className="text-black" />
                 </motion.div>
               </button>
-
-              {/* Dropdown menu */}
               <AnimatePresence>
                 {dropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                    transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="absolute top-full right-0 mt-2 w-44 bg-white rounded-[5px] shadow-[0px_0px_10px_0px_rgba(0,0,0,0.10)] z-30 overflow-hidden"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="absolute top-full right-0 mt-2 w-44 bg-white rounded-lg shadow-xl z-30 overflow-hidden border border-stone-100"
                   >
-                    {STATUS_FILTERS.filter(f => f !== 'Tous').map((filter, idx, arr) => (
+                    {STATUS_FILTERS.map((f) => (
                       <button
-                        key={filter}
-                        onClick={() => handleFilter(filter)}
-                        className={`w-full text-left px-5 py-3.5 text-base font-medium font-montserrat transition-colors hover:bg-sky-900/5 ${
-                          activeFilter === filter ? 'text-sky-900 font-semibold' : 'text-black'
-                        } ${idx < arr.length - 1 ? 'border-b border-zinc-100' : ''}`}
+                        key={f}
+                        onClick={() => { setActiveFilter(f); setDropdownOpen(false); setCurrentPage(1); }}
+                        className={`w-full text-left px-5 py-3.5 text-base font-medium font-montserrat hover:bg-sky-900/5 ${activeFilter === f ? 'text-sky-900 font-semibold' : 'text-black'}`}
                       >
-                        {filter}
+                        {f}
                       </button>
                     ))}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Bulk Delete Button */}
-            <AnimatePresence>
-              {hasSelection && (
-                <motion.button
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="flex items-center gap-2 h-14 bg-red-600 text-white px-6 rounded-lg shadow-lg hover:bg-red-700 transition-all font-montserrat active:scale-95 shrink-0"
-                >
-                  <Trash2 size={20} />
-                  <span className="text-lg font-semibold whitespace-nowrap">
-                    Supprimer ({selectionCount})
-                  </span>
-                </motion.button>
-              )}
-            </AnimatePresence>
           </div>
         </section>
 
-        {/* ── Content card ─────────────────────────────────────────────── */}
-        <section className="bg-white rounded-lg shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] p-8 space-y-8">
-
-          {/* Card header */}
+        <section className="bg-white rounded-lg shadow-sm border border-stone-100 p-8 space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-black font-montserrat">Mes travaux dirigés</h2>
+            <h2 className="text-2xl font-bold text-black font-montserrat">Mes travaux dirigés</h2>
             <div className="flex items-center gap-2.5">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`w-11 h-11 flex items-center justify-center rounded-md transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-sky-900 text-white shadow-lg'
-                    : 'text-black/40 hover:text-black border border-stone-200'
-                }`}
-              >
+              <button onClick={() => setViewMode('list')} className={`w-11 h-11 flex items-center justify-center rounded-md border transition-all ${viewMode === 'list' ? 'bg-sky-900 text-white border-sky-900 shadow-lg' : 'text-black/40 border-stone-200'}`}>
                 <List size={26} />
               </button>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`w-11 h-11 flex items-center justify-center rounded-md transition-all ${
-                  viewMode === 'grid'
-                    ? 'bg-sky-900 text-white shadow-lg'
-                    : 'text-black/40 hover:text-black border border-stone-200'
-                }`}
-              >
+              <button onClick={() => setViewMode('grid')} className={`w-11 h-11 flex items-center justify-center rounded-md border transition-all ${viewMode === 'grid' ? 'bg-sky-900 text-white border-sky-900 shadow-lg' : 'text-black/40 border-stone-200'}`}>
                 <LayoutGrid size={24} />
               </button>
             </div>
           </div>
 
-          {/* Grid / List */}
           <AnimatePresence mode="wait">
             {paginated.length === 0 ? (
-              <motion.p
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-center text-black/40 text-xl py-12 font-montserrat"
-              >
-                Aucun TD trouvé.
-              </motion.p>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-black/40 text-xl py-12">Aucun TD trouvé.</motion.p>
             ) : viewMode === 'grid' ? (
-              <motion.div
-                key="grid"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.22 }}
-                className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
-              >
+              <motion.div key="grid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 {paginated.map((td, idx) => (
-                  <AdminTDCard
-                    key={idx}
-                    {...td}
-                    staggerIndex={idx}
-                    onOpenDetails={() => handleOpenDetails(td)}
-                  />
+                  <AdminTDCard key={td.id} {...td as any} staggerIndex={idx} isSelected={isSelected(td.id)} onToggleSelection={(shift) => toggleSelectOne(td.id, shift)} onOpenDetails={() => handleOpenDetails(td)} />
                 ))}
               </motion.div>
             ) : (
-              <motion.div
-              key="list"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.22 }}
-              className="overflow-x-auto"
-            >
-              <table className="w-full text-left min-w-[1100px]">
-                <thead className="bg-sky-900/5 h-20">
-                  <tr>
-                    <th className="pl-8 w-20">
-                      <div 
-                        onClick={toggleSelectAll}
-                        className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white cursor-pointer flex items-center justify-center transition-all active:scale-95"
-                      >
-                        {isAllSelected && <div className="w-4 h-4 bg-sky-900 rounded-[2px]" />}
-                      </div>
-                    </th>
-                    <th className="text-sky-900 text-xl font-semibold px-4">Enseignants</th>
-                    <th className="text-sky-900 text-xl font-semibold px-4">Matières</th>
-                    <th className="text-sky-900 text-xl font-semibold px-4">Classe</th>
-                    <th className="text-sky-900 text-xl font-semibold px-4">Type</th>
-                    <th className="text-sky-900 text-xl font-semibold px-4">Date</th>
-                    <th className="text-sky-900 text-xl font-semibold px-4">Statut</th>
-                    <th className="text-sky-900 text-xl font-semibold px-4">Durée</th>
-                    <th className="text-sky-900 text-xl font-semibold px-4 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-300">
-                  {paginated.map((td, idx) => {
-                    const isPending = td.status === 'en attente';
-                    return (
-                      <motion.tr
-                        key={idx}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="h-20 hover:bg-gray-50/50 transition-colors group"
-                      >
-                        <td className="pl-8">
-                          <div 
-                            onClick={() => toggleSelectOne(td.id)}
-                            className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white group-hover:bg-gray-50 transition-colors cursor-pointer flex items-center justify-center active:scale-95"
-                          >
-                            {isSelected(td.id) && <div className="w-4 h-4 bg-sky-900 rounded-[2px]" />}
+              <motion.div key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="overflow-x-auto">
+                <table className="w-full text-left min-w-[1000px]">
+                  <thead className="bg-sky-900/5 h-16">
+                    <tr>
+                      <th className="pl-8 w-20">
+                        <div onClick={toggleSelectAll} className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'}`}>
+                          {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                        </div>
+                      </th>
+                      <th className="text-sky-900 text-xl font-semibold px-4">Enseignants</th>
+                      <th className="text-sky-900 text-xl font-semibold px-4">Matières</th>
+                      <th className="text-sky-900 text-xl font-semibold px-4">Classe</th>
+                      <th className="text-sky-900 text-xl font-semibold px-4 text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-200">
+                    {paginated.map((td, idx) => (
+                      <tr key={td.id} className={`h-20 hover:bg-slate-50 transition-colors cursor-pointer ${isSelected(td.id) ? 'bg-sky-900/[0.03]' : ''}`} onClick={() => toggleSelectOne(td.id)}>
+                        <td className="pl-8" onClick={(e) => e.stopPropagation()}>
+                          <div className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${isSelected(td.id) ? 'bg-sky-900' : 'bg-white'}`}>
+                            {isSelected(td.id) && <Check className="text-white" size={18} strokeWidth={4} />}
                           </div>
                         </td>
-                        <td className="text-black text-xl font-normal px-4">{td.teacher}</td>
-                        <td className="text-black text-xl font-medium px-4">{td.subject}</td>
-                        <td className="text-black text-xl font-normal px-4">{td.classe}</td>
-                        <td className="text-black text-xl font-normal px-4">{getTDType(td.classe)}</td>
-                        <td className="text-black text-xl font-normal px-4">{td.date}</td>
-                        <td className="px-4">
-                          <span className={`px-5 py-2 rounded-2xl text-xs font-semibold inline-block min-w-[100px] text-center ${
-                            td.status === 'en cours'   ? 'bg-sky-900 text-white shadow-sm' :
-                            td.status === 'terminé'    ? 'bg-green-800 text-white shadow-sm' :
-                            td.status === 'en attente' ? 'bg-amber-400 text-white shadow-sm' :
-                            'bg-red-600 text-white shadow-sm'
-                          }`}>
-                            {td.status === 'en cours'   ? 'En cours'   :
-                             td.status === 'terminé'    ? 'Terminé'    :
-                             td.status === 'en attente' ? 'En attente' :
-                             td.status.charAt(0).toUpperCase() + td.status.slice(1)}
-                          </span>
-                        </td>
-                        <td className="text-black text-xl font-normal px-4">{td.duration}</td>
+                        <td className="px-4 text-black text-xl font-normal">{td.teacher}</td>
+                        <td className="px-4 text-black text-xl font-medium">{td.subject}</td>
+                        <td className="px-4 text-black text-xl font-normal">{td.classe}</td>
                         <td className="px-4 text-center">
-                          <div className="flex items-center justify-center gap-3">
-                            <button
-                              disabled={!isPending}
-                              className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md ${
-                                isPending
-                                  ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-105'
-                                  : 'bg-green-800/25 text-white/50 cursor-not-allowed'
-                              }`}
-                            >
-                              <Check size={20} strokeWidth={3} />
-                            </button>
-                            <button
-                              disabled={!isPending}
-                              className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md ${
-                                isPending
-                                  ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-105'
-                                  : 'bg-red-600/25 text-white/50 cursor-not-allowed'
-                              }`}
-                            >
-                              <X size={20} strokeWidth={3} />
-                            </button>
-                            <button
-                              onClick={() => handleOpenDetails(td)}
-                              className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 hover:scale-105 transition-all shadow-md"
-                            >
-                              <Eye size={20} strokeWidth={2.5} />
-                            </button>
-                          </div>
+                           <button onClick={(e) => { e.stopPropagation(); handleOpenDetails(td); }} className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 transition-all"><Eye size={20} /></button>
                         </td>
-                      </motion.tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </motion.div>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Pagination footer */}
           <div className="flex items-center justify-between pt-6 border-t border-gray-100">
-            <span className="text-2xl font-normal text-black font-montserrat">
-              Total {filtered.length}
-            </span>
-            {totalPages > 1 && (
-              <Paginator
-                current={currentPage}
-                total={totalPages}
-                onChange={setCurrentPage}
-              />
-            )}
+            <span className="text-2xl font-normal text-black font-montserrat">Total {filtered.length}</span>
+            <div className="flex items-center gap-2">
+               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="p-2"><ChevronLeft size={24} /></button>
+               <span className="text-xl font-semibold">{currentPage} / {totalPages}</span>
+               <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="p-2"><ChevronRight size={24} /></button>
+            </div>
           </div>
         </section>
+
+        <BulkActionsBar count={selectionCount} onClear={clearSelection} />
       </main>
 
-      {/* TD Details Modal */}
-      <AdminTDDetailsModal
-        isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setSelectedTD(null); }}
-        data={selectedTD}
-      />
+      <AdminTDDetailsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} data={selectedTD} />
     </div>
   );
 }

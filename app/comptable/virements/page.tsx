@@ -4,9 +4,13 @@ import { motion } from 'framer-motion';
 import { Wallet, CreditCard, PieChart } from 'lucide-react';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdvancedSearch from '@/components/dashboard/comptable/AdvancedSearch';
-import TransfersTable from '@/components/dashboard/comptable/TransfersTable';
+import TransfersTable, { TRANSFERS_DATA } from '@/components/dashboard/comptable/TransfersTable';
+import { useSelection } from '@/hooks/useSelection';
+import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 
 export default function TransfersPage() {
+  const selection = useSelection(TRANSFERS_DATA);
+
   return (
     <>
       {/* Page Header */}
@@ -56,11 +60,21 @@ export default function TransfersPage() {
         />
       </section>
 
-      {/* Advanced Search Filters */}
-      <AdvancedSearch />
-
       {/* Detailed Transfers Table */}
-      <TransfersTable />
+      <TransfersTable 
+        isSelected={selection.isSelected}
+        toggleSelectOne={selection.toggleSelectOne}
+        isAllSelected={selection.isAllSelected}
+        isIndeterminate={selection.isIndeterminate}
+        toggleSelectAll={selection.toggleSelectAll}
+      />
+
+      <BulkActionsBar 
+        count={selection.selectionCount} 
+        onClear={selection.clearSelection} 
+        onExport={() => console.log('Exporting selected transfers...')}
+        showDelete={false} 
+      />
     </>
   );
 }

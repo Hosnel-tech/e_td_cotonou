@@ -32,50 +32,55 @@ export default function EvaluationSection() {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="lg:col-span-2 bg-white rounded-xl p-6 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] relative overflow-hidden h-[384px] flex flex-col"
+        className="lg:col-span-2 bg-white rounded-xl p-8 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] relative overflow-hidden h-[400px] flex flex-col"
       >
-        <div className="flex justify-between items-center mb-8 px-2">
-          <h3 className="text-black text-base font-semibold font-montserrat">Evaluation</h3>
-          <div className="flex items-center gap-2 px-3 py-1.5 border border-black/10 rounded-md cursor-pointer hover:bg-slate-50 transition-colors">
+        <div className="flex justify-between items-center mb-10">
+          <h3 className="text-black text-xl font-semibold font-montserrat">Evaluation</h3>
+          <div className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-md cursor-pointer hover:bg-slate-50 transition-colors">
             <span className="text-black text-sm font-normal font-montserrat">Last year</span>
             <ChevronDown size={14} className="text-black/40" />
           </div>
         </div>
 
         {/* Custom Bar Chart Component */}
-        <div className="flex-1 flex items-end justify-between gap-1 px-2 relative">
-          {/* Y Axis Labels (Static representation) */}
-          <div className="absolute left-0 top-0 bottom-8 flex flex-col justify-between text-[10px] text-black/60 font-montserrat text-right w-6 -ml-8">
+        <div className="flex-1 flex items-end justify-between gap-2 px-4 relative">
+          {/* Y Axis Labels */}
+          <div className="absolute left-0 top-0 bottom-10 flex flex-col justify-between text-[10px] text-black/60 font-montserrat text-right w-8 -ml-4">
             {[90, 80, 70, 60, 50, 40, 30, 20, 10, 0].map(val => (
                 <span key={val}>{val}</span>
             ))}
           </div>
 
           {evaluationData.map((item, idx) => (
-            <div key={item.month} className="flex-1 flex flex-col items-center gap-3 group relative">
+            <div key={item.month} className="flex-1 flex flex-col items-center gap-4 group relative">
               <motion.div 
                 initial={{ height: 0 }}
                 animate={{ height: `${item.value}%` }}
                 transition={{ duration: 1, delay: 0.5 + (idx * 0.05), ease: [0.16, 1, 0.3, 1] }}
                 className={`w-full max-w-[28px] rounded transition-all duration-300 ${
                   item.active 
-                    ? 'bg-sky-900 shadow-[0px_7.5px_9.4px_0px_rgba(105,118,235,0.4)]' 
+                    ? 'bg-sky-900 shadow-[0px_7.5px_9.4px_0px_rgba(0,75,112,0.39)]' 
                     : 'bg-sky-900/30'
-                } group-hover:bg-sky-900/50`}
+                } group-hover:bg-sky-900/50 cursor-pointer`}
               />
-              <span className={`text-[10px] font-montserrat ${item.active ? 'text-sky-900 font-bold' : 'text-black font-normal'}`}>
+              <span className={`text-[10px] font-montserrat ${item.active ? 'text-sky-900 font-bold underline decoration-2 underline-offset-4' : 'text-black font-normal'}`}>
                 {item.month}
               </span>
               
-              {/* Tooltip on hover */}
-              <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-sky-900 text-white text-[10px] py-1 px-2 rounded pointer-events-none whitespace-nowrap z-10">
-                {item.value}%
-              </div>
+              {item.active && (
+                <div className="absolute bottom-full mb-3 bg-sky-900 text-white text-[12px] py-1.5 px-3 rounded shadow-lg pointer-events-none whitespace-nowrap z-10 font-semibold border border-sky-950">
+                  {item.value}k
+                </div>
+              )}
             </div>
           ))}
 
-          {/* Dotted Target Line */}
-          <div className="absolute left-0 right-0 top-[30%] border-t border-dashed border-sky-900/40 pointer-events-none" />
+          {/* Grid Lines */}
+          <div className="absolute inset-0 pointer-events-none px-4">
+               {[1, 2, 3, 4, 5].map(i => (
+                   <div key={i} className="w-full border-t border-black/[0.03]" style={{ marginTop: `${i * 20}%` }} />
+               ))}
+          </div>
         </div>
       </motion.div>
 
@@ -84,10 +89,10 @@ export default function EvaluationSection() {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        className="bg-white rounded-xl p-6 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] flex flex-col"
+        className="bg-white rounded-xl p-8 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] flex flex-col h-[400px]"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-full bg-sky-900 flex items-center justify-center">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-full bg-sky-900 flex items-center justify-center shadow-lg">
             <Bell size={20} className="text-white" />
           </div>
           <h3 className="text-black text-xl font-semibold font-montserrat">Notifications</h3>
@@ -100,19 +105,19 @@ export default function EvaluationSection() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 + (idx * 0.1) }}
-              className="bg-green-800/5 rounded-lg p-4 flex items-center gap-4 group cursor-pointer hover:bg-green-800/10 transition-colors"
+              className="bg-green-800/5 rounded-lg p-5 flex items-center gap-4 group cursor-pointer hover:bg-green-800/10 transition-all border border-transparent hover:border-green-800/20"
             >
-              <div className="w-12 h-12 rounded-full bg-green-800 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-full bg-green-800 flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
                 <CheckCircle2 size={24} className="text-white" />
               </div>
               <div className="flex-1">
                 <div className="flex justify-between items-start">
-                  <h4 className="text-black text-base font-semibold font-montserrat">{notif.title}</h4>
-                  <span className="text-black text-[10px] font-medium font-montserrat opacity-60">{notif.time}</span>
+                  <h4 className="text-black text-base font-semibold font-montserrat tracking-tight">{notif.title}</h4>
+                  <span className="text-black text-[10px] font-medium font-montserrat opacity-40">{notif.time}</span>
                 </div>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-black text-sm font-normal font-montserrat opacity-80">{notif.teacher}</p>
-                  <span className="text-green-800 text-base font-semibold font-montserrat">{notif.amount}</span>
+                <div className="flex justify-between items-center mt-1.5">
+                  <p className="text-black text-sm font-normal font-montserrat opacity-70">{notif.teacher}</p>
+                  <span className="text-green-800 text-base font-bold font-montserrat">{notif.amount}</span>
                 </div>
               </div>
             </motion.div>

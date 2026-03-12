@@ -5,18 +5,22 @@ import { Wallet, CreditCard, PieChart } from 'lucide-react';
 import ComptableSidebar from '@/components/dashboard/comptable/ComptableSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdvancedSearch from '@/components/dashboard/comptable/AdvancedSearch';
-import PaymentManagementTable from '@/components/dashboard/comptable/PaymentManagementTable';
+import PaymentManagementTable, { PAYMENTS_DATA } from '@/components/dashboard/comptable/PaymentManagementTable';
+import { useSelection } from '@/hooks/useSelection';
+import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 
 export default function PaymentManagementPage() {
+  const selection = useSelection(PAYMENTS_DATA);
+
   return (
     <>
       <header className="space-y-2">
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-4xl font-semibold text-black"
+          className="text-4xl font-semibold text-black font-montserrat tracking-tight"
         >
-          Gestion de paiement
+          Paiements
         </motion.h1>
         <motion.p 
           initial={{ opacity: 0, x: -20 }}
@@ -56,7 +60,20 @@ export default function PaymentManagementPage() {
       </section>
 
       <AdvancedSearch />
-      <PaymentManagementTable />
+      <PaymentManagementTable 
+        isSelected={selection.isSelected}
+        toggleSelectOne={selection.toggleSelectOne}
+        isAllSelected={selection.isAllSelected}
+        isIndeterminate={selection.isIndeterminate}
+        toggleSelectAll={selection.toggleSelectAll}
+      />
+
+      <BulkActionsBar 
+        count={selection.selectionCount} 
+        onClear={selection.clearSelection} 
+        onExport={() => console.log('Exporting selected payments...')}
+        showDelete={false} 
+      />
     </>
   );
 }

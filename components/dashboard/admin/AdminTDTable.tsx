@@ -8,17 +8,33 @@ import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
 import AdminTDCard from './AdminTDCard';
 import AdminTDDetailsModal, { AdminTDDetailsData } from './AdminTDDetailsModal';
 
+import { useSelection } from '@/hooks/useSelection';
+import BulkActionsBar from './BulkActionsBar';
+
 const tableData = [
-  { teacher: 'VIGAN Pauline', matter: 'Anglais',  classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en attente', duration: '3h' },
-  { teacher: 'VIGAN Pauline', matter: 'Français', classe: 'Tle',   date: '12/07/25', time: '14h - 17h', status: 'terminé',   duration: '3h' },
-  { teacher: 'VIGAN Pauline', matter: 'SVT',      classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en cours',  duration: '3h' },
-  { teacher: 'VIGAN Pauline', matter: 'EST',      classe: 'CM2',  date: '12/07/25', time: '14h - 17h', status: 'payé',     duration: '3h' },
+  { id: 'td-1', teacher: 'VIGAN Pauline', matter: 'Anglais',  classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en attente', duration: '3h' },
+  { id: 'td-2', teacher: 'VIGAN Pauline', matter: 'Français', classe: 'Tle',   date: '12/07/25', time: '14h - 17h', status: 'terminé',   duration: '3h' },
+  { id: 'td-3', teacher: 'VIGAN Pauline', matter: 'SVT',      classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en cours',  duration: '3h' },
+  { id: 'td-4', teacher: 'VIGAN Pauline', matter: 'EST',      classe: 'CM2',  date: '12/07/25', time: '14h - 17h', status: 'payé',     duration: '3h' },
 ] as const;
 
 export default function AdminTDTable() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Multi-selection hook
+  const {
+    selectedIds,
+    isAllSelected,
+    isIndeterminate,
+    toggleSelectAll,
+    toggleSelectOne,
+    isSelected,
+    clearSelection,
+    selectionCount,
+    hasSelection
+  } = useSelection([...tableData]);
 
   const handleOpenDetails = (row: typeof tableData[number]) => {
     setSelectedTD({
@@ -83,7 +99,15 @@ export default function AdminTDTable() {
                 <thead className="bg-sky-900/5 h-20">
                   <tr>
                     <th className="pl-8 w-20">
-                      <div className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white cursor-pointer" />
+                      <div 
+                        onClick={toggleSelectAll}
+                        className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
+                          isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'
+                        }`}
+                      >
+                        {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                        {!isAllSelected && isIndeterminate && <div className="w-3 h-0.5 bg-white rounded-full" />}
+                      </div>
                     </th>
                     <th className="text-sky-900 text-xl font-semibold px-4">Enseignants</th>
                     <th className="text-sky-900 text-xl font-semibold px-4">Matières</th>
@@ -98,16 +122,27 @@ export default function AdminTDTable() {
                 <tbody className="divide-y divide-stone-300">
                   {tableData.map((row, idx) => {
                     const isPending = row.status === 'en attente';
+                    const selected = isSelected(row.id);
                     return (
                       <motion.tr
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
                         key={idx}
-                        className="h-20 hover:bg-gray-50/50 transition-colors group"
+                        className={`h-20 transition-colors group cursor-pointer ${
+                          selected ? 'bg-sky-900/[0.03]' : 'hover:bg-gray-50/50'
+                        }`}
+                        onClick={(e) => toggleSelectOne(row.id, e.shiftKey)}
                       >
-                        <td className="pl-8">
-                          <div className="w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 bg-white group-hover:bg-gray-50 transition-colors" />
+                        <td className="pl-8" onClick={(e) => e.stopPropagation()}>
+                          <div 
+                            onClick={(e) => toggleSelectOne(row.id, e.shiftKey)}
+                            className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
+                              selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'
+                            }`}
+                          >
+                            {selected && <Check className="text-white" size={18} strokeWidth={4} />}
+                          </div>
                         </td>
                         <td className="text-black text-xl font-normal px-4">{row.teacher}</td>
                         <td className="text-black text-xl font-medium px-4">{row.matter}</td>
@@ -129,7 +164,7 @@ export default function AdminTDTable() {
                         </td>
                         <td className="text-black text-xl font-normal px-4">{row.duration}</td>
                         <td className="px-4 text-center">
-                          <div className="flex items-center justify-center gap-3">
+                          <div className="flex items-center justify-center gap-3" onClick={(e) => e.stopPropagation()}>
                             <button
                               disabled={!isPending}
                               className={`w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md ${
@@ -178,6 +213,7 @@ export default function AdminTDTable() {
               {tableData.map((row, idx) => (
                 <AdminTDCard
                   key={idx}
+                  id={row.id}
                   teacher={row.teacher}
                   subject={row.matter}
                   status={row.status as any}
@@ -186,6 +222,8 @@ export default function AdminTDTable() {
                   date={row.date}
                   duration={row.duration}
                   staggerIndex={idx}
+                  isSelected={isSelected(row.id)}
+                  onToggleSelection={(shift) => toggleSelectOne(row.id, shift)}
                   onOpenDetails={() => handleOpenDetails(row)}
                 />
               ))}
@@ -207,6 +245,22 @@ export default function AdminTDTable() {
           </Link>
         </div>
       </section>
+
+      {/* Bulk Actions Bar */}
+      <BulkActionsBar 
+        count={selectionCount} 
+        onClear={clearSelection}
+        onDelete={() => {
+          if (confirm(`Voulez-vous supprimer les ${selectionCount} éléments sélectionnés ?`)) {
+            alert('Suppression effectuée (Simulation)');
+            clearSelection();
+          }
+        }}
+        onExport={() => {
+          alert(`Exportation de ${selectionCount} éléments...`);
+          clearSelection();
+        }}
+      />
 
       {/* Details Modal */}
       <AdminTDDetailsModal

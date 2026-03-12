@@ -7,7 +7,7 @@ const notificationData = [
   { 
     id: 1, 
     title: 'TD approuvé', 
-    desc: 'Marqué terminé pour être payé', 
+    desc: 'TD Anglais - 3ème du 12/11/25', 
     time: 'Il y a 2 min', 
     type: 'success',
     tdData: { id: 1, name: 'Anglais', classe: '3ème', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'terminé', type: 'Secondaire' }
@@ -15,18 +15,34 @@ const notificationData = [
   { 
     id: 2, 
     title: 'TD rejeté', 
-    desc: 'Votre TD a été rejeté', 
-    time: 'Il y a 2 min', 
+    desc: 'TD Français - Tle du 12/11/25', 
+    time: 'Il y a 15 min', 
     type: 'error',
     tdData: { id: 2, name: 'Français', classe: 'Tle', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'rejeté', type: 'Secondaire' }
   },
   { 
     id: 3, 
-    title: 'TD approuvé', 
-    desc: 'Marqué terminé pour être payé', 
-    time: 'Il y a 2 min', 
+    title: 'Nouveau TD assigné', 
+    desc: 'TD PCT - 3ème du 13/11/25', 
+    time: 'Il y a 1h', 
     type: 'success',
-    tdData: { id: 3, name: 'SVT', classe: '3ème', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'terminé', type: 'Secondaire' }
+    tdData: { id: 3, name: 'PCT', classe: '3ème', date: '13/11/25', time: '08h - 10h', duration: '2h', status: 'en cours', type: 'Secondaire' }
+  },
+  { 
+    id: 4, 
+    title: 'Paiement effectué', 
+    desc: 'TD Anglais - Tle du 10/11/25', 
+    time: 'Il y a 3h', 
+    type: 'success',
+    tdData: { id: 4, name: 'Anglais', classe: 'Tle', date: '10/11/25', time: '14h - 17h', duration: '3h', status: 'payé', type: 'Secondaire' }
+  },
+  { 
+    id: 5, 
+    title: 'Rappel de TD', 
+    desc: 'TD SVT - 1ère du 14/11/25', 
+    time: 'Il y a 5h', 
+    type: 'success',
+    tdData: { id: 5, name: 'SVT', classe: '1ère', date: '14/11/25', time: '10h - 12h', duration: '2h', status: 'programmé', type: 'Secondaire' }
   },
 ];
 
@@ -36,7 +52,7 @@ interface NotificationsProps {
 
 export default function Notifications({ onOpenDetails }: NotificationsProps) {
   return (
-    <div className="bg-white rounded-lg p-6 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] w-full h-80 flex flex-col">
+    <div className="bg-white rounded-lg p-6 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] w-full h-[420px] flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-6">
         <div className="w-7 h-7 flex items-center justify-center text-sky-900">
@@ -66,7 +82,7 @@ export default function Notifications({ onOpenDetails }: NotificationsProps) {
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 min-w-0 pr-16 overflow-hidden">
+            <div className="flex-1 min-w-0 pr-16 overflow-hidden space-y-1">
               <h4 className="text-base font-semibold text-black font-montserrat truncate leading-tight">
                 {notif.title}
               </h4>
@@ -85,9 +101,9 @@ export default function Notifications({ onOpenDetails }: NotificationsProps) {
             {/* Absolute "Voir plus" (Bottom Right) */}
             <button 
               onClick={() => onOpenDetails?.(notif.tdData)}
-              className="absolute bottom-4 right-4 group/btn"
+              className="absolute bottom-4 right-4 h-6 px-3 bg-sky-900 rounded-[5px] flex items-center justify-center shadow-sm hover:bg-sky-950 transition-colors active:scale-95"
             >
-              <span className="text-sky-900 text-[10px] font-semibold font-montserrat group-hover/btn:underline transition-all">
+              <span className="text-white text-[10px] font-semibold font-montserrat whitespace-nowrap">
                 Voir plus
               </span>
             </button>

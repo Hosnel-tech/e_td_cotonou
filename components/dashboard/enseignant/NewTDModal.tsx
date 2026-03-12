@@ -8,6 +8,7 @@ import {
   Upload, 
   ChevronDown 
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface NewTDModalProps {
   isOpen: boolean;
@@ -15,6 +16,41 @@ interface NewTDModalProps {
 }
 
 export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
+  const [formData, setFormData] = useState({
+    name: '',
+    subject: 'Français',
+    startTime: '',
+    endTime: '',
+    date: '',
+    duration: ''
+  });
+
+  // Automatically calculate duration when startTime or endTime changes
+  useEffect(() => {
+    if (formData.startTime && formData.endTime) {
+      const [startH, startM] = formData.startTime.split(':').map(Number);
+      const [endH, endM] = formData.endTime.split(':').map(Number);
+      
+      let diffMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+      
+      if (diffMinutes < 0) diffMinutes = 0; // Handle end before start
+
+      const hours = Math.floor(diffMinutes / 60);
+      const mins = diffMinutes % 60;
+      
+      let durationStr = '';
+      if (hours > 0) durationStr += `${hours}h `;
+      if (mins > 0 || hours === 0) durationStr += `${mins}min`;
+      
+      setFormData(prev => ({ ...prev, duration: durationStr.trim() }));
+    }
+  }, [formData.startTime, formData.endTime]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -56,6 +92,9 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                   </label>
                   <input 
                     type="text" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
                     placeholder="TD Français"
                     className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
                   />
@@ -67,11 +106,16 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                     Matière <span className="text-red-600">*</span>
                   </label>
                   <div className="relative group">
-                    <select className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black appearance-none transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]">
-                      <option>Français</option>
-                      <option>Anglais</option>
-                      <option>SVT</option>
-                      <option>Mathématiques</option>
+                    <select 
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black appearance-none transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
+                    >
+                      <option value="Français">Français</option>
+                      <option value="Anglais">Anglais</option>
+                      <option value="SVT">SVT</option>
+                      <option value="Mathématiques">Mathématiques</option>
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>
@@ -84,9 +128,11 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                   </label>
                   <div className="relative">
                     <input 
-                      type="text" 
-                      placeholder="-- | --"
-                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
+                      type="time" 
+                      name="startTime"
+                      value={formData.startTime}
+                      onChange={handleChange}
+                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)] custom-time-input"
                     />
                     <Clock className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={20} />
                   </div>
@@ -99,9 +145,11 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                   </label>
                   <div className="relative">
                     <input 
-                      type="text" 
-                      placeholder="-- | --"
-                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
+                      type="time" 
+                      name="endTime"
+                      value={formData.endTime}
+                      onChange={handleChange}
+                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)] custom-time-input"
                     />
                     <Clock className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={20} />
                   </div>
@@ -115,10 +163,12 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                   <div className="relative">
                     <input 
                       type="text" 
-                      placeholder="-- | --"
-                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
+                      readOnly
+                      value={formData.duration}
+                      placeholder="Calculée automatiquement"
+                      className="w-full h-14 px-6 bg-gray-50/50 rounded-lg border-[0.83px] border-sky-900/30 outline-none font-medium font-montserrat text-sky-900/60 transition-shadow cursor-default"
                     />
-                    <Clock className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={20} />
+                    <Clock className="absolute right-6 top-1/2 -translate-y-1/2 text-sky-900/30 pointer-events-none" size={20} />
                   </div>
                 </div>
 
@@ -129,9 +179,12 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                   </label>
                   <div className="relative">
                     <input 
-                      type="text" 
-                      placeholder="12/11/25"
-                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
+                      type="date" 
+                      name="date"
+                      min={new Date().toISOString().split('T')[0]}
+                      value={formData.date}
+                      onChange={handleChange}
+                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)] custom-date-input"
                     />
                     <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={20} />
                   </div>
@@ -156,11 +209,28 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                 Annuler
               </button>
               <button 
+                onClick={() => {
+                   console.log('New TD Data:', formData);
+                   alert('TD ajouté avec succès !');
+                   onClose();
+                }}
                 className="px-10 py-5 bg-sky-900 text-white rounded-lg text-base font-medium font-montserrat hover:bg-sky-950 transition-colors shadow-lg active:scale-95 transition-all"
               >
                 Ajouter un TD
               </button>
             </div>
+
+            <style jsx>{`
+              .custom-time-input::-webkit-calendar-picker-indicator,
+              .custom-date-input::-webkit-calendar-picker-indicator {
+                position: absolute;
+                right: 24px;
+                opacity: 0;
+                width: 24px;
+                height: 24px;
+                cursor: pointer;
+              }
+            `}</style>
           </motion.div>
         </div>
       )}
