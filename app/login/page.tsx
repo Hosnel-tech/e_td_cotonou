@@ -5,18 +5,48 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { authService } from '@/services/auth.service';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('example@gmail.com');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const session = await authService.login(email, password);
+      
+      // Redirect based on role
+      switch (session.user.role) {
+        case 'admin':
+          router.push('/admin/dashboard');
+          break;
+        case 'comptable':
+          router.push('/comptable/dashboard');
+          break;
+        case 'enseignant':
+        default:
+          router.push('/enseignant/dashboard');
+          break;
+      }
+    } catch (err) {
+      setError("Identifiants invalides. Veuillez réessayer.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen bg-white font-sans items-center justify-center p-6 lg:p-12 overflow-y-auto">
       
-      {/* Center Content Wrapper: Focus and Simplicity */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -24,7 +54,6 @@ export default function LoginPage() {
         className="w-full max-w-[687px] flex flex-col items-center"
       >
         
-        {/* Logo Section */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -42,81 +71,87 @@ export default function LoginPage() {
           </div>
         </motion.div>
 
-        {/* Form Content Block */}
         <div className="w-full space-y-12">
           
           <div className="text-center lg:text-left">
             <h1 className="text-4xl font-semibold text-black mb-4 font-montserrat">
               Se connecter
             </h1>
+            <p className="text-black/60 text-xl font-montserrat">Accédez à votre espace professionnel</p>
           </div>
 
-          {/* Login Form */}
-          <form 
-            className="w-full space-y-8" 
-            onSubmit={(e) => {
-              e.preventDefault();
-              router.push('/enseignant/dashboard');
-            }}
-          >
+          <form className="w-full space-y-8" onSubmit={handleLogin}>
             
-            {/* Email Field */}
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg font-montserrat font-medium"
+              >
+                {error}
+              </motion.div>
+            )}
+
             <div className="space-y-3">
               <label className="text-xl font-semibold text-black font-montserrat flex items-center">
                 Email <span className="text-[#EE2E33] ml-1">*</span>
               </label>
               <input 
                 type="email" 
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example@gmail.com"
-                className="w-full h-[67px] px-8 rounded-lg border border-brand-dark bg-white text-xl font-medium text-black focus:outline-none focus:ring-2 focus:ring-brand-dark/20 transition-all font-montserrat"
+                className="w-full h-[67px] px-8 rounded-lg border border-stone-200 bg-white text-xl font-medium text-black focus:outline-none focus:ring-2 focus:ring-sky-900/20 transition-all font-montserrat"
               />
             </div>
 
-            {/* Password Field */}
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <label className="text-xl font-semibold text-black font-montserrat flex items-center">
                   Mot de passe <span className="text-[#EE2E33] ml-1">*</span>
                 </label>
-                <Link href="/forgot-password" title="Mot de passe oublié ?" className="text-brand-accent text-xl font-semibold no-underline hover:underline transition-all font-montserrat">
+                <Link href="/forgot-password" title="Mot de passe oublié ?" className="text-sky-900 text-xl font-semibold no-underline hover:underline transition-all font-montserrat">
                   Mot de passe oublié ?
                 </Link>
               </div>
               <div className="relative group">
                 <input 
                   type={showPassword ? "text" : "password"} 
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="XXXXXXXXXXXXX"
-                  className="w-full h-[67px] px-8 pr-16 rounded-lg border border-[#C8C8C8] bg-white text-xl font-medium text-black placeholder:text-[#C8C8C8] focus:outline-none focus:ring-2 focus:ring-brand-dark/20 transition-all font-montserrat"
+                  className="w-full h-[67px] px-8 pr-16 rounded-lg border border-stone-200 bg-white text-xl font-medium text-black placeholder:text-[#C8C8C8] focus:outline-none focus:ring-2 focus:ring-sky-900/20 transition-all font-montserrat"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 text-[#C8C8C8] hover:text-brand-dark transition-colors p-2"
-                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  className="absolute right-6 top-1/2 -translate-y-1/2 text-[#C8C8C8] hover:text-sky-900 transition-colors p-2"
                 >
                   {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
                 </button>
               </div>
             </div>
 
-            {/* Submit Button & Registration Link */}
             <div className="space-y-8 pt-4">
               <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-brand-dark text-white h-[67px] rounded-lg text-2xl font-semibold hover:bg-opacity-95 transition-all font-montserrat"
+                whileHover={{ scale: isLoading ? 1 : 1.02 }}
+                whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                disabled={isLoading}
+                className="w-full bg-sky-900 text-white h-[67px] rounded-lg text-2xl font-semibold hover:bg-sky-950 transition-all font-montserrat flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Se connecter
+                {isLoading ? (
+                  <Loader2 className="animate-spin" size={32} />
+                ) : (
+                  "Se connecter"
+                )}
               </motion.button>
 
               <div className="text-center">
                 <p className="text-2xl font-normal text-black font-montserrat">
                   Vous êtes nouveau ?{' '}
-                  <Link href="/register" className="text-brand-accent font-semibold no-underline hover:underline decoration-brand-accent transition-all hover:opacity-80">
+                  <Link href="/register" className="text-sky-900 font-semibold no-underline hover:underline transition-all hover:opacity-80">
                     S’inscrire
                   </Link>
                 </p>

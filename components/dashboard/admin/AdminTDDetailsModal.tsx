@@ -2,24 +2,12 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpenCheck, Download } from 'lucide-react';
-
-export interface AdminTDDetailsData {
-  subject: string;
-  teacher: string;
-  classe: string;
-  etablissement?: string;
-  numero?: string;
-  time: string;
-  duration: string;
-  date: string;
-  status: string;
-  hasEpreuve?: boolean;
-}
+import { TD } from '@/types/td.types';
 
 interface AdminTDDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  data: AdminTDDetailsData | null;
+  data: TD | null;
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -27,6 +15,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   'terminé':    { label: 'Terminé',    color: 'text-green-800' },
   'en attente': { label: 'En attente', color: 'text-amber-500' },
   'payé':       { label: 'Payé',       color: 'text-red-600'   },
+  'rejeté':     { label: 'Rejeté',     color: 'text-red-800'   },
 };
 
 interface InfoRowProps {
@@ -124,8 +113,8 @@ export default function AdminTDDetailsModal({ isOpen, onClose, data }: AdminTDDe
                 <SectionCard title="Informations de l'enseignant">
                   <InfoRow label="Nom :" value={data.teacher} />
                   <InfoRow label="Classe :" value={data.classe} />
-                  <InfoRow label="Etablissement :" value={data.etablissement ?? 'SURU LERE'} />
-                  <InfoRow label="Numero :" value={data.numero ?? '01 67 89 23 15'} divider={false} />
+                  <InfoRow label="Etablissement :" value={'SURU LERE'} />
+                  <InfoRow label="Numero :" value={'01 67 89 23 15'} divider={false} />
                 </SectionCard>
 
                 {/* Section 2: Informations sur le TD */}

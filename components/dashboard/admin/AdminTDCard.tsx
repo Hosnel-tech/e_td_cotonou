@@ -1,18 +1,11 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Users, Clock, Calendar, History, Check, X, Eye } from 'lucide-react';
+import { Clock, Calendar, Check, X, Eye } from 'lucide-react';
 import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
+import { TD } from '@/types/td.types';
 
-export interface AdminTDCardProps {
-  id: string;
-  teacher: string;
-  subject: string;
-  status: 'en cours' | 'terminé' | 'en attente' | 'payé' | 'rejeté';
-  classe: string;
-  time: string;
-  date: string;
-  duration: string;
+interface AdminTDCardProps extends TD {
   staggerIndex?: number;
   isSelected?: boolean;
   onToggleSelection?: (isShift: boolean) => void;
@@ -43,7 +36,6 @@ export default function AdminTDCard({
 }: AdminTDCardProps) {
   const cfg      = statusConfig[status] ?? statusConfig['en cours'];
   const isPending = status === 'en attente';
-  const type     = getTDType(classe);
 
   return (
     <motion.div

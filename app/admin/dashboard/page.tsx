@@ -7,8 +7,16 @@ import AdminHero from '@/components/dashboard/admin/AdminHero';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import ActivitySection from '@/components/dashboard/admin/ActivitySection';
 import AdminTDTable from '@/components/dashboard/admin/AdminTDTable';
+import { tdService } from '@/services/td.service';
+import { TD } from '@/types/td.types';
+import { useState, useEffect } from 'react';
 
 export default function AdminDashboardPage() {
+  const [tds, setTds] = useState<TD[]>([]);
+
+  useEffect(() => {
+    tdService.getTDs().then(setTds);
+  }, []);
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat">
       {/* Permanent Admin Sidebar */}
@@ -79,7 +87,7 @@ export default function AdminDashboardPage() {
         <ActivitySection />
 
         {/* TD Table Management Section */}
-        <AdminTDTable limit={4} />
+        <AdminTDTable tds={tds} limit={4} />
 
       </main>
     </div>

@@ -1,6 +1,6 @@
-import { Teacher } from '@/components/dashboard/admin/TeacherTable';
+import { Teacher } from '@/types/user.types';
 
-export const TEACHER_DATA: Teacher[] = [
+export const TEACHERS: Teacher[] = [
   { 
     id: '1', 
     name: 'VIGAN Pauline', 

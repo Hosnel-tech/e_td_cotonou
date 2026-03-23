@@ -2,18 +2,18 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, Search, ChevronDown, List, LayoutGrid, Eye, SearchSlash
+  Users, Search, ChevronDown, SearchSlash
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
-import AccountantTable, { Accountant } from '@/components/dashboard/admin/AccountantTable';
+import AccountantTable from '@/components/dashboard/admin/AccountantTable';
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
-import { ACCOUNTANT_DATA } from '@/data/accountantData';
 import AccountantDetailsModal from '@/components/dashboard/admin/AccountantDetailsModal';
-
 import Pagination from '@/components/dashboard/admin/Pagination';
+import { accountantService } from '@/services/accountant.service';
+import { Accountant } from '@/types/user.types';
 
 const STATUS_FILTERS = ['Tous', 'Actif', 'Inactif'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
@@ -21,6 +21,7 @@ type StatusFilter = typeof STATUS_FILTERS[number];
 const ITEMS_PER_PAGE = 10;
 
 export default function AccountantsPage() {
+  const [accountants, setAccountants] = useState<Accountant[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -32,6 +33,10 @@ export default function AccountantsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    accountantService.getAccountants().then(setAccountants);
+  }, []);
+
+  useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
@@ -41,7 +46,7 @@ export default function AccountantsPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filteredAccountants = ACCOUNTANT_DATA.filter((acc) => {
+  const filteredAccountants = accountants.filter((acc) => {
     const matchesSearch = 
       acc.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       acc.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,9 +87,9 @@ export default function AccountantsPage() {
 
         {/* Stats Grid */}
         <section className="flex flex-wrap gap-8">
-          <StatCard label="Total Comptables" value={ACCOUNTANT_DATA.length.toString()} icon={Users} variant="green" trend="0%" staggerIndex={0} />
-          <StatCard label="Actifs" value={ACCOUNTANT_DATA.filter(a => a.status === 'actif').length.toString()} icon={Users} variant="sky" trend="0%" staggerIndex={1} />
-          <StatCard label="Inactifs" value={ACCOUNTANT_DATA.filter(a => a.status === 'inactif').length.toString()} icon={Users} variant="orange" trend="0%" staggerIndex={2} />
+          <StatCard label="Total Comptables" value={accountants.length.toString()} icon={Users} variant="green" trend="0%" staggerIndex={0} />
+          <StatCard label="Actifs" value={accountants.filter(a => a.status === 'actif').length.toString()} icon={Users} variant="sky" trend="0%" staggerIndex={1} />
+          <StatCard label="Inactifs" value={accountants.filter(a => a.status === 'inactif').length.toString()} icon={Users} variant="orange" trend="0%" staggerIndex={2} />
         </section>
 
         {/* Search & Filters */}
@@ -192,12 +197,6 @@ export default function AccountantsPage() {
         <BulkActionsBar 
           count={selectionCount} 
           onClear={clearSelection}
-          onDelete={() => {
-            if (confirm(`Voulez-vous vraiment supprimer ces ${selectionCount} comptables ?`)) {
-              alert('Suppression effectuée (Simulation)');
-              clearSelection();
-            }
-          }}
         />
       </main>
 

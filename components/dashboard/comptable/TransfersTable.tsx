@@ -1,18 +1,14 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Check, Eye } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useState } from 'react';
-import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
-
-export const TRANSFERS_DATA = [
-  { id: '1', bank: 'BOA', amount: '1.500.000 F FCFA' },
-  { id: '2', bank: 'ECOBANK', amount: '1.500.000 F FCFA' },
-  { id: '3', bank: 'BIIC', amount: '1.500.000 F FCFA' },
-  { id: '4', bank: 'UBA', amount: '1.500.000 F FCFA' },
-];
+import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
+import { Transfer } from '@/types/financial.types';
+import { TD } from '@/types/td.types';
 
 interface TransfersTableProps {
+  transfers: Transfer[];
   isSelected: (id: string) => boolean;
   toggleSelectOne: (id: string, isShift?: boolean) => void;
   isAllSelected: boolean;
@@ -21,27 +17,15 @@ interface TransfersTableProps {
 }
 
 export default function TransfersTable({
+  transfers,
   isSelected,
   toggleSelectOne,
   isAllSelected,
   isIndeterminate,
   toggleSelectAll
 }: TransfersTableProps) {
-  const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
+  const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleOpenDetails = (transfer: any) => {
-    setSelectedTD({
-      subject: 'Virement Bancaire',
-      teacher: transfer.bank,
-      classe: 'Tresorerie',
-      date: '12/11/25', // Mock
-      duration: 'N/A',
-      time: '08:00 - 11:00',
-      status: 'terminé',
-    });
-    setIsModalOpen(true);
-  };
 
   return (
     <motion.section 
@@ -74,7 +58,7 @@ export default function TransfersTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-300">
-              {TRANSFERS_DATA.map((transfer, idx) => {
+              {transfers.map((transfer, idx) => {
                 const selected = isSelected(transfer.id);
                 return (
                   <motion.tr 
@@ -117,7 +101,7 @@ export default function TransfersTable({
       </div>
       
       <div className="p-8 border-t border-stone-100 flex items-center justify-between">
-        <span className="text-black text-2xl font-normal font-montserrat">Total {TRANSFERS_DATA.length}</span>
+        <span className="text-black text-2xl font-normal font-montserrat">Total {transfers.length}</span>
       </div>
 
       <AdminTDDetailsModal 

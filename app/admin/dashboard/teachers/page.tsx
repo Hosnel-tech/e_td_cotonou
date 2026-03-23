@@ -2,18 +2,18 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, Search, ChevronDown, List, LayoutGrid, Eye, SearchSlash
+  Users, Search, ChevronDown, SearchSlash
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
-import TeacherTable, { Teacher } from '@/components/dashboard/admin/TeacherTable';
+import TeacherTable from '@/components/dashboard/admin/TeacherTable';
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
-import { TEACHER_DATA } from '@/data/teacherData';
 import TeacherDetailsModal from '@/components/dashboard/admin/TeacherDetailsModal';
-
 import Pagination from '@/components/dashboard/admin/Pagination';
+import { teacherService } from '@/services/teacher.service';
+import { Teacher } from '@/types/user.types';
 
 const STATUS_FILTERS = ['Tous', 'Actif', 'En attente'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
@@ -21,6 +21,7 @@ type StatusFilter = typeof STATUS_FILTERS[number];
 const ITEMS_PER_PAGE = 10;
 
 export default function TeachersPage() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -32,6 +33,10 @@ export default function TeachersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    teacherService.getTeachers().then(setTeachers);
+  }, []);
+
+  useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
@@ -41,7 +46,7 @@ export default function TeachersPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filteredTeachers = TEACHER_DATA.filter((teacher) => {
+  const filteredTeachers = teachers.filter((teacher) => {
     const matchesSearch = 
       teacher.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       teacher.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,9 +87,9 @@ export default function TeachersPage() {
 
         {/* Stats Grid */}
         <section className="flex flex-wrap gap-8">
-          <StatCard label="Total Enseignants" value={TEACHER_DATA.length.toString()} icon={Users} variant="green" trend="5%" staggerIndex={0} />
-          <StatCard label="Actifs" value={TEACHER_DATA.filter(t => t.status === 'actif').length.toString()} icon={Users} variant="sky" trend="2%" staggerIndex={1} />
-          <StatCard label="En attente" value={TEACHER_DATA.filter(t => t.status === 'en attente').length.toString()} icon={Users} variant="orange" trend="0%" staggerIndex={2} />
+          <StatCard label="Total Enseignants" value={teachers.length.toString()} icon={Users} variant="green" trend="5%" staggerIndex={0} />
+          <StatCard label="Actifs" value={teachers.filter(t => t.status === 'actif').length.toString()} icon={Users} variant="sky" trend="2%" staggerIndex={1} />
+          <StatCard label="En attente" value={teachers.filter(t => t.status === 'en attente').length.toString()} icon={Users} variant="orange" trend="0%" staggerIndex={2} />
         </section>
 
         {/* Search & Filters */}
@@ -192,12 +197,6 @@ export default function TeachersPage() {
         <BulkActionsBar 
           count={selectionCount} 
           onClear={clearSelection}
-          onDelete={() => {
-            if (confirm(`Voulez-vous vraiment supprimer ces ${selectionCount} enseignants ?`)) {
-              alert('Suppression effectuée (Simulation)');
-              clearSelection();
-            }
-          }}
         />
       </main>
 

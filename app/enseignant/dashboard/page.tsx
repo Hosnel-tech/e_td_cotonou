@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ClipboardList, 
@@ -15,12 +15,19 @@ import TDTable from '@/components/dashboard/enseignant/TDTable';
 import ProchainsTD from '@/components/dashboard/enseignant/ProchainsTD';
 import Notifications from '@/components/dashboard/enseignant/Notifications';
 import TDDetailsModal from '@/components/dashboard/enseignant/TDDetailsModal';
+import { tdService } from '@/services/td.service';
+import { TD } from '@/types/td.types';
 
 export default function DashboardPage() {
-  const [selectedTD, setSelectedTD] = useState<any>(null);
+  const [tds, setTds] = useState<TD[]>([]);
+  const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const handleOpenDetails = (data: any) => {
+  useEffect(() => {
+    tdService.getTDs().then(setTds);
+  }, []);
+
+  const handleOpenDetails = (data: TD) => {
     setSelectedTD(data);
     setIsDetailsOpen(true);
   };
@@ -59,7 +66,7 @@ export default function DashboardPage() {
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <StatCard 
             label="Travaux Dirigés" 
-            value="23" 
+            value={tds.length.toString()} 
             icon={ClipboardList} 
             variant="green" 
             trend="12%"
@@ -76,7 +83,7 @@ export default function DashboardPage() {
           />
           <StatCard 
             label="TD payés" 
-            value="13" 
+            value={tds.filter(t => t.status === 'payé').length.toString()} 
             icon={CreditCard} 
             variant="orange" 
             trend="12%"
@@ -84,7 +91,7 @@ export default function DashboardPage() {
           />
           <StatCard 
             label="TD non payés" 
-            value="10" 
+            value={tds.filter(t => t.status !== 'payé').length.toString()} 
             icon={FileX} 
             variant="sky" 
             trend="12%"
@@ -104,7 +111,7 @@ export default function DashboardPage() {
 
         {/* Main Data Table */}
         <section className="pb-10">
-          <TDTable onOpenDetails={handleOpenDetails} limit={4} />
+          <TDTable data={tds} onOpenDetails={handleOpenDetails} limit={4} />
         </section>
 
       </main>

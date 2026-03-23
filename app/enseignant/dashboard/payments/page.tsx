@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ClipboardList,
@@ -12,16 +12,22 @@ import Sidebar from '@/components/dashboard/enseignant/Sidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import TDTable from '@/components/dashboard/enseignant/TDTable';
 import DashboardSearch from '@/components/dashboard/enseignant/DashboardSearch';
-
-const paymentData = [
-  { id: 1, name: 'Anglais', classe: '3ème', date: '12/11/25', start: '14h', end: '17h', status: 'Payé', duration: '3h' },
-  { id: 2, name: 'Français', classe: 'Tle', date: '12/11/25', start: '14h', end: '17h', status: 'Payé', duration: '3h' },
-  { id: 3, name: 'SVT', classe: '3ème', date: '12/11/25', start: '14h', end: '17h', status: 'Payé', duration: '3h' },
-  { id: 4, name: 'EST', classe: 'CM2', date: '12/11/25', start: '14h', end: '17h', status: 'Payé', duration: '3h' },
-];
+import { tdService } from '@/services/td.service';
+import { TD } from '@/types/td.types';
 
 export default function PaymentsPage() {
+  const [tds, setTds] = useState<TD[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    tdService.getTDs().then(setTds);
+  }, []);
+
+  const paidTDs = tds.filter(td => {
+    const matchesSearch = td.subject.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        td.classe.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch && td.status === 'payé';
+  });
 
   return (
     <div className="flex min-h-screen bg-[#F4FAFD]">
@@ -54,7 +60,7 @@ export default function PaymentsPage() {
         <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
           <StatCard 
             label="Nombre total" 
-            value="23" 
+            value={tds.length.toString()} 
             icon={ClipboardList} 
             variant="green" 
             trend="12%"
@@ -62,7 +68,7 @@ export default function PaymentsPage() {
           />
           <StatCard 
             label="En cours" 
-            value="17" 
+            value={tds.filter(t => t.status === 'en cours').length.toString()} 
             icon={Clock} 
             variant="red" 
             trend="12%"
@@ -70,7 +76,7 @@ export default function PaymentsPage() {
           />
           <StatCard 
             label="Terminés" 
-            value="13" 
+            value={tds.filter(t => t.status === 'terminé').length.toString()} 
             icon={CheckCircle2} 
             variant="orange" 
             trend="12%"
@@ -78,7 +84,7 @@ export default function PaymentsPage() {
           />
           <StatCard 
             label="Payés" 
-            value="10" 
+            value={tds.filter(t => t.status === 'payé').length.toString()} 
             icon={Wallet} 
             variant="sky" 
             trend="12%"
@@ -103,22 +109,7 @@ export default function PaymentsPage() {
         <section>
           <TDTable 
             showActions={true}
-            data={paymentData
-              .filter(td => {
-                const matchesSearch = td.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                    td.classe.toLowerCase().includes(searchQuery.toLowerCase());
-                return matchesSearch && td.status === 'Payé';
-              })
-              .map(td => ({
-                id: td.id,
-                subject: td.name,
-                class: td.classe,
-                date: td.date,
-                start: td.start,
-                end: td.end,
-                status: td.status as any,
-                duration: td.duration
-              }))} 
+            data={paidTDs} 
           />
         </section>
 

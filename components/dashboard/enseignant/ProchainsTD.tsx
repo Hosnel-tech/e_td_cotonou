@@ -2,14 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ClipboardList } from 'lucide-react';
-
-const upcomingData = [
-  { id: 1, subject: 'Anglais', class: 'Tle', time: '12/01/26 à 14h', relative: 'Il y a 2 min', status: 'Marqué terminé' },
-  { id: 2, subject: 'EST', class: 'CM2', time: '12/01/26 à 14h', relative: 'Il y a 5 min', status: 'Marqué terminé' },
-  { id: 3, subject: 'PCT', class: '3ème', time: '12/01/26 à 15h', relative: 'Il y a 12 min', status: 'Marqué terminé' },
-  { id: 4, subject: 'Mathématiques', class: '2nde', time: '13/01/26 à 08h', relative: 'Il y a 1h', status: 'Programmé' },
-  { id: 5, subject: 'SVT', class: '1ère', time: '13/01/26 à 10h', relative: 'Il y a 2h', status: 'Programmé' },
-];
+import { UPCOMING_TDS } from '@/data/notifications';
 
 export default function ProchainsTD() {
   return (
@@ -24,7 +17,7 @@ export default function ProchainsTD() {
 
       {/* Liste des items */}
       <div className="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-        {upcomingData.map((td, index) => (
+        {UPCOMING_TDS.map((td, index) => (
           <motion.div 
             key={td.id}
             initial={{ opacity: 0, y: 10 }}
@@ -59,7 +52,9 @@ export default function ProchainsTD() {
 
             {/* Absolute Action Badge (Bottom Right) */}
             <div className="absolute bottom-4 right-4">
-              <div className="h-6 px-3 bg-green-800 rounded-[5px] flex items-center justify-center shadow-sm">
+              <div className={`h-6 px-3 rounded-[5px] flex items-center justify-center shadow-sm ${
+                td.status === 'Marqué terminé' ? 'bg-green-800' : 'bg-sky-900'
+              }`}>
                 <span className="text-white text-[10px] font-semibold font-montserrat whitespace-nowrap">
                   {td.status}
                 </span>

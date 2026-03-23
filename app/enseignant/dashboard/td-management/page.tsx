@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Plus, 
@@ -17,33 +17,29 @@ import NewTDModal from '@/components/dashboard/enseignant/NewTDModal';
 import TDDetailsModal from '@/components/dashboard/enseignant/TDDetailsModal';
 import TDTable from '@/components/dashboard/enseignant/TDTable';
 import DashboardSearch from '@/components/dashboard/enseignant/DashboardSearch';
-
-const mockTDs = [
-  { matter: 'Anglais', status: 'en cours', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-  { matter: 'Français', status: 'terminé', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-  { matter: 'SVT', status: 'en cours', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-  { matter: 'EST', status: 'terminé', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-  { matter: 'Français', status: 'terminé', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-  { matter: 'EST', status: 'terminé', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-  { matter: 'Anglais', status: 'en cours', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-  { matter: 'SVT', status: 'en cours', classe: '3ème', heure: '14h - 17h', date: '12/07/25', duree: '3h' },
-];
+import { tdService } from '@/services/td.service';
+import { TD } from '@/types/td.types';
 
 export default function TDManagementPage() {
+  const [tds, setTds] = useState<TD[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTD, setSelectedTD] = useState<any>(null);
+  const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    tdService.getTDs().then(setTds);
+  }, []);
+
   const filteredTDs = useMemo(() => {
-    return mockTDs.filter(td => {
-      const matchesSearch = td.matter.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    return tds.filter(td => {
+      const matchesSearch = td.subject.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           td.classe.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
-  }, [searchQuery]);
+  }, [searchQuery, tds]);
 
-  const handleOpenDetails = (data: any) => {
+  const handleOpenDetails = (data: TD) => {
     setSelectedTD(data);
     setIsDetailsOpen(true);
   };
@@ -79,7 +75,7 @@ export default function TDManagementPage() {
         <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
           <StatCard 
             label="Nombre total" 
-            value="23" 
+            value={tds.length.toString()} 
             icon={ClipboardList} 
             variant="green" 
             trend="12%"
@@ -87,7 +83,7 @@ export default function TDManagementPage() {
           />
           <StatCard 
             label="En cours" 
-            value="17" 
+            value={tds.filter(t => t.status === 'en cours').length.toString()} 
             icon={Clock} 
             variant="red" 
             trend="12%"
@@ -96,7 +92,7 @@ export default function TDManagementPage() {
           />
           <StatCard 
             label="Terminés" 
-            value="13" 
+            value={tds.filter(t => t.status === 'terminé').length.toString()} 
             icon={CheckCircle2} 
             variant="orange" 
             trend="12%"
@@ -104,7 +100,7 @@ export default function TDManagementPage() {
           />
           <StatCard 
             label="Payés" 
-            value="10" 
+            value={tds.filter(t => t.status === 'payé').length.toString()} 
             icon={Wallet} 
             variant="sky" 
             trend="12%"
@@ -137,14 +133,7 @@ export default function TDManagementPage() {
         <section>
           <TDTable 
             onOpenDetails={handleOpenDetails} 
-            data={filteredTDs.map(td => ({
-              subject: td.matter,
-              status: td.status as any,
-              class: td.classe,
-              time: td.heure,
-              date: td.date,
-              duration: td.duree
-            }))}
+            data={filteredTDs}
           />
         </section>
 

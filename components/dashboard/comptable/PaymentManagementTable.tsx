@@ -3,16 +3,12 @@
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, Eye } from 'lucide-react';
 import { useState } from 'react';
-import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
-
-export const PAYMENTS_DATA = [
-  { id: '1', teacher: 'VIGAN Pauline', subject: 'Anglais', grade: '3ème', date: '12/11/25', duration: '3h', amount: '40. 000', status: 'Terminé', action: 'Marquer payé' },
-  { id: '2', teacher: 'Jean KOUASSI', subject: 'Math', grade: 'CM2', date: '12/11/25', duration: '1h', amount: '50. 000', status: 'Terminé', action: 'Marquer payé' },
-  { id: '3', teacher: 'Paul ARNEAU', subject: 'Philosophie', grade: 'Tle', date: '12/11/25', duration: '4h', amount: '150. 000', status: 'Terminé', action: 'Marquer payé' },
-  { id: '4', teacher: 'DOUKPO Rose', subject: 'Anglais', grade: '3ème', date: '12/11/25', duration: '3h', amount: '65. 000', status: 'Terminé', action: 'Marquer payé' },
-];
+import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
+import { Payment } from '@/types/financial.types';
+import { TD } from '@/types/td.types';
 
 interface PaymentManagementTableProps {
+  payments: Payment[];
   isSelected: (id: string) => boolean;
   toggleSelectOne: (id: string, isShift?: boolean) => void;
   isAllSelected: boolean;
@@ -21,23 +17,25 @@ interface PaymentManagementTableProps {
 }
 
 export default function PaymentManagementTable({
+  payments,
   isSelected,
   toggleSelectOne,
   isAllSelected,
   isIndeterminate,
   toggleSelectAll
 }: PaymentManagementTableProps) {
-  const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
+  const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleOpenDetails = (payment: any) => {
+  const handleOpenDetails = (payment: Payment) => {
     setSelectedTD({
+      id: payment.id,
       subject: payment.subject,
       teacher: payment.teacher,
-      classe: payment.grade,
+      classe: payment.grade || 'N/A',
       date: payment.date,
       duration: payment.duration,
-      time: '08:00 - 11:00', // Mocking time
+      time: '08:00 - 11:00',
       status: 'terminé',
     });
     setIsModalOpen(true);
@@ -77,7 +75,7 @@ export default function PaymentManagementTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-300">
-              {PAYMENTS_DATA.map((payment, idx) => (
+              {payments.map((payment, idx) => (
                 <motion.tr 
                   key={payment.id}
                   initial={{ opacity: 0, x: -10 }}
@@ -121,7 +119,7 @@ export default function PaymentManagementTable({
                         }}
                         className="px-5 py-2 bg-sky-900 rounded-[5px] text-white text-xs font-semibold font-montserrat hover:bg-sky-950 transition-colors shadow-md active:scale-95 whitespace-nowrap"
                       >
-                        {payment.action}
+                        {payment.action || 'Marquer payé'}
                       </button>
                     </div>
                   </td>
@@ -132,9 +130,8 @@ export default function PaymentManagementTable({
         </div>
       </div>
 
-      {/* Table Footer / Summary & Pagination */}
       <div className="p-8 border-t border-stone-100 flex items-center justify-between">
-        <span className="text-black text-2xl font-normal font-montserrat">Total {PAYMENTS_DATA.length}</span>
+        <span className="text-black text-2xl font-normal font-montserrat">Total {payments.length}</span>
         
         <div className="flex items-center gap-4">
           <button className="w-12 h-12 flex items-center justify-center text-black hover:bg-slate-50 rounded-md transition-colors">

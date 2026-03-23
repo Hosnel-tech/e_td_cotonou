@@ -5,30 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutList, LayoutGrid, ArrowRight } from 'lucide-react';
 import TDCard from './TDCard';
 import { getTDType } from './tdUtils';
-
-const tdData = [
-  { id: 1, subject: 'Anglais', class: '3ème', date: '12/11/25', start: '14h', end: '17h', status: 'En cours' as const, duration: '3h' },
-  { id: 2, subject: 'Français', class: 'Tle', date: '12/11/25', start: '14h', end: '17h', status: 'Terminé' as const, duration: '3h' },
-  { id: 3, subject: 'SVT', class: '3ème', date: '12/11/25', start: '14h', end: '17h', status: 'En cours' as const, duration: '3h' },
-  { id: 4, subject: 'EST', class: 'CM2', date: '12/11/25', start: '14h', end: '17h', status: 'Terminé' as const, duration: '3h' },
-];
-
-export interface TDData {
-  id?: number | string;
-  subject: string;
-  class: string;
-  date: string;
-  start?: string;
-  end?: string;
-  time?: string;
-  status: 'En cours' | 'Terminé' | 'Rejeté' | 'en cours' | 'terminé' | 'rejeté' | 'Payé';
-  duration: string;
-  type?: 'Primaire' | 'Collège';
-}
+import { TD } from '@/types/td.types';
 
 interface TDTableProps {
   onOpenDetails?: (data: any) => void;
-  data?: TDData[];
+  data: TD[];
   limit?: number;
   initialView?: 'list' | 'grid';
   showActions?: boolean;
@@ -43,32 +24,11 @@ export default function TDTable({
 }: TDTableProps) {
   const [view, setView] = useState<'list' | 'grid'>(initialView);
 
-  // Use provided data or fallback to default mock data
-  const baseData = data || tdData.map(d => ({
-    id: d.id,
-    subject: d.subject,
-    class: d.class,
-    date: d.date,
-    start: d.start,
-    end: d.end,
-    time: `${d.start} - ${d.end}`,
-    status: d.status,
-    duration: d.duration
-  })) as TDData[];
-
   // Apply limit if specified (dashboard mode)
-  const displayData = limit ? baseData.slice(0, limit) : baseData;
+  const displayData = limit ? data.slice(0, limit) : data;
 
-  const handleOpenDetails = (td: TDData) => {
-    onOpenDetails?.({
-      id: td.id,
-      name: td.subject,
-      classe: td.class,
-      date: td.date,
-      time: td.time || `${td.start} - ${td.end}`,
-      duration: td.duration,
-      status: td.status.toLowerCase()
-    });
+  const handleOpenDetails = (td: TD) => {
+    onOpenDetails?.(td);
   };
 
   return (
@@ -136,10 +96,10 @@ export default function TDTable({
                       className="hover:bg-gray-50/30 transition-colors"
                     >
                       <td className="px-8 py-6 text-black text-xl font-normal font-montserrat">{td.subject}</td>
-                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.class}</td>
-                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.type || getTDType(td.class)}</td>
+                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.classe}</td>
+                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{getTDType(td.classe)}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.date}</td>
-                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.time || `${td.start} - ${td.end}`}</td>
+                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.time}</td>
                       <td className="px-6 py-6">
                         <span className={`px-4 py-1.5 rounded-[30px] inline-flex items-center justify-center text-xs font-semibold text-white w-fit whitespace-nowrap ${
                           td.status.toLowerCase() === 'en cours' ? 'bg-[#004B70]' : 
@@ -178,13 +138,13 @@ export default function TDTable({
                 <TDCard 
                   key={td.id || index}
                   matter={td.subject}
-                  classe={td.class}
-                  heure={td.time || `${td.start} - ${td.end}`}
+                  classe={td.classe}
+                  heure={td.time}
                   date={td.date}
                   duree={td.duration}
-                  type={td.type || getTDType(td.class)}
+                  type={getTDType(td.classe)}
                   status={td.status.toLowerCase() as 'en cours' | 'terminé'}
-                  onOpenDetails={(data) => onOpenDetails?.({ ...data, id: td.id, type: td.type || getTDType(td.class) })}
+                  onOpenDetails={() => handleOpenDetails(td)}
                 />
               ))}
             </motion.div>

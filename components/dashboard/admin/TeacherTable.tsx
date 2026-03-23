@@ -2,24 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Eye, Check, X } from 'lucide-react';
-
-export interface Teacher {
-  id: string;
-  name: string;
-  subject: string;
-  className: string;
-  date: string;
-  status: 'actif' | 'en attente' | 'rejeté';
-  school: string;
-  email: string;
-  phone: string;
-  birthDate: string;
-  nationality: string;
-  location: string;
-  ifu: string;
-  bankAccount: string;
-  bankName: string;
-}
+import { Teacher } from '@/types/user.types';
 
 interface TeacherTableProps {
   teachers: Teacher[];

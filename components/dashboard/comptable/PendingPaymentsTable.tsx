@@ -4,17 +4,12 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Check, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useSelection } from '@/hooks/useSelection';
-import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
-
-export const PENDING_PAYMENTS_DATA = [
-  { id: '1', teacher: 'VIGAN Pauline', subject: 'Anglais', grade: '3ème', date: '12/11/25', duration: '3h', amount: '40. 000', status: 'Terminé' },
-  { id: '2', teacher: 'Jean KOUASSI', subject: 'Math', grade: 'CM2', date: '12/11/25', duration: '1h', amount: '50. 000', status: 'Terminé' },
-  { id: '3', teacher: 'Paul ARNEAU', subject: 'Philosophie', grade: 'Tle', date: '12/11/25', duration: '4h', amount: '150. 000', status: 'Terminé' },
-  { id: '4', teacher: 'DOUKPO Rose', subject: 'Anglais', grade: '3ème', date: '12/11/25', duration: '3h', amount: '65. 000', status: 'Terminé' },
-];
+import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
+import { Payment } from '@/types/financial.types';
+import { TD } from '@/types/td.types';
 
 interface PendingPaymentsTableProps {
+  payments: Payment[];
   isSelected: (id: string) => boolean;
   toggleSelectOne: (id: string, isShift?: boolean) => void;
   isAllSelected: boolean;
@@ -23,24 +18,26 @@ interface PendingPaymentsTableProps {
 }
 
 export default function PendingPaymentsTable({
+  payments,
   isSelected,
   toggleSelectOne,
   isAllSelected,
   isIndeterminate,
   toggleSelectAll
 }: PendingPaymentsTableProps) {
-  const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
+  const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleOpenDetails = (payment: any) => {
+  const handleOpenDetails = (payment: Payment) => {
     setSelectedTD({
+      id: payment.id,
       subject: payment.subject,
       teacher: payment.teacher,
-      classe: payment.grade,
+      classe: payment.grade || 'N/A',
       date: payment.date,
       duration: payment.duration,
-      time: '08:00 - 11:00', // Mocking time
-      status: 'terminé', // Mocking status for details view
+      time: '08:00 - 11:00',
+      status: 'terminé',
     });
     setIsModalOpen(true);
   };
@@ -82,7 +79,7 @@ export default function PendingPaymentsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-300">
-            {PENDING_PAYMENTS_DATA.map((payment, idx) => {
+            {payments.map((payment, idx) => {
               const selected = isSelected(payment.id);
               return (
                 <motion.tr 

@@ -1,6 +1,6 @@
-import { Accountant } from '@/components/dashboard/admin/AccountantTable';
+import { Accountant } from '@/types/user.types';
 
-export const ACCOUNTANT_DATA: Accountant[] = [
+export const ACCOUNTANTS: Accountant[] = [
   { 
     id: '1', 
     lastName: 'CHABI', 

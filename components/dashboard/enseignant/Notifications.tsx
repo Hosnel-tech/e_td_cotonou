@@ -2,49 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Bell, Check, X } from 'lucide-react';
-
-const notificationData = [
-  { 
-    id: 1, 
-    title: 'TD approuvé', 
-    desc: 'TD Anglais - 3ème du 12/11/25', 
-    time: 'Il y a 2 min', 
-    type: 'success',
-    tdData: { id: 1, name: 'Anglais', classe: '3ème', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'terminé', type: 'Secondaire' }
-  },
-  { 
-    id: 2, 
-    title: 'TD rejeté', 
-    desc: 'TD Français - Tle du 12/11/25', 
-    time: 'Il y a 15 min', 
-    type: 'error',
-    tdData: { id: 2, name: 'Français', classe: 'Tle', date: '12/11/25', time: '14h - 17h', duration: '3h', status: 'rejeté', type: 'Secondaire' }
-  },
-  { 
-    id: 3, 
-    title: 'Nouveau TD assigné', 
-    desc: 'TD PCT - 3ème du 13/11/25', 
-    time: 'Il y a 1h', 
-    type: 'success',
-    tdData: { id: 3, name: 'PCT', classe: '3ème', date: '13/11/25', time: '08h - 10h', duration: '2h', status: 'en cours', type: 'Secondaire' }
-  },
-  { 
-    id: 4, 
-    title: 'Paiement effectué', 
-    desc: 'TD Anglais - Tle du 10/11/25', 
-    time: 'Il y a 3h', 
-    type: 'success',
-    tdData: { id: 4, name: 'Anglais', classe: 'Tle', date: '10/11/25', time: '14h - 17h', duration: '3h', status: 'payé', type: 'Secondaire' }
-  },
-  { 
-    id: 5, 
-    title: 'Rappel de TD', 
-    desc: 'TD SVT - 1ère du 14/11/25', 
-    time: 'Il y a 5h', 
-    type: 'success',
-    tdData: { id: 5, name: 'SVT', classe: '1ère', date: '14/11/25', time: '10h - 12h', duration: '2h', status: 'programmé', type: 'Secondaire' }
-  },
-];
+import { NOTIFICATIONS, Notification } from '@/data/notifications';
 
 interface NotificationsProps {
   onOpenDetails?: (data: any) => void;
@@ -63,7 +21,7 @@ export default function Notifications({ onOpenDetails }: NotificationsProps) {
 
       {/* Liste */}
       <div className="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-        {notificationData.map((notif, index) => (
+        {NOTIFICATIONS.map((notif, index) => (
           <motion.div 
             key={notif.id}
             initial={{ opacity: 0, x: 20 }}

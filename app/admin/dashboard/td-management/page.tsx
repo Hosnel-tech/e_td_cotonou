@@ -3,22 +3,21 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList, Clock, CheckCircle2, Wallet,
-  Search, ChevronDown, ChevronLeft, ChevronRight,
-  List, LayoutGrid, Check, X, Eye, Trash2
+  Search, ChevronDown, 
+  List, LayoutGrid
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdminTDTable from '@/components/dashboard/admin/AdminTDTable';
 import AdminTDCard from '@/components/dashboard/admin/AdminTDCard';
-import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
+import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
-import { ADMIN_TDS } from '@/data/adminTDData';
 
 import Pagination from '@/components/dashboard/admin/Pagination';
-
-const ALL_TDS = ADMIN_TDS;
+import { tdService } from '@/services/td.service';
+import { TD } from '@/types/td.types';
 
 const STATUS_FILTERS = ['Tous', 'En attente', 'En cours', 'Terminé', 'Rejeté'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
@@ -26,14 +25,19 @@ type StatusFilter = typeof STATUS_FILTERS[number];
 const ITEMS_PER_PAGE = 8;
 
 export default function AdminTDManagementPage() {
+  const [allTds, setAllTds] = useState<TD[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
+  const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    tdService.getTDs().then(setAllTds);
+  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -45,7 +49,7 @@ export default function AdminTDManagementPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filtered = ALL_TDS.filter((td) => {
+  const filtered = allTds.filter((td) => {
     const matchesSearch =
       searchQuery === '' ||
       td.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -62,8 +66,8 @@ export default function AdminTDManagementPage() {
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-  const handleOpenDetails = (td: any) => {
-    setSelectedTD({...td});
+  const handleOpenDetails = (td: TD) => {
+    setSelectedTD(td);
     setIsModalOpen(true);
   };
 
@@ -151,12 +155,12 @@ export default function AdminTDManagementPage() {
             ) : viewMode === 'grid' ? (
               <motion.div key="grid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                 {paginated.map((td, idx) => (
-                  <AdminTDCard key={td.id} {...td as any} staggerIndex={idx} isSelected={isSelected(td.id)} onToggleSelection={(shift) => toggleSelectOne(td.id, shift)} onOpenDetails={() => handleOpenDetails(td)} />
+                  <AdminTDCard key={td.id} {...td} staggerIndex={idx} isSelected={isSelected(td.id)} onToggleSelection={(shift) => toggleSelectOne(td.id, shift)} onOpenDetails={() => handleOpenDetails(td)} />
                 ))}
               </motion.div>
             ) : (
               <AdminTDTable 
-                tds={paginated as any} 
+                tds={paginated} 
                 showFooter={false} 
                 showHeader={false}
                 showBulkActions={false}

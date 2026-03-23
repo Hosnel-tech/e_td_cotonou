@@ -1,15 +1,6 @@
-export interface AdminTDData {
-  id: string;
-  teacher: string;
-  subject: string;
-  classe: string;
-  date: string;
-  time: string;
-  status: 'en attente' | 'en cours' | 'terminé' | 'payé' | 'rejeté';
-  duration: string;
-}
+import { TD } from '@/types/td.types';
 
-export const ADMIN_TDS: AdminTDData[] = [
+export const TDS: TD[] = [
   { id: '1', teacher: 'VIGAN Pauline', subject: 'Anglais',  classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en attente', duration: '3h' },
   { id: '2', teacher: 'VIGAN Pauline', subject: 'Français', classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'terminé',   duration: '3h' },
   { id: '3', teacher: 'VIGAN Pauline', subject: 'SVT',      classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en attente', duration: '3h' },

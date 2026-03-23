@@ -2,21 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Eye, Check, X } from 'lucide-react';
-
-export interface Accountant {
-  id: string;
-  lastName: string;
-  firstName: string;
-  email: string;
-  phone: string;
-  status: 'actif' | 'inactif';
-  birthDate: string;
-  nationality: string;
-  location: string;
-  ifu: string;
-  bankAccount: string;
-  bankName: string;
-}
+import { Accountant } from '@/types/user.types';
 
 interface AccountantTableProps {
   accountants: Accountant[];
