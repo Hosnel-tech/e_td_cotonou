@@ -126,7 +126,10 @@ export default function PendingPaymentsTable({
                         <Eye size={18} />
                       </button>
                       <button 
-                        onClick={(e) => { e.stopPropagation(); alert('Paiement marqué comme effectué'); }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          alert('Paiement marqué comme effectué'); 
+                        }}
                         className="px-5 py-2 bg-sky-900 rounded-[5px] text-white text-xs font-semibold font-montserrat hover:bg-sky-950 transition-all shadow-md active:scale-95 whitespace-nowrap"
                       >
                         Marquer payé

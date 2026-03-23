@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Wallet, CreditCard, PieChart } from 'lucide-react';
+import { Wallet, CreditCard, PieChart, Check } from 'lucide-react';
 import ComptableHero from '@/components/dashboard/comptable/ComptableHero';
 import EvaluationSection from '@/components/dashboard/comptable/EvaluationSection';
 import PendingPaymentsTable, { PENDING_PAYMENTS_DATA } from '@/components/dashboard/comptable/PendingPaymentsTable';
@@ -74,7 +74,11 @@ export default function ComptableDashboardPage() {
       <BulkActionsBar 
         count={selection.selectionCount} 
         onClear={selection.clearSelection} 
-        onExport={() => console.log('Exporting selected pending payments...')}
+        primaryAction={{
+          label: 'Marquer payé',
+          icon: Check,
+          onClick: () => alert('Actions groupées: Paiements marqués comme effectués')
+        }}
         showDelete={false} 
       />
     </>

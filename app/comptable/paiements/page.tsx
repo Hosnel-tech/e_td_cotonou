@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Wallet, CreditCard, PieChart } from 'lucide-react';
+import { Wallet, CreditCard, PieChart, Check } from 'lucide-react';
 import ComptableSidebar from '@/components/dashboard/comptable/ComptableSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdvancedSearch from '@/components/dashboard/comptable/AdvancedSearch';
@@ -71,7 +71,11 @@ export default function PaymentManagementPage() {
       <BulkActionsBar 
         count={selection.selectionCount} 
         onClear={selection.clearSelection} 
-        onExport={() => console.log('Exporting selected payments...')}
+        primaryAction={{
+          label: 'Marquer payé',
+          icon: Check,
+          onClick: () => alert('Actions groupées: Paiements marqués comme effectués')
+        }}
         showDelete={false} 
       />
     </>

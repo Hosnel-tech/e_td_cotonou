@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Wallet, CreditCard, PieChart } from 'lucide-react';
+import { Wallet, CreditCard, PieChart, Download } from 'lucide-react';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdvancedSearch from '@/components/dashboard/comptable/AdvancedSearch';
 import TransfersTable, { TRANSFERS_DATA } from '@/components/dashboard/comptable/TransfersTable';
@@ -72,7 +72,11 @@ export default function TransfersPage() {
       <BulkActionsBar 
         count={selection.selectionCount} 
         onClear={selection.clearSelection} 
-        onExport={() => console.log('Exporting selected transfers...')}
+        primaryAction={{
+          label: 'Exporter',
+          icon: Download,
+          onClick: () => alert('Actions groupées: Virements exportés au format CSV')
+        }}
         showDelete={false} 
       />
     </>

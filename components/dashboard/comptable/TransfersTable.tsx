@@ -96,15 +96,14 @@ export default function TransfersTable({
                     <td className="text-black text-xl font-normal px-4 font-montserrat whitespace-nowrap">{transfer.bank}</td>
                     <td className="text-black text-xl font-semibold px-4 font-montserrat">{transfer.amount}</td>
                     <td className="px-4 text-right">
-                      <div className="flex items-center justify-end gap-3">
+                      <div className="flex items-center justify-end">
                         <button 
-                          onClick={(e) => { e.stopPropagation(); handleOpenDetails(transfer); }}
-                          className="p-2 bg-slate-100 text-sky-900 rounded-md hover:bg-slate-200 transition-all active:scale-90"
-                          title="Voir les détails"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            alert('Exportation du virement (' + transfer.bank + ') au format CSV...');
+                          }}
+                          className="px-5 py-2 bg-green-800 rounded-md text-white text-xs font-semibold font-montserrat hover:bg-green-900 transition-all shadow-md active:scale-95 whitespace-nowrap"
                         >
-                          <Eye size={18} />
-                        </button>
-                        <button className="px-5 py-2 bg-green-800 rounded-md text-white text-xs font-semibold font-montserrat hover:bg-green-900 transition-all shadow-md active:scale-95 whitespace-nowrap">
                           Exporter (.CSV)
                         </button>
                       </div>
