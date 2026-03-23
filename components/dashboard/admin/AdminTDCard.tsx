@@ -8,7 +8,7 @@ export interface AdminTDCardProps {
   id: string;
   teacher: string;
   subject: string;
-  status: 'en cours' | 'terminé' | 'en attente' | 'payé';
+  status: 'en cours' | 'terminé' | 'en attente' | 'payé' | 'rejeté';
   classe: string;
   time: string;
   date: string;
@@ -20,10 +20,11 @@ export interface AdminTDCardProps {
 }
 
 const statusConfig: Record<string, { pill: string; label: string }> = {
-  'en cours':   { pill: 'bg-sky-900/20 text-sky-900',   label: 'En cours'   },
-  'terminé':    { pill: 'bg-green-800/20 text-green-800', label: 'Terminé'   },
-  'en attente': { pill: 'bg-amber-400/20 text-amber-500', label: 'En attente' },
-  'payé':       { pill: 'bg-red-600/20 text-red-600',    label: 'Payé'       },
+  'en cours':   { pill: 'bg-sky-900 text-white',   label: 'En cours'   },
+  'terminé':    { pill: 'bg-green-800 text-white', label: 'Terminé'   },
+  'en attente': { pill: 'bg-amber-400 text-white', label: 'En attente' },
+  'payé':       { pill: 'bg-sky-400 text-white',    label: 'Payé'       },
+  'rejeté':     { pill: 'bg-red-600 text-white',    label: 'Rejeté'     },
 };
 
 export default function AdminTDCard({
@@ -41,7 +42,7 @@ export default function AdminTDCard({
   onOpenDetails,
 }: AdminTDCardProps) {
   const cfg      = statusConfig[status] ?? statusConfig['en cours'];
-  const isActive = status === 'en attente';
+  const isPending = status === 'en attente';
   const type     = getTDType(classe);
 
   return (
@@ -65,10 +66,14 @@ export default function AdminTDCard({
             <h3 className="text-black text-xl font-semibold leading-tight">{subject}</h3>
           </div>
         </div>
-        <span className={`px-4 py-1.5 rounded-full text-xs font-semibold ${cfg.pill}`}>{cfg.label}</span>
+        <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase border shadow-sm ${cfg.pill}`}>{cfg.label}</span>
       </div>
 
-      <div className="space-y-3 flex-1">
+      <div className="space-y-3 flex-1 px-1">
+        <div className="flex items-center justify-between text-black/60 text-sm">
+          <span className="font-medium">Enseignant:</span>
+          <span className="text-black font-semibold truncate max-w-[120px]">{teacher}</span>
+        </div>
         <div className="flex items-center justify-between text-black/60 text-sm">
           <span className="font-medium">Classe:</span>
           <span className="text-black font-semibold">{classe}</span>
@@ -77,10 +82,43 @@ export default function AdminTDCard({
           <span className="font-medium">Date:</span>
           <span className="text-black font-semibold">{date}</span>
         </div>
+        <div className="flex items-center justify-between text-black/60 text-sm">
+          <span className="font-medium">Heure:</span>
+          <span className="text-black font-semibold">{time}</span>
+        </div>
+        <div className="flex items-center justify-between text-black/60 text-sm">
+          <span className="font-medium">Durée:</span>
+          <span className="text-black font-semibold">{duration}</span>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3 pt-2" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onOpenDetails} className="flex-1 h-10 bg-sky-900 text-white rounded-md flex items-center justify-center hover:bg-sky-950 transition-all"><Eye size={20} /></button>
+      <div className="flex items-center gap-3 pt-4 border-t border-stone-100" onClick={(e) => e.stopPropagation()}>
+        <button
+          disabled={!isPending}
+          className={`flex-1 h-10 rounded-md flex items-center justify-center transition-all shadow-md ${
+            isPending
+              ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-105'
+              : 'bg-green-800/25 text-white/50 cursor-not-allowed'
+          }`}
+        >
+          <Check size={20} strokeWidth={3} />
+        </button>
+        <button
+          disabled={!isPending}
+          className={`flex-1 h-10 rounded-md flex items-center justify-center transition-all shadow-md ${
+            isPending
+              ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-105'
+              : 'bg-red-600/25 text-white/50 cursor-not-allowed'
+          }`}
+        >
+          <X size={20} strokeWidth={3} />
+        </button>
+        <button 
+          onClick={onOpenDetails} 
+          className="flex-1 h-10 bg-sky-900 text-white rounded-md flex items-center justify-center hover:bg-sky-950 transition-all shadow-md hover:scale-105"
+        >
+          <Eye size={20} />
+        </button>
       </div>
     </motion.div>
   );

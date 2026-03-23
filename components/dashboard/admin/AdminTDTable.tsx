@@ -1,3 +1,5 @@
+"use client";
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { List, LayoutGrid, Check, X, Eye, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
@@ -239,7 +241,7 @@ export default function AdminTDTable({
               transition={{ duration: 0.25 }}
               className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
             >
-              {displayData.map((row) => (
+              {displayData.map((row, idx) => (
                 <AdminTDCard
                   key={row.id}
                   id={row.id}
@@ -250,7 +252,7 @@ export default function AdminTDTable({
                   time={row.time}
                   date={row.date}
                   duration={row.duration}
-                  staggerIndex={0}
+                  staggerIndex={idx}
                   isSelected={isSelected(row.id)}
                   onToggleSelection={(shift) => toggleSelectOne(row.id, shift)}
                   onOpenDetails={() => handleOpenDetails(row)}
