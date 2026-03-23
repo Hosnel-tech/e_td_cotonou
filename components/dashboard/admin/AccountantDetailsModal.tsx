@@ -69,93 +69,47 @@ export default function AccountantDetailsModal({ isOpen, onClose, accountant }: 
             className="fixed inset-0 z-[70] flex items-center justify-center p-6 pointer-events-none"
           >
             <div
-              className="bg-white rounded-3xl w-full max-w-[874px] max-h-[90vh] overflow-y-auto pointer-events-auto shadow-2xl scrollbar-hide"
+              className="bg-white rounded-2xl w-full max-w-[846px] max-h-[90vh] overflow-y-auto pointer-events-auto shadow-2xl scrollbar-hide flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="p-8 flex items-start gap-4">
-                <div className="w-16 h-16 bg-sky-900/10 rounded-xl flex items-center justify-center shrink-0">
-                  <UserRoundSearch className="text-sky-900" size={36} strokeWidth={2} />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <h2 className="text-black text-3xl font-semibold font-montserrat leading-tight">
-                    Détails du comptable : {accountant.lastName} {accountant.firstName}
-                  </h2>
-                  <p className="text-black text-xl font-normal font-montserrat opacity-70">
-                    Voici informations détaillées d’un comptable
-                  </p>
-                </div>
+              <div className="p-10 pb-6 flex items-center justify-between">
+                <h2 className="text-black text-3xl font-semibold font-montserrat">
+                  Détail d’un comptable
+                </h2>
                 <button
                   onClick={onClose}
-                  className="w-9 h-9 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors shrink-0 mt-1"
+                  className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors shrink-0"
                 >
-                  <X size={24} className="text-black" />
+                  <X size={32} className="text-black" />
                 </button>
               </div>
 
-              {/* Divider */}
-              <div className="w-full h-px bg-sky-900/25 mx-auto" />
-
               {/* Body */}
-              <div className="p-8 space-y-6">
-                {/* Personal Info */}
-                <SectionCard title="Informations personnelles">
+              <div className="px-10 pb-6">
+                <SectionCard title="Informations du comptable">
                   <InfoRow label="Nom :" value={`${accountant.lastName} ${accountant.firstName}`} />
                   <InfoRow label="Email :" value={accountant.email} />
-                  <InfoRow label="Numéro :" value={accountant.phone} />
-                  <InfoRow label="Date de naissance :" value={accountant.birthDate} />
-                  <InfoRow label="Nationalité :" value={accountant.nationality} />
-                  <InfoRow label="Localisation :" value={accountant.location} divider={false} />
-                </SectionCard>
-
-                {/* Banking Info */}
-                <SectionCard title="Informations bancaires">
-                  <InfoRow label="Numéro bancaire :" value={accountant.bankAccount} />
-                  <InfoRow label="Numéro IFU :" value={accountant.ifu} />
-                  <InfoRow label="Banque :" value={accountant.bankName} divider={false} />
-                </SectionCard>
-
-                {/* Status */}
-                <SectionCard title="Statut du compte">
-                  <InfoRow 
-                    label="Statut :" 
-                    value={accountant.status === 'actif' ? 'Actif' : 'Inactif'} 
-                    divider={false} 
-                  />
+                  <InfoRow label="Téléphone :" value={accountant.phone} />
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-neutral-400 text-lg font-semibold font-montserrat">Statut :</span>
+                    <span className="text-sky-900 text-lg font-semibold font-montserrat text-right">
+                      {accountant.status.charAt(0).toUpperCase() + accountant.status.slice(1)}
+                    </span>
+                  </div>
                 </SectionCard>
               </div>
 
               {/* Footer */}
-              <div className="px-8 pb-8 flex justify-end items-center gap-4">
-                {accountant.status === 'actif' ? (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={onClose}
-                    className="px-8 py-4 bg-green-800 text-white text-xl font-semibold font-montserrat rounded-lg hover:bg-green-900 transition-colors shadow-md"
-                  >
-                    Fermer
-                  </motion.button>
-                ) : (
-                  <>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={onClose}
-                      className="px-8 py-4 bg-white border border-stone-300 text-black text-xl font-semibold font-montserrat rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Fermer
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={onClose}
-                      className="px-8 py-4 bg-green-800 text-white text-xl font-semibold font-montserrat rounded-lg hover:bg-green-900 transition-colors shadow-md"
-                    >
-                      Valider
-                    </motion.button>
-                  </>
-                )}
+              <div className="px-10 pb-10 flex justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={onClose}
+                  className="px-10 py-5 bg-white ring-1 ring-inset ring-red-600 text-red-600 text-base font-semibold font-montserrat rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  Fermer
+                </motion.button>
               </div>
             </div>
           </motion.div>

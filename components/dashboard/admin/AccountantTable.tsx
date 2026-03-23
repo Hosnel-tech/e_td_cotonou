@@ -106,7 +106,7 @@ export default function AccountantTable({
                       <Eye size={20} strokeWidth={2.5} />
                     </button>
                     <button
-                      className="w-9 h-9 bg-red-600/10 text-red-600 rounded-[5px] flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                      className="w-9 h-9 bg-[#EE2E33] text-white rounded-[5px] flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
                     >
                       <X size={18} strokeWidth={2.5} />
                     </button>
