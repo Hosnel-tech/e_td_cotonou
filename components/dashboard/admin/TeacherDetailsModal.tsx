@@ -133,14 +133,36 @@ export default function TeacherDetailsModal({ isOpen, onClose, teacher }: Teache
               </div>
 
               {/* Footer */}
-              <div className="px-8 pb-8 flex justify-end">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-8 py-4 bg-green-800 text-white text-xl font-semibold font-montserrat rounded-lg hover:bg-green-900 transition-colors shadow-md"
-                >
-                  Marquer terminer
-                </motion.button>
+              <div className="px-8 pb-8 flex justify-end items-center gap-4">
+                {teacher.status === 'actif' ? (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={onClose}
+                    className="px-8 py-4 bg-green-800 text-white text-xl font-semibold font-montserrat rounded-lg hover:bg-green-900 transition-colors shadow-md"
+                  >
+                    Fermer
+                  </motion.button>
+                ) : (
+                  <>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={onClose}
+                      className="px-8 py-4 bg-white border border-stone-300 text-black text-xl font-semibold font-montserrat rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Fermer
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={onClose}
+                      className="px-8 py-4 bg-green-800 text-white text-xl font-semibold font-montserrat rounded-lg hover:bg-green-900 transition-colors shadow-md"
+                    >
+                      Valider
+                    </motion.button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

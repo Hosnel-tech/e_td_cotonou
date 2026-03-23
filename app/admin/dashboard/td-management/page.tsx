@@ -16,6 +16,8 @@ import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import { ADMIN_TDS } from '@/data/adminTDData';
 
+import Pagination from '@/components/dashboard/admin/Pagination';
+
 const ALL_TDS = ADMIN_TDS;
 
 const STATUS_FILTERS = ['Tous', 'En attente', 'En cours', 'Terminé', 'Rejeté'] as const;
@@ -168,14 +170,12 @@ export default function AdminTDManagementPage() {
             )}
           </AnimatePresence>
 
-          <div className="flex items-center justify-between pt-6 border-t border-gray-100">
-            <span className="text-2xl font-normal text-black font-montserrat">Total {filtered.length}</span>
-            <div className="flex items-center gap-2">
-               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="p-2"><ChevronLeft size={24} /></button>
-               <span className="text-xl font-semibold">{currentPage} / {totalPages}</span>
-               <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} className="p-2"><ChevronRight size={24} /></button>
-            </div>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={filtered.length}
+          />
         </section>
 
         <BulkActionsBar count={selectionCount} onClear={clearSelection} />

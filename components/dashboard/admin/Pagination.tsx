@@ -1,41 +1,78 @@
 "use client";
 
+import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  onPageChange: (page: number) => void;
+  totalItems: number;
 }
 
-export default function Pagination({ currentPage, totalPages }: PaginationProps) {
-  return (
-    <div className="flex items-center gap-4">
-      <button className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black transition-colors disabled:opacity-30">
-        <ChevronLeft size={28} />
-      </button>
-      
-      <div className="flex items-center gap-2">
-        {[...Array(totalPages)].map((_, i) => {
-          const pageNum = i + 1;
-          const isActive = pageNum === currentPage;
-          return (
-            <button
-              key={pageNum}
-              className={`w-12 h-12 flex items-center justify-center rounded-md text-2xl font-semibold font-montserrat transition-all ${
-                isActive 
-                  ? 'bg-green-800 text-white shadow-md transition-transform hover:scale-105' 
-                  : 'bg-white text-green-800 border border-green-800 hover:bg-green-50'
-              }`}
-            >
-              {pageNum}
-            </button>
-          );
-        })}
-      </div>
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalItems,
+}: PaginationProps) {
+  if (totalPages <= 0) return null;
 
-      <button className="w-10 h-10 flex items-center justify-center text-black/60 hover:text-black transition-colors disabled:opacity-30">
-        <ChevronRight size={28} />
-      </button>
+  const getPages = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  return (
+    <div className="flex items-center justify-between py-6 px-2 font-montserrat bg-transparent border-t border-gray-100">
+      {/* Total Count - Smaller, more subtle as in the image */}
+      <span className="text-xl font-medium text-[#1A1A1A]">
+        Total {totalItems}
+      </span>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center gap-4">
+        {/* Previous */}
+        <button
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1}
+          className="text-[#CCCCCC] disabled:cursor-not-allowed hover:text-[#046c3c] transition-colors"
+        >
+          <ChevronLeft size={20} strokeWidth={2.5} />
+        </button>
+
+        {/* Page Numbers - Exact match to image */}
+        <div className="flex items-center gap-2">
+          {getPages().map((page) => {
+            const isActive = currentPage === page;
+            return (
+              <button
+                key={page}
+                onClick={() => onPageChange(page)}
+                className={`w-[34px] h-[34px] flex items-center justify-center rounded-[4px] font-bold text-base transition-all ${
+                  isActive
+                    ? 'bg-[#046c3c] text-white' // Dark Forest Green
+                    : 'border border-[#046c3c] text-[#046c3c] hover:bg-green-50'
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Next */}
+        <button
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages}
+          className="text-[#1A1A1A] disabled:text-[#CCCCCC] disabled:cursor-not-allowed hover:text-[#046c3c] transition-colors"
+        >
+          <ChevronRight size={20} strokeWidth={2.5} />
+        </button>
+      </div>
     </div>
   );
 }

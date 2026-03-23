@@ -13,13 +13,18 @@ import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import { ACCOUNTANT_DATA } from '@/data/accountantData';
 import AccountantDetailsModal from '@/components/dashboard/admin/AccountantDetailsModal';
 
+import Pagination from '@/components/dashboard/admin/Pagination';
+
 const STATUS_FILTERS = ['Tous', 'Actif', 'Inactif'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
+
+const ITEMS_PER_PAGE = 10;
 
 export default function AccountantsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   // Modal State
@@ -48,6 +53,12 @@ export default function AccountantsPage() {
 
     return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredAccountants.length / ITEMS_PER_PAGE));
+  const paginatedAccountants = filteredAccountants.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const selection = useSelection(filteredAccountants);
   const { isSelected, toggleSelectOne, isAllSelected, isIndeterminate, toggleSelectAll, selectionCount, clearSelection } = selection;
@@ -85,7 +96,10 @@ export default function AccountantsPage() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => { 
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Rechercher par nom, prénom ou email..."
                 className="flex-1 bg-transparent outline-none text-base font-semibold placeholder:text-neutral-400"
               />
@@ -115,7 +129,11 @@ export default function AccountantsPage() {
                     {STATUS_FILTERS.map((f) => (
                       <button
                         key={f}
-                        onClick={() => { setActiveFilter(f); setDropdownOpen(false); }}
+                        onClick={() => { 
+                          setActiveFilter(f); 
+                          setDropdownOpen(false); 
+                          setCurrentPage(1);
+                        }}
                         className={`w-full text-left px-5 py-4 text-base font-medium hover:bg-sky-900/5 transition-colors ${activeFilter === f ? 'text-sky-900 font-semibold' : 'text-gray-700'}`}
                       >
                         {f}
@@ -135,14 +153,14 @@ export default function AccountantsPage() {
           </div>
 
           <AnimatePresence mode="wait">
-            {filteredAccountants.length > 0 ? (
+            {paginatedAccountants.length > 0 ? (
                <motion.div
                  initial={{ opacity: 0, y: 10 }}
                  animate={{ opacity: 1, y: 0 }}
                  exit={{ opacity: 0, y: -10 }}
                >
                  <AccountantTable 
-                   accountants={filteredAccountants}
+                   accountants={paginatedAccountants}
                    onView={handleViewAccountant}
                    isSelected={isSelected}
                    toggleSelectOne={toggleSelectOne}
@@ -162,6 +180,12 @@ export default function AccountantsPage() {
               </motion.div>
             )}
           </AnimatePresence>
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={filteredAccountants.length}
+          />
         </section>
         
         {/* Bulk Actions */}
@@ -174,7 +198,6 @@ export default function AccountantsPage() {
               clearSelection();
             }
           }}
-          onExport={() => alert(`Exportation de ${selectionCount} comptables...`)}
         />
       </main>
 

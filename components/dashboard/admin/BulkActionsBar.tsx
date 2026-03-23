@@ -7,11 +7,10 @@ interface BulkActionsBarProps {
   count: number;
   onClear: () => void;
   onDelete?: () => void;
-  onExport?: () => void;
   showDelete?: boolean;
 }
 
-export default function BulkActionsBar({ count, onClear, onDelete, onExport, showDelete = true }: BulkActionsBarProps) {
+export default function BulkActionsBar({ count, onClear, onDelete, showDelete = true }: BulkActionsBarProps) {
   return (
     <AnimatePresence>
       {count > 0 && (
@@ -31,14 +30,6 @@ export default function BulkActionsBar({ count, onClear, onDelete, onExport, sho
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={onExport}
-              className="group flex items-center gap-2 px-4 py-2 hover:bg-white/10 rounded-xl transition-all text-white/90 hover:text-white"
-            >
-              <Download size={18} className="group-hover:-translate-y-0.5 transition-transform" />
-              <span className="text-sm font-semibold font-montserrat">Exporter</span>
-            </button>
-
             {showDelete && (
               <button
                 onClick={onDelete}
