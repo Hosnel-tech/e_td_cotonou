@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
         <ActivitySection />
 
         {/* TD Table Management Section */}
-        <AdminTDTable />
+        <AdminTDTable limit={4} />
 
       </main>
     </div>

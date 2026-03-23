@@ -1,5 +1,3 @@
-"use client";
-
 import { motion, AnimatePresence } from 'framer-motion';
 import { List, LayoutGrid, Check, X, Eye, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
@@ -7,25 +5,49 @@ import Link from 'next/link';
 import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
 import AdminTDCard from './AdminTDCard';
 import AdminTDDetailsModal, { AdminTDDetailsData } from './AdminTDDetailsModal';
-
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from './BulkActionsBar';
+import { AdminTDData, ADMIN_TDS } from '@/data/adminTDData';
 
-const tableData = [
-  { id: 'td-1', teacher: 'VIGAN Pauline', matter: 'Anglais',  classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en attente', duration: '3h' },
-  { id: 'td-2', teacher: 'VIGAN Pauline', matter: 'Français', classe: 'Tle',   date: '12/07/25', time: '14h - 17h', status: 'terminé',   duration: '3h' },
-  { id: 'td-3', teacher: 'VIGAN Pauline', matter: 'SVT',      classe: '3ème', date: '12/07/25', time: '14h - 17h', status: 'en cours',  duration: '3h' },
-  { id: 'td-4', teacher: 'VIGAN Pauline', matter: 'EST',      classe: 'CM2',  date: '12/07/25', time: '14h - 17h', status: 'payé',     duration: '3h' },
-] as const;
+interface AdminTDTableProps {
+  tds?: AdminTDData[];
+  limit?: number;
+  showFooter?: boolean;
+  showHeader?: boolean;
+  showBulkActions?: boolean;
+  showModal?: boolean;
+  title?: string;
+  externalSelection?: ReturnType<typeof useSelection>;
+  externalViewMode?: 'list' | 'grid';
+  onViewModeChange?: (mode: 'list' | 'grid') => void;
+  onOpenDetails?: (td: AdminTDData) => void;
+}
 
-export default function AdminTDTable() {
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+export default function AdminTDTable({ 
+  tds = ADMIN_TDS as any, 
+  limit, 
+  showFooter = true, 
+  showHeader = true,
+  showBulkActions = true,
+  showModal = true,
+  title = "Mes travaux dirigés",
+  externalSelection,
+  externalViewMode,
+  onViewModeChange,
+  onOpenDetails
+}: AdminTDTableProps) {
+  const [internalViewMode, setInternalViewMode] = useState<'list' | 'grid'>('list');
+  const viewMode = externalViewMode || internalViewMode;
+  const setViewMode = onViewModeChange || setInternalViewMode;
+
   const [selectedTD, setSelectedTD] = useState<AdminTDDetailsData | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInternalModalOpen, setIsInternalModalOpen] = useState(false);
 
-  // Multi-selection hook
+  // Use external selection if provided, otherwise manage internally
+  const internalSelection = useSelection(tds);
+  const selection = externalSelection || internalSelection;
+
   const {
-    selectedIds,
     isAllSelected,
     isIndeterminate,
     toggleSelectAll,
@@ -33,12 +55,17 @@ export default function AdminTDTable() {
     isSelected,
     clearSelection,
     selectionCount,
-    hasSelection
-  } = useSelection([...tableData]);
+  } = selection;
 
-  const handleOpenDetails = (row: typeof tableData[number]) => {
+  const displayData = limit ? tds.slice(0, limit) : tds;
+
+  const handleOpenDetails = (row: AdminTDData) => {
+    if (onOpenDetails) {
+      onOpenDetails(row);
+      return;
+    }
     setSelectedTD({
-      subject:  row.matter,
+      subject:  row.subject,
       teacher:  row.teacher,
       classe:   row.classe,
       time:     row.time,
@@ -46,11 +73,11 @@ export default function AdminTDTable() {
       date:     row.date,
       status:   row.status,
     });
-    setIsModalOpen(true);
+    setIsInternalModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
+    setIsInternalModalOpen(false);
     setSelectedTD(null);
   };
 
@@ -58,31 +85,33 @@ export default function AdminTDTable() {
     <>
       <section className="bg-white rounded-lg shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] p-8 space-y-10 font-montserrat">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-semibold text-black tracking-tight">Mes travaux dirigés</h2>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`w-11 h-11 flex items-center justify-center rounded-md transition-all ${
-                viewMode === 'list'
-                  ? 'bg-sky-900 text-white shadow-lg'
-                  : 'text-black/40 hover:text-black border border-stone-200'
-              }`}
-            >
-              <List size={28} />
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`w-11 h-11 flex items-center justify-center rounded-md transition-all ${
-                viewMode === 'grid'
-                  ? 'bg-sky-900 text-white shadow-lg'
-                  : 'text-black/40 hover:text-black border border-stone-200'
-              }`}
-            >
-              <LayoutGrid size={28} />
-            </button>
+        {showHeader && (
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-semibold text-black tracking-tight">{title}</h2>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`w-11 h-11 flex items-center justify-center rounded-md transition-all ${
+                  viewMode === 'list'
+                    ? 'bg-sky-900 text-white shadow-lg'
+                    : 'text-black/40 hover:text-black border border-stone-200'
+                }`}
+              >
+                <List size={28} />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`w-11 h-11 flex items-center justify-center rounded-md transition-all ${
+                  viewMode === 'grid'
+                    ? 'bg-sky-900 text-white shadow-lg'
+                    : 'text-black/40 hover:text-black border border-stone-200'
+                }`}
+              >
+                <LayoutGrid size={28} />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* LIST / GRID toggle */}
         <AnimatePresence mode="wait">
@@ -120,7 +149,7 @@ export default function AdminTDTable() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-300">
-                  {tableData.map((row, idx) => {
+                  {displayData.map((row, idx) => {
                     const isPending = row.status === 'en attente';
                     const selected = isSelected(row.id);
                     return (
@@ -128,7 +157,7 @@ export default function AdminTDTable() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.05 }}
-                        key={idx}
+                        key={row.id}
                         className={`h-20 transition-colors group cursor-pointer ${
                           selected ? 'bg-sky-900/[0.03]' : 'hover:bg-gray-50/50'
                         }`}
@@ -145,7 +174,7 @@ export default function AdminTDTable() {
                           </div>
                         </td>
                         <td className="text-black text-xl font-normal px-4">{row.teacher}</td>
-                        <td className="text-black text-xl font-medium px-4">{row.matter}</td>
+                        <td className="text-black text-xl font-medium px-4">{row.subject}</td>
                         <td className="text-black text-xl font-normal px-4">{row.classe}</td>
                         <td className="text-black text-xl font-normal px-4">{getTDType(row.classe)}</td>
                         <td className="text-black text-xl font-normal px-4">{row.date}</td>
@@ -154,11 +183,13 @@ export default function AdminTDTable() {
                             row.status === 'en cours'   ? 'bg-sky-900 text-white shadow-sm' :
                             row.status === 'terminé'    ? 'bg-green-800 text-white shadow-sm' :
                             row.status === 'en attente' ? 'bg-amber-400 text-white shadow-sm' :
+                            row.status === 'payé'       ? 'bg-sky-400 text-white shadow-sm' :
                             'bg-red-600 text-white shadow-sm'
                           }`}>
                             {row.status === 'en cours'   ? 'En cours'   :
                              row.status === 'terminé'    ? 'Terminé'    :
                              row.status === 'en attente' ? 'En attente' :
+                             row.status === 'payé'       ? 'Payé'       :
                              row.status.charAt(0).toUpperCase() + row.status.slice(1)}
                           </span>
                         </td>
@@ -185,7 +216,6 @@ export default function AdminTDTable() {
                             >
                               <X size={20} strokeWidth={3} />
                             </button>
-                            {/* Eye — always active, opens modal */}
                             <button
                               onClick={() => handleOpenDetails(row)}
                               className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 hover:scale-105 transition-all shadow-md"
@@ -201,7 +231,6 @@ export default function AdminTDTable() {
               </table>
             </motion.div>
           ) : (
-            /* GRID VIEW */
             <motion.div
               key="grid"
               initial={{ opacity: 0, y: 10 }}
@@ -210,18 +239,18 @@ export default function AdminTDTable() {
               transition={{ duration: 0.25 }}
               className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
             >
-              {tableData.map((row, idx) => (
+              {displayData.map((row) => (
                 <AdminTDCard
-                  key={idx}
+                  key={row.id}
                   id={row.id}
                   teacher={row.teacher}
-                  subject={row.matter}
+                  subject={row.subject}
                   status={row.status as any}
                   classe={row.classe}
                   time={row.time}
                   date={row.date}
                   duration={row.duration}
-                  staggerIndex={idx}
+                  staggerIndex={0}
                   isSelected={isSelected(row.id)}
                   onToggleSelection={(shift) => toggleSelectOne(row.id, shift)}
                   onOpenDetails={() => handleOpenDetails(row)}
@@ -231,43 +260,48 @@ export default function AdminTDTable() {
           )}
         </AnimatePresence>
 
-        {/* CTA */}
-        <div className="flex justify-center py-4">
-          <Link href="/admin/dashboard/td-management">
-            <motion.span
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="group flex items-center gap-4 px-12 py-5 bg-sky-900 text-white rounded-[10px] text-xl font-medium transition-all hover:bg-sky-950 shadow-xl cursor-pointer"
-            >
-              Accédez à tous les travaux dirigés
-              <ArrowRight className="group-hover:translate-x-2 transition-transform" size={24} />
-            </motion.span>
-          </Link>
-        </div>
+        {/* CTA Footer */}
+        {showFooter && (
+          <div className="flex justify-center py-4">
+            <Link href="/admin/dashboard/td-management">
+              <motion.span
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="group flex items-center gap-4 px-12 py-5 bg-sky-900 text-white rounded-[10px] text-xl font-medium transition-all hover:bg-sky-950 shadow-xl cursor-pointer"
+              >
+                Accédez à tous les travaux dirigés
+                <ArrowRight className="group-hover:translate-x-2 transition-transform" size={24} />
+              </motion.span>
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* Bulk Actions Bar */}
-      <BulkActionsBar 
-        count={selectionCount} 
-        onClear={clearSelection}
-        onDelete={() => {
-          if (confirm(`Voulez-vous supprimer les ${selectionCount} éléments sélectionnés ?`)) {
-            alert('Suppression effectuée (Simulation)');
+      {showBulkActions && (
+        <BulkActionsBar 
+          count={selectionCount} 
+          onClear={clearSelection}
+          onDelete={() => {
+            if (confirm(`Voulez-vous supprimer les ${selectionCount} éléments sélectionnés ?`)) {
+              alert('Suppression effectuée (Simulation)');
+              clearSelection();
+            }
+          }}
+          onExport={() => {
+            alert(`Exportation de ${selectionCount} éléments...`);
             clearSelection();
-          }
-        }}
-        onExport={() => {
-          alert(`Exportation de ${selectionCount} éléments...`);
-          clearSelection();
-        }}
-      />
+          }}
+        />
+      )}
 
-      {/* Details Modal */}
-      <AdminTDDetailsModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        data={selectedTD}
-      />
+      {showModal && (
+        <AdminTDDetailsModal
+          isOpen={isInternalModalOpen}
+          onClose={handleCloseModal}
+          data={selectedTD}
+        />
+      )}
     </>
   );
 }

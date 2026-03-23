@@ -9,22 +9,14 @@ import {
 import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
+import AdminTDTable from '@/components/dashboard/admin/AdminTDTable';
 import AdminTDCard from '@/components/dashboard/admin/AdminTDCard';
 import AdminTDDetailsModal, { AdminTDDetailsData } from '@/components/dashboard/admin/AdminTDDetailsModal';
-import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
+import { ADMIN_TDS } from '@/data/adminTDData';
 
-const ALL_TDS = [
-  { id: '1', teacher: 'VIGAN Pauline', subject: 'Anglais',  status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { id: '2', teacher: 'VIGAN Pauline', subject: 'Français', status: 'terminé',   classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { id: '3', teacher: 'VIGAN Pauline', subject: 'SVT',      status: 'en attente', classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { id: '4', teacher: 'VIGAN Pauline', subject: 'EST',      status: 'terminé',   classe: 'CM2',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { id: '5', teacher: 'VIGAN Pauline', subject: 'Français', status: 'en attente', classe: 'Tle',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { id: '6', teacher: 'VIGAN Pauline', subject: 'EST',      status: 'terminé',   classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { id: '7', teacher: 'VIGAN Pauline', subject: 'Anglais',  status: 'en cours',  classe: '3ème', time: '14h - 17h', date: '12/07/25', duration: '3h' },
-  { id: '8', teacher: 'VIGAN Pauline', subject: 'SVT',      status: 'en attente', classe: 'CM2',  time: '14h - 17h', date: '12/07/25', duration: '3h' },
-];
+const ALL_TDS = ADMIN_TDS;
 
 const STATUS_FILTERS = ['Tous', 'En attente', 'En cours', 'Terminé', 'Rejeté'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
@@ -62,7 +54,8 @@ export default function AdminTDManagementPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const { isSelected, toggleSelectOne, isAllSelected, isIndeterminate, toggleSelectAll, selectionCount, clearSelection } = useSelection(filtered);
+  const selection = useSelection(filtered);
+  const { isSelected, toggleSelectOne, selectionCount, clearSelection } = selection;
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -160,40 +153,18 @@ export default function AdminTDManagementPage() {
                 ))}
               </motion.div>
             ) : (
-              <motion.div key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="overflow-x-auto">
-                <table className="w-full text-left min-w-[1000px]">
-                  <thead className="bg-sky-900/5 h-16">
-                    <tr>
-                      <th className="pl-8 w-20">
-                        <div onClick={toggleSelectAll} className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'}`}>
-                          {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
-                        </div>
-                      </th>
-                      <th className="text-sky-900 text-xl font-semibold px-4">Enseignants</th>
-                      <th className="text-sky-900 text-xl font-semibold px-4">Matières</th>
-                      <th className="text-sky-900 text-xl font-semibold px-4">Classe</th>
-                      <th className="text-sky-900 text-xl font-semibold px-4 text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone-200">
-                    {paginated.map((td, idx) => (
-                      <tr key={td.id} className={`h-20 hover:bg-slate-50 transition-colors cursor-pointer ${isSelected(td.id) ? 'bg-sky-900/[0.03]' : ''}`} onClick={() => toggleSelectOne(td.id)}>
-                        <td className="pl-8" onClick={(e) => e.stopPropagation()}>
-                          <div className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${isSelected(td.id) ? 'bg-sky-900' : 'bg-white'}`}>
-                            {isSelected(td.id) && <Check className="text-white" size={18} strokeWidth={4} />}
-                          </div>
-                        </td>
-                        <td className="px-4 text-black text-xl font-normal">{td.teacher}</td>
-                        <td className="px-4 text-black text-xl font-medium">{td.subject}</td>
-                        <td className="px-4 text-black text-xl font-normal">{td.classe}</td>
-                        <td className="px-4 text-center">
-                           <button onClick={(e) => { e.stopPropagation(); handleOpenDetails(td); }} className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 transition-all"><Eye size={20} /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </motion.div>
+              <AdminTDTable 
+                tds={paginated as any} 
+                showFooter={false} 
+                showHeader={false}
+                showBulkActions={false}
+                showModal={false}
+                title="" 
+                externalSelection={selection} 
+                externalViewMode={viewMode}
+                onViewModeChange={setViewMode}
+                onOpenDetails={handleOpenDetails}
+              />
             )}
           </AnimatePresence>
 
