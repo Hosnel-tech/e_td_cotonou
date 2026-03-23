@@ -10,6 +10,12 @@ export interface Accountant {
   email: string;
   phone: string;
   status: 'actif' | 'inactif';
+  birthDate: string;
+  nationality: string;
+  location: string;
+  ifu: string;
+  bankAccount: string;
+  bankName: string;
 }
 
 interface AccountantTableProps {

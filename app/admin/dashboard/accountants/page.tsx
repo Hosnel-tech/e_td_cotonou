@@ -11,6 +11,7 @@ import AccountantTable, { Accountant } from '@/components/dashboard/admin/Accoun
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import { ACCOUNTANT_DATA } from '@/data/accountantData';
+import AccountantDetailsModal from '@/components/dashboard/admin/AccountantDetailsModal';
 
 const STATUS_FILTERS = ['Tous', 'Actif', 'Inactif'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
@@ -20,6 +21,10 @@ export default function AccountantsPage() {
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Modal State
+  const [selectedAccountant, setSelectedAccountant] = useState<Accountant | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -48,7 +53,8 @@ export default function AccountantsPage() {
   const { isSelected, toggleSelectOne, isAllSelected, isIndeterminate, toggleSelectAll, selectionCount, clearSelection } = selection;
 
   const handleViewAccountant = (acc: Accountant) => {
-    alert(`Détails du comptable ${acc.lastName} ${acc.firstName} (Simulation)`);
+    setSelectedAccountant(acc);
+    setIsModalOpen(true);
   };
 
   return (
@@ -171,6 +177,13 @@ export default function AccountantsPage() {
           onExport={() => alert(`Exportation de ${selectionCount} comptables...`)}
         />
       </main>
+
+      {/* Accountant Details Modal */}
+      <AccountantDetailsModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        accountant={selectedAccountant}
+      />
     </div>
   );
 }
