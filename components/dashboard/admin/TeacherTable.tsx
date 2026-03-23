@@ -11,6 +11,14 @@ export interface Teacher {
   date: string;
   status: 'actif' | 'en attente' | 'rejeté';
   school: string;
+  email: string;
+  phone: string;
+  birthDate: string;
+  nationality: string;
+  location: string;
+  ifu: string;
+  bankAccount: string;
+  bankName: string;
 }
 
 interface TeacherTableProps {

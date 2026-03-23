@@ -11,6 +11,7 @@ import TeacherTable, { Teacher } from '@/components/dashboard/admin/TeacherTable
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import { TEACHER_DATA } from '@/data/teacherData';
+import TeacherDetailsModal from '@/components/dashboard/admin/TeacherDetailsModal';
 
 const STATUS_FILTERS = ['Tous', 'Actif', 'En attente'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
@@ -20,6 +21,10 @@ export default function TeachersPage() {
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Modal State
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -48,7 +53,8 @@ export default function TeachersPage() {
   const { isSelected, toggleSelectOne, isAllSelected, isIndeterminate, toggleSelectAll, selectionCount, clearSelection } = selection;
 
   const handleViewTeacher = (teacher: Teacher) => {
-    alert(`Détails de l'enseignant ${teacher.name} (Simulation)`);
+    setSelectedTeacher(teacher);
+    setIsModalOpen(true);
   };
 
   return (
@@ -171,6 +177,13 @@ export default function TeachersPage() {
           onExport={() => alert(`Exportation de ${selectionCount} enseignants...`)}
         />
       </main>
+
+      {/* Teacher Details Modal */}
+      <TeacherDetailsModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        teacher={selectedTeacher}
+      />
     </div>
   );
 }
