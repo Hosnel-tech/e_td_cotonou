@@ -13,6 +13,11 @@ interface ActivityItemProps {
   actionVariant?: 'primary' | 'secondary';
 }
 
+
+import { useState, useEffect } from 'react';
+import { notificationService } from '@/services/notification.service';
+import { Notification, UpcomingTD } from '@/types/notification.types';
+
 const ActivityItem = ({ title, subtitle, time, icon: Icon, isNotification, actionLabel = 'Voir plus' }: ActivityItemProps) => (
   <motion.div
     initial={{ opacity: 0, x: 20 }}
@@ -29,7 +34,7 @@ const ActivityItem = ({ title, subtitle, time, icon: Icon, isNotification, actio
           {isNotification ? title : <>{title} – <span className="font-normal">{subtitle}</span></>}
         </h4>
         <p className="text-sm font-normal text-black font-montserrat opacity-70 leading-tight">
-          {isNotification ? subtitle : 'Organisé par Abdoul Paul'}
+          {isNotification ? subtitle : 'Détails du TD'}
         </p>
       </div>
     </div>
@@ -49,24 +54,32 @@ const ActivityItem = ({ title, subtitle, time, icon: Icon, isNotification, actio
 );
 
 export default function ActivitySection() {
-  const scheduledTDs = [
-    { title: 'Anglais', subtitle: '12/01/26', time: 'Il y a 2 min', icon: BookOpen },
-    { title: 'Maths',   subtitle: '12/01/26', time: 'Il y a 2 min', icon: BookOpen },
-    { title: 'EST',     subtitle: '12/01/26', time: 'Il y a 2 min', icon: BookOpen },
-    { title: 'PCT',     subtitle: '12/01/26', time: 'Il y a 2 min', icon: BookOpen },
-  ];
+  const [upcomingTds, setUpcomingTds] = useState<UpcomingTD[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const notifications = [
-    { title: 'Demande de connexion', subtitle: 'Répondre à la demande de Jean', time: 'Il y a 2 min', icon: User, isNotification: true },
-    { title: 'Demande de connexion', subtitle: 'Répondre à la demande de Jean', time: 'Il y a 2 min', icon: User, isNotification: true },
-    { title: 'Demande de connexion', subtitle: 'Répondre à la demande de Jean', time: 'Il y a 2 min', icon: User, isNotification: true },
-    { title: 'Demande de connexion', subtitle: 'Répondre à la demande de Jean', time: 'Il y a 2 min', icon: User, isNotification: true },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [tdData, notifData] = await Promise.all([
+          notificationService.getUpcomingTDs(),
+          notificationService.getNotifications()
+        ]);
+        setUpcomingTds(tdData);
+        setNotifications(notifData);
+      } catch (error) {
+        console.error('Error fetching activity data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
-      {/* TD programmés — same card shell as ProchainsTD */}
+      {/* TD programmés */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -82,13 +95,26 @@ export default function ActivitySection() {
 
         {/* Scrollable list */}
         <div className="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-          {scheduledTDs.map((td, idx) => (
-            <ActivityItem key={idx} {...td} />
-          ))}
+          {!isLoading && upcomingTds.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2 opacity-60">
+              <BookOpen size={48} strokeWidth={1.5} />
+              <p className="text-sm font-medium">Aucun TD programmé</p>
+            </div>
+          ) : (
+            upcomingTds.map((td, idx) => (
+              <ActivityItem 
+                key={td.id} 
+                title={td.subject} 
+                subtitle={`${td.class} - ${td.time}`} 
+                time={td.relative} 
+                icon={BookOpen} 
+              />
+            ))
+          )}
         </div>
       </motion.div>
 
-      {/* Notifications — same card shell as Notifications component */}
+      {/* Notifications */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -104,9 +130,23 @@ export default function ActivitySection() {
 
         {/* Scrollable list */}
         <div className="space-y-2 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-          {notifications.map((notif, idx) => (
-            <ActivityItem key={idx} {...notif} />
-          ))}
+          {!isLoading && notifications.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2 opacity-60">
+              <Bell size={48} strokeWidth={1.5} />
+              <p className="text-sm font-medium">Aucune notification</p>
+            </div>
+          ) : (
+            notifications.map((notif, idx) => (
+              <ActivityItem 
+                key={notif.id} 
+                title={notif.title} 
+                subtitle={notif.desc} 
+                time={notif.time} 
+                icon={Bell} 
+                isNotification={true} 
+              />
+            ))
+          )}
         </div>
       </motion.div>
 

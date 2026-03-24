@@ -1,13 +1,21 @@
 import { Transfer } from '@/types/financial.types';
-import { TRANSFERS } from '@/data/transfers';
+
+const BASE = '/api/transfers';
 
 export const transferService = {
   async getTransfers(): Promise<Transfer[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...TRANSFERS];
+    const res = await fetch(BASE, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch transfers');
+    return res.json();
   },
 
-  async exportTransfer(id: string): Promise<void> {
-    console.log(`Exporting transfer ${id}...`);
+  async createTransfer(data: Omit<Transfer, 'id'>): Promise<Transfer> {
+    const res = await fetch(BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create transfer');
+    return res.json();
   }
 };

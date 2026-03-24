@@ -87,9 +87,9 @@ export default function TeachersPage() {
 
         {/* Stats Grid */}
         <section className="flex flex-wrap gap-8">
-          <StatCard label="Total Enseignants" value={teachers.length.toString()} icon={Users} variant="green" trend="5%" staggerIndex={0} />
-          <StatCard label="Actifs" value={teachers.filter(t => t.status === 'actif').length.toString()} icon={Users} variant="sky" trend="2%" staggerIndex={1} />
-          <StatCard label="En attente" value={teachers.filter(t => t.status === 'en attente').length.toString()} icon={Users} variant="orange" trend="0%" staggerIndex={2} />
+          <StatCard label="Total Enseignants" value={teachers.length.toString()} icon={Users} variant="green" trend={teachers.length > 0 ? "Actualisé" : "Initialisé"} staggerIndex={0} />
+          <StatCard label="Actifs" value={teachers.filter(t => t.status === 'actif').length.toString()} icon={Users} variant="sky" trend={teachers.filter(t => t.status === 'actif').length > 0 ? "Actif" : "Aucun"} staggerIndex={1} />
+          <StatCard label="En attente" value={teachers.filter(t => t.status === 'en attente').length.toString()} icon={Users} variant="orange" trend={teachers.filter(t => t.status === 'en attente').length > 0 ? "À traiter" : "Aucun"} staggerIndex={2} />
         </section>
 
         {/* Search & Filters */}

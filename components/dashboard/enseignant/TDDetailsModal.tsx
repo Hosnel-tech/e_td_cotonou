@@ -7,20 +7,12 @@ import {
   Download 
 } from 'lucide-react';
 
+import { TD } from '@/types/td.types';
+
 interface TDDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tdData: {
-    id: number;
-    name: string;
-    classe: string;
-    date: string;
-    time: string;
-    duration: string;
-    status: string;
-    type?: string;
-    teacher?: string;
-  } | null;
+  tdData: TD | null;
 }
 
 export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsModalProps) {
@@ -54,7 +46,7 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
                 </div>
                 <div className="space-y-1">
                   <h2 className="text-3xl font-semibold font-montserrat text-black leading-tight">
-                    Détails du TD : {tdData.name}
+                    Détails du TD : {tdData.subject}
                   </h2>
                   <p className="text-xl font-normal font-montserrat text-black/60">
                     Ici vous avez les informations détaillées sur un TD
@@ -86,9 +78,8 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
                 </div>
 
                 <div className="border border-stone-300 rounded-[10px] overflow-hidden">
-                  <InfoRow label="Matière :" value={tdData.name} />
+                  <InfoRow label="Matière :" value={tdData.subject} />
                   <InfoRow label="Classe :" value={tdData.classe} />
-                  <InfoRow label="Type :" value={tdData.type || ''} />
                   <InfoRow label="Heure :" value={tdData.time} />
                   <InfoRow label="Durée :" value={tdData.duration} />
                   <InfoRow label="Date :" value={tdData.date} />

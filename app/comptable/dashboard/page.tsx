@@ -12,16 +12,40 @@ import PendingPaymentsTable from '@/components/dashboard/comptable/PendingPaymen
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import { paymentService } from '@/services/payment.service';
-import { Payment } from '@/types/financial.types';
+import { transferService } from '@/services/transfer.service';
+import { Payment, Transfer } from '@/types/financial.types';
 
 export default function AccountantDashboard() {
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    paymentService.getPayments().then(setPayments);
+    const fetchData = async () => {
+      try {
+        const [payData, transData] = await Promise.all([
+          paymentService.getPayments(),
+          transferService.getTransfers()
+        ]);
+        setPayments(payData);
+        setTransfers(transData);
+      } catch (error) {
+        console.error('Error fetching accountant data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const selection = useSelection(payments);
+
+  const totalDecaisse = transfers.reduce((sum, t) => sum + parseInt(t.amount.replace(/\D/g, '') || '0'), 0);
+  const totalEnAttente = payments
+    .filter(p => p.status.toLowerCase() === 'en attente')
+    .reduce((sum, p) => sum + parseInt(p.amount.replace(/\D/g, '') || '0'), 0);
+  const validesCeMois = payments.filter(p => p.status.toLowerCase() === 'payé' || p.status.toLowerCase() === 'validé').length;
+  const litiges = payments.filter(p => p.status.toLowerCase() === 'rejeté' || p.status.toLowerCase() === 'litige').length;
 
   return (
     <>
@@ -52,34 +76,34 @@ export default function AccountantDashboard() {
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <StatCard 
           label="Total décaissé" 
-          value="12.500.000 F" 
+          value={isLoading ? "..." : `${totalDecaisse.toLocaleString()} F`}
           icon={Wallet} 
           variant="green" 
-          trend="+15%"
+          trend={totalDecaisse > 0 ? "Actualisé" : "Initialisé"}
           staggerIndex={0}
         />
         <StatCard 
           label="En attente" 
-          value="450.000 F" 
+          value={isLoading ? "..." : `${totalEnAttente.toLocaleString()} F`}
           icon={Clock} 
           variant="orange" 
-          trend="-5%"
+          trend={totalEnAttente > 0 ? "À traiter" : "À jour"}
           staggerIndex={1}
         />
         <StatCard 
           label="Validés ce mois" 
-          value="240" 
+          value={isLoading ? "..." : validesCeMois.toString()}
           icon={CheckCircle2} 
           variant="sky" 
-          trend="+12%"
+          trend={validesCeMois > 0 ? "Actualisé" : "Initialisé"}
           staggerIndex={2}
         />
         <StatCard 
           label="Litiges" 
-          value="3" 
+          value={isLoading ? "..." : litiges.toString()}
           icon={AlertCircle} 
           variant="red" 
-          trend="+100%"
+          trend={litiges > 0 ? "À voir" : "Aucun"}
           staggerIndex={3}
         />
       </section>
@@ -103,30 +127,37 @@ export default function AccountantDashboard() {
           className="lg:col-span-2 bg-white rounded-lg p-8 shadow-sm border border-stone-100"
         >
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-black font-montserrat tracking-tight">Flux de trésorerie récent</h2>
+            <h2 className="text-xl font-bold text-black font-montserrat tracking-tight">Trésorerie récente</h2>
             <button className="text-sky-900 font-semibold flex items-center gap-2 hover:underline">
-              Voir le rapport complet
+              Voir tout
               <ArrowUpRight size={18} />
             </button>
           </div>
           <div className="space-y-6">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="flex items-center justify-between p-4 rounded-xl border border-stone-100 hover:bg-slate-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-green-800/10 flex items-center justify-center text-green-800">
-                    <FileText size={24} />
-                  </div>
-                  <div>
-                    <p className="font-bold text-black">Virement BOA Ref #TR-902</p>
-                    <p className="text-sm text-black/40 font-medium">12 Nov 2025 • 14:30</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-green-800">+ 1.500.000 F</p>
-                  <p className="text-xs font-bold text-green-800/60 uppercase">COMPLÉTÉ</p>
-                </div>
+            {!isLoading && transfers.length === 0 ? (
+              <div className="h-40 flex flex-col items-center justify-center text-gray-400 gap-2 opacity-60">
+                <FileText size={48} strokeWidth={1.5} />
+                <p className="text-sm font-medium">Aucun virement récent</p>
               </div>
-            ))}
+            ) : (
+              transfers.slice(0, 3).map((transfer) => (
+                <div key={transfer.id} className="flex items-center justify-between p-4 rounded-xl border border-stone-100 hover:bg-slate-50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-green-800/10 flex items-center justify-center text-green-800">
+                      <FileText size={24} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-black">Virement {transfer.bank} Ref #{transfer.id.slice(0,8)}</p>
+                      <p className="text-sm text-black/40 font-medium">{transfer.date || 'Date non spécifiée'}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-green-800">+ {transfer.amount} F</p>
+                    <p className="text-xs font-bold text-green-800/60 uppercase">COMPLÉTÉ</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </motion.div>
 

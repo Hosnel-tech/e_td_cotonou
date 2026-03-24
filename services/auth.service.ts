@@ -1,11 +1,10 @@
 import { User, AuthSession } from '@/types/auth.types';
-import { MOCK_USER } from '@/data/auth';
 
 export const authService = {
   async getCurrentUser(): Promise<User | null> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return MOCK_USER;
+    const res = await fetch('/api/auth/me', { cache: 'no-store' });
+    if (!res.ok) return null;
+    return res.json();
   },
 
   async getSession(): Promise<AuthSession> {

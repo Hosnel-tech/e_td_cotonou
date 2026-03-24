@@ -78,7 +78,7 @@ export default function TDManagementPage() {
             value={tds.length.toString()} 
             icon={ClipboardList} 
             variant="green" 
-            trend="12%"
+            trend="Initialisé"
             staggerIndex={0} 
           />
           <StatCard 
@@ -86,7 +86,7 @@ export default function TDManagementPage() {
             value={tds.filter(t => t.status === 'en cours').length.toString()} 
             icon={Clock} 
             variant="red" 
-            trend="12%"
+            trend="Initialisé"
             trendUp={false}
             staggerIndex={1} 
           />
@@ -95,7 +95,7 @@ export default function TDManagementPage() {
             value={tds.filter(t => t.status === 'terminé').length.toString()} 
             icon={CheckCircle2} 
             variant="orange" 
-            trend="12%"
+            trend="Initialisé"
             staggerIndex={2} 
           />
           <StatCard 
@@ -103,7 +103,7 @@ export default function TDManagementPage() {
             value={tds.filter(t => t.status === 'payé').length.toString()} 
             icon={Wallet} 
             variant="sky" 
-            trend="12%"
+            trend="Initialisé"
             staggerIndex={3} 
           />
         </section>

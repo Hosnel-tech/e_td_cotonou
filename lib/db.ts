@@ -9,6 +9,9 @@ export interface Database {
   payments: any[];
   transfers: any[];
   accountants: any[];
+  notifications: any[];
+  upcomingTDs: any[];
+  currentUser: any;
 }
 
 export function readDb(): Database {

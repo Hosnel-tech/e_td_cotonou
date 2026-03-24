@@ -87,9 +87,9 @@ export default function AccountantsPage() {
 
         {/* Stats Grid */}
         <section className="flex flex-wrap gap-8">
-          <StatCard label="Total Comptables" value={accountants.length.toString()} icon={Users} variant="green" trend="0%" staggerIndex={0} />
-          <StatCard label="Actifs" value={accountants.filter(a => a.status === 'actif').length.toString()} icon={Users} variant="sky" trend="0%" staggerIndex={1} />
-          <StatCard label="Inactifs" value={accountants.filter(a => a.status === 'inactif').length.toString()} icon={Users} variant="orange" trend="0%" staggerIndex={2} />
+          <StatCard label="Total Comptables" value={accountants.length.toString()} icon={Users} variant="green" trend={accountants.length > 0 ? "Actualisé" : "Initialisé"} staggerIndex={0} />
+          <StatCard label="Actifs" value={accountants.filter(a => a.status === 'actif').length.toString()} icon={Users} variant="sky" trend={accountants.filter(a => a.status === 'actif').length > 0 ? "Actif" : "Aucun"} staggerIndex={1} />
+          <StatCard label="Inactifs" value={accountants.filter(a => a.status === 'inactif').length.toString()} icon={Users} variant="orange" trend={accountants.filter(a => a.status === 'inactif').length > 0 ? "À voir" : "Aucun"} staggerIndex={2} />
         </section>
 
         {/* Search & Filters */}

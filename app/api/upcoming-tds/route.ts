@@ -5,17 +5,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const db = readDb();
-  return NextResponse.json(db.payments);
+  return NextResponse.json(db.upcomingTDs);
 }
 
 export async function POST(request: Request) {
   const db = readDb();
   const body = await request.json();
-  const newPayment = {
-    ...body,
-    id: Date.now().toString(),
-  };
-  db.payments.push(newPayment);
+  const newItem = { ...body, id: Date.now().toString() };
+  db.upcomingTDs.push(newItem);
   writeDb(db);
-  return NextResponse.json(newPayment, { status: 201 });
+  return NextResponse.json(newItem, { status: 201 });
 }

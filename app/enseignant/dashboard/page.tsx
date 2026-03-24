@@ -69,15 +69,15 @@ export default function DashboardPage() {
             value={tds.length.toString()} 
             icon={ClipboardList} 
             variant="green" 
-            trend="12%"
+            trend="Initialisé"
             staggerIndex={0} 
           />
           <StatCard 
             label="Epreuves" 
-            value="17" 
+            value="0" 
             icon={FileText} 
             variant="red" 
-            trend="12%"
+            trend="Initialisé"
             trendUp={false}
             staggerIndex={1} 
           />
@@ -86,7 +86,7 @@ export default function DashboardPage() {
             value={tds.filter(t => t.status === 'payé').length.toString()} 
             icon={CreditCard} 
             variant="orange" 
-            trend="12%"
+            trend="Initialisé"
             staggerIndex={2} 
           />
           <StatCard 
@@ -94,7 +94,7 @@ export default function DashboardPage() {
             value={tds.filter(t => t.status !== 'payé').length.toString()} 
             icon={FileX} 
             variant="sky" 
-            trend="12%"
+            trend="Initialisé"
             staggerIndex={3} 
           />
         </section>

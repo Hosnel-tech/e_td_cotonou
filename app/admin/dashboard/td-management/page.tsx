@@ -81,10 +81,38 @@ export default function AdminTDManagementPage() {
         </header>
 
         <section className="flex flex-wrap gap-6">
-          <StatCard label="Nombre total" value="23" icon={ClipboardList} variant="green" trend="12%" staggerIndex={0} />
-          <StatCard label="En cours" value="17" icon={Clock} variant="red" trend="12%" staggerIndex={1} />
-          <StatCard label="Terminés" value="13" icon={CheckCircle2} variant="orange" trend="12%" staggerIndex={2} />
-          <StatCard label="Payés" value="10" icon={Wallet} variant="sky" trend="12%" staggerIndex={3} />
+          <StatCard 
+            label="Nombre total" 
+            value={allTds.length.toString()} 
+            icon={ClipboardList} 
+            variant="green" 
+            trend={allTds.length > 0 ? "Actualisé" : "Initialisé"}
+            staggerIndex={0} 
+          />
+          <StatCard 
+            label="En cours" 
+            value={allTds.filter(t => t.status === 'en cours').length.toString()} 
+            icon={Clock} 
+            variant="red" 
+            trend={allTds.filter(t => t.status === 'en cours').length > 0 ? "Actif" : "Aucun"}
+            staggerIndex={1} 
+          />
+          <StatCard 
+            label="Terminés" 
+            value={allTds.filter(t => t.status === 'terminé').length.toString()} 
+            icon={CheckCircle2} 
+            variant="orange" 
+            trend={allTds.filter(t => t.status === 'terminé').length > 0 ? "Effectué" : "Initialisé"}
+            staggerIndex={2} 
+          />
+          <StatCard 
+            label="Payés" 
+            value={allTds.filter(t => t.status === 'payé').length.toString()} 
+            icon={Wallet} 
+            variant="sky" 
+            trend={allTds.filter(t => t.status === 'payé').length > 0 ? "Confirmé" : "Initialisé"}
+            staggerIndex={3} 
+          />
         </section>
 
         <section className="bg-white rounded-[10px] p-6 space-y-4 shadow-sm border border-stone-100">
