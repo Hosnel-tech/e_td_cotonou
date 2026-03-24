@@ -177,30 +177,18 @@ export default function AdminTDManagementPage() {
             </div>
           </div>
 
-          <AnimatePresence mode="wait">
-            {paginated.length === 0 ? (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center text-black/40 text-xl py-12">Aucun TD trouvé.</motion.p>
-            ) : viewMode === 'grid' ? (
-              <motion.div key="grid" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-                {paginated.map((td, idx) => (
-                  <AdminTDCard key={td.id} {...td} staggerIndex={idx} isSelected={isSelected(td.id)} onToggleSelection={(shift) => toggleSelectOne(td.id, shift)} onOpenDetails={() => handleOpenDetails(td)} />
-                ))}
-              </motion.div>
-            ) : (
-              <AdminTDTable 
-                tds={paginated} 
-                showFooter={false} 
-                showHeader={false}
-                showBulkActions={false}
-                showModal={false}
-                title="" 
-                externalSelection={selection} 
-                externalViewMode={viewMode}
-                onViewModeChange={setViewMode}
-                onOpenDetails={handleOpenDetails}
-              />
-            )}
-          </AnimatePresence>
+          <AdminTDTable 
+            tds={paginated} 
+            showFooter={false} 
+            showHeader={false}
+            showBulkActions={false}
+            showModal={false}
+            title="" 
+            externalSelection={selection} 
+            externalViewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onOpenDetails={handleOpenDetails}
+          />
 
           <Pagination
             currentPage={currentPage}

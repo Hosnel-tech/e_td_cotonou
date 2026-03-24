@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { List, LayoutGrid, Check, X, Eye, ArrowRight, Download } from 'lucide-react';
+import { List, LayoutGrid, Check, X, Eye, ArrowRight, Download, SearchX } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
@@ -95,98 +95,136 @@ export default function AdminTDTable({
           {viewMode === 'list' ? (
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-stone-100">
-                  <th className="p-5 text-left w-14">
+                <tr className="bg-sky-900/5 h-20 border-b border-stone-100">
+                  <th className="p-5 text-left w-20">
                     <button 
                       onClick={() => selection.toggleSelectAll()}
-                      className={`w-5 h-5 rounded-[4px] border border-sky-900 flex items-center justify-center transition-all ${selection.isAllSelected ? 'bg-sky-900' : 'bg-white'}`}
+                      className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${selection.isAllSelected ? 'bg-sky-900' : 'bg-white'}`}
                     >
-                      {selection.isAllSelected && <Check className="text-white" size={12} strokeWidth={4} />}
-                      {!selection.isAllSelected && selection.isIndeterminate && <div className="w-2 h-0.5 bg-sky-900" />}
+                      {selection.isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                      {!selection.isAllSelected && selection.isIndeterminate && <div className="w-3 h-0.5 bg-sky-900" />}
                     </button>
                   </th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Enseignants</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Matières</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Classe</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Niveau</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Date</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left text-center">Statut</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left text-center">Durée</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-center">Actions</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left">Enseignants</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left">Matières</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left text-center">Classe</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left text-center">Niveau</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left">Date</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left text-center">Statut</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left text-center">Durée</th>
+                  <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {displayData.map((td) => {
-                  const isSelected = selection.isSelected(td.id);
-                  return (
-                    <motion.tr 
-                      key={td.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      onClick={(e) => selection.toggleSelectOne(td.id, e.shiftKey)}
-                      className={`border-b border-stone-100 hover:bg-slate-50/50 transition-colors cursor-pointer ${isSelected ? 'bg-sky-900/5' : ''}`}
-                    >
-                      <td className="p-5">
-                        <div className={`w-5 h-5 rounded-[4px] border border-sky-900 flex items-center justify-center transition-all ${isSelected ? 'bg-sky-900' : 'bg-white'}`}>
-                          {isSelected && <Check className="text-white" size={12} strokeWidth={4} />}
+                {displayData.length > 0 ? (
+                  displayData.map((td) => {
+                    const isSelected = selection.isSelected(td.id);
+                    return (
+                      <motion.tr 
+                        key={td.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        onClick={(e) => selection.toggleSelectOne(td.id, e.shiftKey)}
+                        className={`border-b border-stone-100 hover:bg-slate-50/50 transition-colors cursor-pointer ${isSelected ? 'bg-sky-900/5' : ''}`}
+                      >
+                        <td className="p-5">
+                          <div className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${isSelected ? 'bg-sky-900' : 'bg-white'}`}>
+                            {isSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.teacher}</td>
+                        <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.subject}</td>
+                        <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.classe}</td>
+                        <td className="px-4 py-4">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            td.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            {td.niveau}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.date}</td>
+                        <td className="px-4 py-4 text-center">
+                          <span className={`inline-block px-4 py-1.5 rounded-full text-white text-[10px] font-bold uppercase ${statusConfig[td.status] || 'bg-sky-900'}`}>
+                            {td.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 font-semibold text-black font-montserrat text-center">{td.duration}</td>
+                        <td className="px-4 py-4">
+                          <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            <button 
+                              disabled={td.status !== 'en attente'}
+                              className={`w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm ${td.status === 'en attente' ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-110' : 'bg-green-800/20 text-white/50 cursor-not-allowed'}`}
+                            >
+                              <Check size={16} strokeWidth={3} />
+                            </button>
+                            <button 
+                              disabled={td.status !== 'en attente'}
+                              className={`w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm ${td.status === 'en attente' ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-110' : 'bg-red-600/20 text-white/50 cursor-not-allowed'}`}
+                            >
+                              <X size={16} strokeWidth={3} />
+                            </button>
+                            <button 
+                              onClick={() => handleOpenDetails(td)}
+                              className="w-8 h-8 bg-sky-900 text-white rounded-md flex items-center justify-center hover:bg-sky-950 transition-all shadow-sm hover:scale-110"
+                            >
+                              <Eye size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={9} className="py-24 text-center">
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col items-center justify-center gap-5"
+                      >
+                        <div className="w-24 h-24 bg-sky-50 rounded-full flex items-center justify-center text-sky-900/20">
+                          <SearchX size={56} strokeWidth={1.5} />
                         </div>
-                      </td>
-                      <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.teacher}</td>
-                      <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.subject}</td>
-                      <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.classe}</td>
-                      <td className="px-4 py-4">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                          td.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
-                        }`}>
-                          {td.niveau}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.date}</td>
-                      <td className="px-4 py-4 text-center">
-                        <span className={`inline-block px-4 py-1.5 rounded-full text-white text-[10px] font-bold uppercase ${statusConfig[td.status] || 'bg-sky-900'}`}>
-                          {td.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 font-semibold text-black font-montserrat text-center">{td.duration}</td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                          <button 
-                            disabled={td.status !== 'en attente'}
-                            className={`w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm ${td.status === 'en attente' ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-110' : 'bg-green-800/20 text-white/50 cursor-not-allowed'}`}
-                          >
-                            <Check size={16} strokeWidth={3} />
-                          </button>
-                          <button 
-                            disabled={td.status !== 'en attente'}
-                            className={`w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm ${td.status === 'en attente' ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-110' : 'bg-red-600/20 text-white/50 cursor-not-allowed'}`}
-                          >
-                            <X size={16} strokeWidth={3} />
-                          </button>
-                          <button 
-                            onClick={() => handleOpenDetails(td)}
-                            className="w-8 h-8 bg-sky-900 text-white rounded-md flex items-center justify-center hover:bg-sky-950 transition-all shadow-sm hover:scale-110"
-                          >
-                            <Eye size={16} />
-                          </button>
+                        <div className="space-y-1">
+                          <h4 className="text-2xl font-bold text-sky-900 font-montserrat tracking-tight">Aucun travail dirigé</h4>
+                          <p className="text-xl text-stone-400 font-montserrat tracking-tight">Il n'y a actuellement aucun travail dirigé enregistré dans le système.</p>
                         </div>
-                      </td>
-                    </motion.tr>
-                  );
-                })}
+                      </motion.div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           ) : (
-            <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {displayData.map((td, idx) => (
-                <AdminTDCard 
-                  key={td.id} 
-                  {...td} 
-                  staggerIndex={idx}
-                  isSelected={selection.isSelected(td.id)}
-                  onToggleSelection={(shift) => selection.toggleSelectOne(td.id, shift)}
-                  onOpenDetails={() => handleOpenDetails(td)}
-                />
-              ))}
+            <div className={`p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${displayData.length === 0 ? 'place-items-center' : ''}`}>
+              {displayData.length > 0 ? (
+                displayData.map((td, idx) => (
+                  <AdminTDCard 
+                    key={td.id} 
+                    {...td} 
+                    staggerIndex={idx}
+                    isSelected={selection.isSelected(td.id)}
+                    onToggleSelection={(shift) => selection.toggleSelectOne(td.id, shift)}
+                    onOpenDetails={() => handleOpenDetails(td)}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full py-24 flex flex-col items-center justify-center gap-5 text-center w-full bg-[#F4FAFD]/30 rounded-2xl border-2 border-dashed border-sky-100">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center gap-5 text-center"
+                  >
+                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-sky-900/20 shadow-sm mx-auto">
+                      <SearchX size={56} strokeWidth={1.5} />
+                    </div>
+                    <div className="space-y-1 px-8">
+                      <h4 className="text-2xl font-bold text-sky-900 font-montserrat tracking-tight">C'est encore vide ici</h4>
+                      <p className="text-xl text-stone-400 font-montserrat tracking-tight max-w-md mx-auto">Aucun travail dirigé n'a été trouvé.</p>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
             </div>
           )}
         </div>

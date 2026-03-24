@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { Check, SearchX } from 'lucide-react';
 import { useState } from 'react';
 import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
 import { Transfer } from '@/types/financial.types';
@@ -58,43 +58,63 @@ export default function TransfersTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-300">
-              {transfers.map((transfer, idx) => {
-                const selected = isSelected(transfer.id);
-                return (
-                  <motion.tr 
-                    key={transfer.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6 + (idx * 0.1) }}
-                    className={`h-20 transition-colors group cursor-pointer ${selected ? 'bg-sky-900/[0.03]' : 'hover:bg-gray-50/50'}`}
-                    onClick={(e) => toggleSelectOne(transfer.id, e.shiftKey)}
-                  >
-                    <td className="pl-8" onClick={(e) => e.stopPropagation()}>
-                      <div 
-                        onClick={(e) => toggleSelectOne(transfer.id, e.shiftKey)}
-                        className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'}`}
-                      >
-                        {selected && <Check className="text-white" size={18} strokeWidth={4} />}
-                      </div>
-                    </td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat whitespace-nowrap">{transfer.bank}</td>
-                    <td className="text-black text-xl font-semibold px-4 font-montserrat">{transfer.amount}</td>
-                    <td className="px-4 text-right">
-                      <div className="flex items-center justify-end">
-                        <button 
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            alert('Exportation du virement (' + transfer.bank + ') au format CSV...');
-                          }}
-                          className="px-5 py-2 bg-green-800 rounded-md text-white text-xs font-semibold font-montserrat hover:bg-green-900 transition-all shadow-md active:scale-95 whitespace-nowrap"
+              {transfers.length > 0 ? (
+                transfers.map((transfer, idx) => {
+                  const selected = isSelected(transfer.id);
+                  return (
+                    <motion.tr 
+                      key={transfer.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + (idx * 0.1) }}
+                      className={`h-20 transition-colors group cursor-pointer ${selected ? 'bg-sky-900/[0.03]' : 'hover:bg-gray-50/50'}`}
+                      onClick={(e) => toggleSelectOne(transfer.id, e.shiftKey)}
+                    >
+                      <td className="pl-8" onClick={(e) => e.stopPropagation()}>
+                        <div 
+                          onClick={(e) => toggleSelectOne(transfer.id, e.shiftKey)}
+                          className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'}`}
                         >
-                          Exporter (.CSV)
-                        </button>
+                          {selected && <Check className="text-white" size={18} strokeWidth={4} />}
+                        </div>
+                      </td>
+                      <td className="text-black text-xl font-normal px-4 font-montserrat whitespace-nowrap">{transfer.bank}</td>
+                      <td className="text-black text-xl font-semibold px-4 font-montserrat">{transfer.amount}</td>
+                      <td className="px-4 text-right">
+                        <div className="flex items-center justify-end">
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              alert('Exportation du virement (' + transfer.bank + ') au format CSV...');
+                            }}
+                            className="px-5 py-2 bg-green-800 rounded-md text-white text-xs font-semibold font-montserrat hover:bg-green-900 transition-all shadow-md active:scale-95 whitespace-nowrap"
+                          >
+                            Exporter (.CSV)
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={4} className="py-24 text-center">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col items-center justify-center gap-5"
+                    >
+                      <div className="w-24 h-24 bg-sky-50 rounded-full flex items-center justify-center text-sky-900/20">
+                        <SearchX size={56} strokeWidth={1.5} />
                       </div>
-                    </td>
-                  </motion.tr>
-                );
-              })}
+                      <div className="space-y-1">
+                        <h4 className="text-2xl font-bold text-sky-900 font-montserrat tracking-tight">Aucun virement</h4>
+                        <p className="text-xl text-stone-400 font-montserrat tracking-tight">Il n'y a actuellement aucun virement enregistré.</p>
+                      </div>
+                    </motion.div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

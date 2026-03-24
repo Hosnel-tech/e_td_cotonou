@@ -158,32 +158,21 @@ export default function TeachersPage() {
           </div>
 
           <AnimatePresence mode="wait">
-            {paginatedTeachers.length > 0 ? (
-               <motion.div
-                 initial={{ opacity: 0, y: 10 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 exit={{ opacity: 0, y: -10 }}
-               >
-                 <TeacherTable 
-                   teachers={paginatedTeachers}
-                   onView={handleViewTeacher}
-                   isSelected={isSelected}
-                   toggleSelectOne={toggleSelectOne}
-                   isAllSelected={isAllSelected}
-                   isIndeterminate={isIndeterminate}
-                   toggleSelectAll={toggleSelectAll}
-                 />
-               </motion.div>
-            ) : (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center py-20 text-gray-400 gap-4"
-              >
-                <SearchSlash size={64} strokeWidth={1.5} />
-                <p className="text-xl font-medium">Aucun enseignant trouvé pour cette recherche</p>
-              </motion.div>
-            )}
+             <motion.div
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+             >
+               <TeacherTable 
+                 teachers={paginatedTeachers}
+                 onView={handleViewTeacher}
+                 isSelected={isSelected}
+                 toggleSelectOne={toggleSelectOne}
+                 isAllSelected={isAllSelected}
+                 isIndeterminate={isIndeterminate}
+                 toggleSelectAll={toggleSelectAll}
+               />
+             </motion.div>
           </AnimatePresence>
           <Pagination
             currentPage={currentPage}
