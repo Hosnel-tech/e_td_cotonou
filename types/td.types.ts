@@ -5,6 +5,7 @@ export interface TD {
   teacher: string;
   subject: string;
   classe: string;
+  niveau: 'primaire' | 'secondaire';
   date: string;
   time: string;
   status: TDStatus;

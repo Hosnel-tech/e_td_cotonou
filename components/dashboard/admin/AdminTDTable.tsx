@@ -108,7 +108,7 @@ export default function AdminTDTable({
                   <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Enseignants</th>
                   <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Matières</th>
                   <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Classe</th>
-                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Type</th>
+                  <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Niveau</th>
                   <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left">Date</th>
                   <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left text-center">Statut</th>
                   <th className="px-4 py-5 font-bold font-montserrat text-black/40 text-sm uppercase text-left text-center">Durée</th>
@@ -134,7 +134,13 @@ export default function AdminTDTable({
                       <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.teacher}</td>
                       <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.subject}</td>
                       <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.classe}</td>
-                      <td className="px-4 py-4 font-semibold text-black font-montserrat">{getTDType(td.classe)}</td>
+                      <td className="px-4 py-4">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                          td.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {td.niveau}
+                        </span>
+                      </td>
                       <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.date}</td>
                       <td className="px-4 py-4 text-center">
                         <span className={`inline-block px-4 py-1.5 rounded-full text-white text-[10px] font-bold uppercase ${statusConfig[td.status] || 'bg-sky-900'}`}>

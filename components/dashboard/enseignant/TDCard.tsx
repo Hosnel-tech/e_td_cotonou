@@ -15,7 +15,7 @@ interface TDCardProps {
   date: string;
   duree: string;
   status: 'en cours' | 'terminé' | 'rejeté';
-  type?: 'Primaire' | 'Collège';
+  type?: 'Primaire' | 'Secondaire';
   onOpenDetails?: (data: any) => void;
 }
 

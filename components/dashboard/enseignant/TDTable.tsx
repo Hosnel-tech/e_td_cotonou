@@ -76,7 +76,7 @@ export default function TDTable({
                   <tr>
                     <th className="px-8 py-5 text-sky-900 text-xl font-semibold font-montserrat">Matières</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Classe</th>
-                    <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Type</th>
+                    <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Niveau</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Date</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Heure</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Statut</th>
@@ -97,7 +97,13 @@ export default function TDTable({
                     >
                       <td className="px-8 py-6 text-black text-xl font-normal font-montserrat">{td.subject}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.classe}</td>
-                      <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{getTDType(td.classe)}</td>
+                      <td className="px-6 py-6">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                          td.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {td.niveau}
+                        </span>
+                      </td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.date}</td>
                       <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.time}</td>
                       <td className="px-6 py-6">

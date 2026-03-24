@@ -17,6 +17,7 @@ export interface Teacher extends BaseAccount {
   name: string;
   subject: string;
   className: string;
+  niveau: 'primaire' | 'secondaire';
   date: string; // Registration date
   school: string;
 }

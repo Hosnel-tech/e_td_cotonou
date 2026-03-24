@@ -1,21 +1,45 @@
 import { Payment } from '@/types/financial.types';
-import { PAYMENTS, PENDING_PAYMENTS } from '@/data/payments';
+
+const BASE = '/api/payments';
 
 export const paymentService = {
   async getPayments(): Promise<Payment[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...PAYMENTS];
+    const res = await fetch(BASE, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch payments');
+    return res.json();
   },
 
   async getPendingPayments(): Promise<Payment[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...PENDING_PAYMENTS];
+    const all = await this.getPayments();
+    return all.filter(p => p.status !== 'Payé');
   },
 
-  async markAsPaid(id: string): Promise<void> {
-    const index = PAYMENTS.findIndex(p => p.id === id);
-    if (index !== -1) {
-      PAYMENTS[index].status = 'Payé';
-    }
-  }
+  async createPayment(data: Omit<Payment, 'id'>): Promise<Payment> {
+    const res = await fetch(BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create payment');
+    return res.json();
+  },
+
+  async updatePayment(id: string, data: Partial<Payment>): Promise<Payment> {
+    const res = await fetch(`${BASE}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update payment');
+    return res.json();
+  },
+
+  async markAsPaid(id: string): Promise<Payment> {
+    return this.updatePayment(id, { status: 'Payé' });
+  },
+
+  async deletePayment(id: string): Promise<void> {
+    const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete payment');
+  },
 };

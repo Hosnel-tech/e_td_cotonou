@@ -5,6 +5,7 @@ export interface Payment {
   teacher: string;
   subject: string;
   grade: string;
+  niveau: 'primaire' | 'secondaire';
   date: string;
   duration: string;
   amount: string;

@@ -42,6 +42,7 @@ export default function TeacherTable({
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Enseignant</th>
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Matières</th>
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-center">Classe</th>
+            <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-center">Niveau</th>
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Date</th>
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Statut</th>
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Etablissement</th>
@@ -77,6 +78,13 @@ export default function TeacherTable({
                 <td className="px-6 py-4 text-black text-xl font-normal">{teacher.name}</td>
                 <td className="px-6 py-4 text-black text-xl font-medium">{teacher.subject}</td>
                 <td className="px-6 py-4 text-black text-xl font-normal text-center">{teacher.className}</td>
+                <td className="px-6 py-4 text-center">
+                  <span className={`px-4 py-1.5 rounded-full text-[12px] font-bold uppercase ${
+                    teacher.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {teacher.niveau}
+                  </span>
+                </td>
                 <td className="px-6 py-4 text-black text-xl font-normal">{teacher.date}</td>
                 <td className="px-6 py-4">
                   <span className={`px-5 py-2 rounded-2xl text-[10px] font-bold inline-block min-w-[100px] text-center uppercase shadow-sm border ${

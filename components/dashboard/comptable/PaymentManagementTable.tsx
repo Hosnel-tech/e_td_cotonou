@@ -34,6 +34,7 @@ export default function PaymentManagementTable({
       teacher: payment.teacher,
       classe: payment.grade || 'N/A',
       date: payment.date,
+      niveau: payment.niveau,
       duration: payment.duration,
       time: '08:00 - 11:00',
       status: 'terminé',
@@ -67,6 +68,7 @@ export default function PaymentManagementTable({
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Enseignant</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Matières</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Classe</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Niveau</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Date</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Durée</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Montant</th>
@@ -95,6 +97,13 @@ export default function PaymentManagementTable({
                   <td className="text-black text-xl font-normal px-4 font-montserrat whitespace-nowrap">{payment.teacher}</td>
                   <td className="text-black text-xl font-medium px-4 font-montserrat">{payment.subject}</td>
                   <td className="text-black text-xl font-normal px-4 font-montserrat">{payment.grade}</td>
+                  <td className="text-black text-xl font-normal px-4 font-montserrat">
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                      payment.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {payment.niveau}
+                    </span>
+                  </td>
                   <td className="text-black text-xl font-normal px-4 font-montserrat">{payment.date}</td>
                   <td className="text-black text-xl font-normal px-4 font-montserrat">{payment.duration}</td>
                   <td className="text-black text-xl font-bold px-4 font-montserrat">{payment.amount}</td>

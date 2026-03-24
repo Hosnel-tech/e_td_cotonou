@@ -1,26 +1,46 @@
 import { TD, TDStatus } from '@/types/td.types';
-import { TDS } from '@/data/tds';
+
+const BASE = '/api/tds';
 
 export const tdService = {
   async getTDs(): Promise<TD[]> {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return [...TDS];
+    const res = await fetch(BASE, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch TDs');
+    return res.json();
   },
 
-  async getTDById(id: string): Promise<TD | undefined> {
-    return TDS.find(td => td.id === id);
+  async getTDById(id: string): Promise<TD> {
+    const res = await fetch(`${BASE}/${id}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('TD not found');
+    return res.json();
   },
 
   async createTD(data: Omit<TD, 'id'>): Promise<TD> {
-    const newTD = { ...data, id: Math.random().toString(36).substr(2, 9) };
-    TDS.push(newTD);
-    return newTD;
+    const res = await fetch(BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create TD');
+    return res.json();
   },
 
-  async updateStatus(id: string, status: TDStatus): Promise<void> {
-    const index = TDS.findIndex(td => td.id === id);
-    if (index !== -1) {
-      TDS[index].status = status;
-    }
-  }
+  async updateTD(id: string, data: Partial<TD>): Promise<TD> {
+    const res = await fetch(`${BASE}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update TD');
+    return res.json();
+  },
+
+  async updateStatus(id: string, status: TDStatus): Promise<TD> {
+    return this.updateTD(id, { status });
+  },
+
+  async deleteTD(id: string): Promise<void> {
+    const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete TD');
+  },
 };
