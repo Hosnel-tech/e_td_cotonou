@@ -11,6 +11,7 @@ import AccountantTable from '@/components/dashboard/admin/AccountantTable';
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import AccountantDetailsModal from '@/components/dashboard/admin/AccountantDetailsModal';
+import AddAccountantModal from '@/components/dashboard/admin/AddAccountantModal';
 import Pagination from '@/components/dashboard/admin/Pagination';
 import { accountantService } from '@/services/accountant.service';
 import { Accountant } from '@/types/user.types';
@@ -28,10 +29,13 @@ export default function AccountantsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
-  // Modal State
+  // creation modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  
+  // Details Modal State
   const [selectedAccountant, setSelectedAccountant] = useState<Accountant | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  
   useEffect(() => {
     accountantService.getAccountants().then(setAccountants);
   }, []);
@@ -73,6 +77,28 @@ export default function AccountantsPage() {
     setIsModalOpen(true);
   };
 
+  const handleStatusUpdate = async (id: string, status: any) => {
+    try {
+      await accountantService.updateStatus(id, status);
+      const updated = await accountantService.getAccountants();
+      setAccountants(updated);
+    } catch (error) {
+       console.error('Error updating status:', error);
+       alert('Erreur lors de la mise à jour du statut.');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await accountantService.deleteAccountant(id);
+      const updated = await accountantService.getAccountants();
+      setAccountants(updated);
+    } catch (error) {
+       console.error('Error deleting accountant:', error);
+       alert('Erreur lors de la suppression.');
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
       {/* Permanent Admin Sidebar */}
@@ -80,9 +106,18 @@ export default function AccountantsPage() {
 
       {/* Main Content */}
       <main className="flex-1 ml-72 p-10 space-y-10">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Gestion des Comptables</h1>
-          <p className="text-xl font-normal text-gray-600">Gérez les comptes des comptables et leurs accès</p>
+        <header className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight">Gestion des Comptables</h1>
+            <p className="text-xl font-normal text-gray-600">Gérez les comptes des comptables et leurs accès</p>
+          </div>
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-8 py-4 bg-sky-900 text-white rounded-xl font-bold shadow-lg hover:bg-sky-950 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 cursor-pointer"
+          >
+            <Users size={20} />
+            Créer un compte
+          </button>
         </header>
 
         {/* Stats Grid */}
@@ -166,6 +201,8 @@ export default function AccountantsPage() {
                <AccountantTable 
                  accountants={paginatedAccountants}
                  onView={handleViewAccountant}
+                 onStatusUpdate={handleStatusUpdate}
+                 onDelete={handleDelete}
                  isSelected={isSelected}
                  toggleSelectOne={toggleSelectOne}
                  isAllSelected={isAllSelected}
@@ -194,6 +231,13 @@ export default function AccountantsPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         accountant={selectedAccountant}
+      />
+
+      {/* Add Accountant Modal */}
+      <AddAccountantModal 
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={() => accountantService.getAccountants().then(setAccountants)}
       />
     </div>
   );

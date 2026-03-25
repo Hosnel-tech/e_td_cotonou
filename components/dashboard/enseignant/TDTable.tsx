@@ -9,6 +9,7 @@ import { TD } from '@/types/td.types';
 
 interface TDTableProps {
   onOpenDetails?: (data: any) => void;
+  onStatusUpdate?: (id: string, status: 'terminé') => void;
   data: TD[];
   limit?: number;
   initialView?: 'list' | 'grid';
@@ -17,6 +18,7 @@ interface TDTableProps {
 
 export default function TDTable({ 
   onOpenDetails, 
+  onStatusUpdate,
   data, 
   limit, 
   initialView = 'list',
@@ -120,12 +122,22 @@ export default function TDTable({
                         <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.duration}</td>
                         {showActions && (
                           <td className="px-8 py-6 text-right">
-                            <button 
-                              onClick={() => handleOpenDetails(td)}
-                              className="px-6 py-2 bg-[#0F673B] text-white rounded-lg text-sm font-semibold font-montserrat hover:bg-green-700 transition-colors shadow-sm"
-                            >
-                              En savoir plus
-                            </button>
+                            <div className="flex items-center justify-end gap-3">
+                              {td.status.toLowerCase() === 'en cours' && (
+                                <button 
+                                  onClick={() => onStatusUpdate?.(td.id, 'terminé')}
+                                  className="px-6 py-2 bg-sky-900 text-white rounded-lg text-sm font-semibold font-montserrat hover:bg-sky-950 transition-colors shadow-sm cursor-pointer"
+                                >
+                                  Marquer terminé
+                                </button>
+                              )}
+                              <button 
+                                onClick={() => handleOpenDetails(td)}
+                                className="px-6 py-2 bg-[#0F673B] text-white rounded-lg text-sm font-semibold font-montserrat hover:bg-green-700 transition-colors shadow-sm cursor-pointer"
+                              >
+                                En savoir plus
+                              </button>
+                            </div>
                           </td>
                         )}
                       </motion.tr>

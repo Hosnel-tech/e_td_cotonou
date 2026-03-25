@@ -19,7 +19,22 @@ export const accountantService = {
     return res.json();
   },
 
+  async createAccountant(data: Omit<Accountant, 'id' | 'status'>): Promise<Accountant> {
+    const res = await fetch(BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create accountant');
+    return res.json();
+  },
+
   async updateStatus(id: string, status: AccountStatus): Promise<Accountant> {
     return this.updateAccountant(id, { status });
+  },
+
+  async deleteAccountant(id: string): Promise<void> {
+    const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete accountant');
   }
 };

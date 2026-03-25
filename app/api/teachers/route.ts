@@ -5,7 +5,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const db = readDb();
-  return NextResponse.json(db.teachers);
+  const teachers = db.users.filter(u => u.role === 'enseignant');
+  return NextResponse.json(teachers);
 }
 
 export async function POST(request: Request) {
@@ -13,9 +14,12 @@ export async function POST(request: Request) {
   const body = await request.json();
   const newTeacher = {
     ...body,
-    id: Date.now().toString(),
+    id: Math.random().toString(36).substring(7),
+    role: 'enseignant',
+    status: 'en attente',
+    createdAt: new Date().toISOString(),
   };
-  db.teachers.push(newTeacher);
+  db.users.push(newTeacher);
   writeDb(db);
   return NextResponse.json(newTeacher, { status: 201 });
 }

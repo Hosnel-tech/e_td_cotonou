@@ -1,9 +1,52 @@
 {
-  "teachers": [],
-  "tds": [],
+  "users": [
+    {
+      "id": "1",
+      "name": "Administrateur",
+      "email": "admin@etd-cotonou.bj",
+      "role": "admin",
+      "status": "actif",
+      "avatar": "/avatars/admin.png",
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "2",
+      "name": "Jean Dupont",
+      "email": "jean.dupont@email.com",
+      "role": "enseignant",
+      "status": "en attente",
+      "subject": "Mathématiques",
+      "className": "Terminale C",
+      "niveau": "secondaire",
+      "school": "Lycée Coulibaly",
+      "createdAt": "2024-03-24T10:00:00Z"
+    },
+    {
+      "id": "3",
+      "name": "Marie Claire",
+      "email": "marie.claire@email.com",
+      "role": "comptable",
+      "status": "actif",
+      "firstName": "Marie",
+      "lastName": "Claire",
+      "createdAt": "2024-03-20T08:00:00Z"
+    }
+  ],
+  "tds": [
+    {
+      "id": "td1",
+      "teacher": "Jean Dupont",
+      "subject": "Mathématiques",
+      "classe": "Terminale C",
+      "niveau": "secondaire",
+      "date": "2024-03-26",
+      "time": "14:00",
+      "status": "en attente",
+      "duration": "2h"
+    }
+  ],
   "payments": [],
   "transfers": [],
-  "accountants": [],
   "notifications": [],
   "upcomingTDs": [],
   "currentUser": {
@@ -11,6 +54,7 @@
     "name": "Administrateur",
     "email": "admin@etd-cotonou.bj",
     "role": "admin",
+    "status": "actif",
     "avatar": "/avatars/admin.png"
   }
 }

@@ -3,15 +3,16 @@ import path from 'path';
 
 const DB_PATH = path.join(process.cwd(), 'db', 'database.json');
 
+import { User } from '@/types/user.types';
+
 export interface Database {
-  teachers: any[];
+  users: User[];
   tds: any[];
   payments: any[];
   transfers: any[];
-  accountants: any[];
   notifications: any[];
   upcomingTDs: any[];
-  currentUser: any;
+  currentUser: User;
 }
 
 export function readDb(): Database {

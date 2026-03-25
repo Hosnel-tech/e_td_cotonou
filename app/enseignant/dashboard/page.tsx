@@ -32,6 +32,17 @@ export default function DashboardPage() {
     setIsDetailsOpen(true);
   };
 
+  const handleStatusUpdate = async (id: string, status: any) => {
+    try {
+      await tdService.updateStatus(id, status);
+      const updated = await tdService.getTDs();
+      setTds(updated);
+    } catch (error) {
+       console.error('Error updating TD status:', error);
+       alert('Erreur lors de la mise à jour du statut du TD.');
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
       {/* Permanent Sidebar */}
@@ -111,7 +122,7 @@ export default function DashboardPage() {
 
         {/* Main Data Table */}
         <section className="pb-10">
-          <TDTable data={tds} onOpenDetails={handleOpenDetails} limit={4} />
+          <TDTable data={tds} onOpenDetails={handleOpenDetails} onStatusUpdate={handleStatusUpdate} limit={4} />
         </section>
 
       </main>

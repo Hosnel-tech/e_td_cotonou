@@ -23,6 +23,7 @@ interface AdminTDTableProps {
   externalViewMode?: 'list' | 'grid';
   onViewModeChange?: (mode: 'list' | 'grid') => void;
   onOpenDetails?: (td: TD) => void;
+  onStatusUpdate?: (id: string, status: string) => void;
 }
 
 export default function AdminTDTable({ 
@@ -36,7 +37,8 @@ export default function AdminTDTable({
   externalSelection,
   externalViewMode,
   onViewModeChange,
-  onOpenDetails
+  onOpenDetails,
+  onStatusUpdate
 }: AdminTDTableProps) {
   const [internalViewMode, setInternalViewMode] = useState<'list' | 'grid'>('list');
   const viewMode = externalViewMode || internalViewMode;
@@ -151,21 +153,28 @@ export default function AdminTDTable({
                         <td className="px-4 py-4 font-semibold text-black font-montserrat text-center">{td.duration}</td>
                         <td className="px-4 py-4">
                           <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                            <button 
-                              disabled={td.status !== 'en attente'}
-                              className={`w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm ${td.status === 'en attente' ? 'bg-green-800 text-white hover:bg-green-900 hover:scale-110' : 'bg-green-800/20 text-white/50 cursor-not-allowed'}`}
-                            >
-                              <Check size={16} strokeWidth={3} />
-                            </button>
-                            <button 
-                              disabled={td.status !== 'en attente'}
-                              className={`w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm ${td.status === 'en attente' ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-110' : 'bg-red-600/20 text-white/50 cursor-not-allowed'}`}
-                            >
-                              <X size={16} strokeWidth={3} />
-                            </button>
+                            {td.status === 'en attente' && (
+                              <>
+                                <button 
+                                  onClick={() => onStatusUpdate?.(td.id, 'en cours')}
+                                  className="w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm bg-green-800 text-white hover:bg-green-900 hover:scale-110 cursor-pointer"
+                                  title="Valider le TD"
+                                >
+                                  <Check size={16} strokeWidth={3} />
+                                </button>
+                                <button 
+                                  onClick={() => onStatusUpdate?.(td.id, 'rejeté')}
+                                  className="w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm bg-red-600 text-white hover:bg-red-700 hover:scale-110 cursor-pointer"
+                                  title="Rejeter le TD"
+                                >
+                                  <X size={16} strokeWidth={3} />
+                                </button>
+                              </>
+                            )}
                             <button 
                               onClick={() => handleOpenDetails(td)}
-                              className="w-8 h-8 bg-sky-900 text-white rounded-md flex items-center justify-center hover:bg-sky-950 transition-all shadow-sm hover:scale-110"
+                              className="w-8 h-8 bg-sky-900 text-white rounded-md flex items-center justify-center hover:bg-sky-950 transition-all shadow-sm hover:scale-110 cursor-pointer"
+                              title="Voir les détails"
                             >
                               <Eye size={16} />
                             </button>

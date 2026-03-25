@@ -7,6 +7,8 @@ import { Accountant } from '@/types/user.types';
 interface AccountantTableProps {
   accountants: Accountant[];
   onView: (accountant: Accountant) => void;
+  onStatusUpdate?: (id: string, status: 'actif' | 'inactif') => void;
+  onDelete?: (id: string) => void;
   isSelected: (id: string) => boolean;
   toggleSelectOne: (id: string, isShift?: boolean) => void;
   isAllSelected: boolean;
@@ -17,6 +19,8 @@ interface AccountantTableProps {
 export default function AccountantTable({ 
   accountants, 
   onView,
+  onStatusUpdate,
+  onDelete,
   isSelected,
   toggleSelectOne,
   isAllSelected,
@@ -86,14 +90,40 @@ export default function AccountantTable({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-3" onClick={(e) => e.stopPropagation()}>
+                      {accountant.status === 'actif' ? (
+                        <button
+                          onClick={() => onStatusUpdate?.(accountant.id, 'inactif')}
+                          className="w-9 h-9 bg-amber-400 text-white rounded-[5px] flex items-center justify-center hover:bg-amber-500 transition-all shadow-md hover:scale-105 cursor-pointer"
+                          title="Désactiver le compte"
+                        >
+                          <X size={18} strokeWidth={2.5} />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => onStatusUpdate?.(accountant.id, 'actif')}
+                          className="w-9 h-9 bg-green-800 text-white rounded-[5px] flex items-center justify-center hover:bg-green-900 transition-all shadow-md hover:scale-105 cursor-pointer"
+                          title="Activer le compte"
+                        >
+                          <Check size={18} strokeWidth={2.5} />
+                        </button>
+                      )}
+
                       <button 
                         onClick={() => onView(accountant)} 
-                        className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 transition-all shadow-md hover:scale-105"
+                        className="w-9 h-9 bg-stone-100 text-sky-900 rounded-[5px] flex items-center justify-center hover:bg-stone-200 transition-all shadow-sm hover:scale-105 cursor-pointer"
+                        title="Voir les détails"
                       >
                         <Eye size={20} strokeWidth={2.5} />
                       </button>
+                      
                       <button
-                        className="w-9 h-9 bg-[#EE2E33] text-white rounded-[5px] flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
+                        onClick={() => {
+                          if (confirm('Êtes-vous sûr de vouloir supprimer ce comptable ?')) {
+                            onDelete?.(accountant.id);
+                          }
+                        }}
+                        className="w-9 h-9 bg-red-600/10 text-red-600 rounded-[5px] flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm cursor-pointer"
+                        title="Supprimer le compte"
                       >
                         <X size={18} strokeWidth={2.5} />
                       </button>

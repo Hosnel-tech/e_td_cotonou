@@ -18,7 +18,8 @@ const navItems = [
   { name: 'Tableau de bord', href: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Gestion des TD', href: '/admin/dashboard/td-management', icon: BookOpenCheck },
   { name: 'Enseignants', href: '/admin/dashboard/teachers', icon: Users },
-  { name: 'Comptables', href: '/admin/dashboard/accountants', icon: Wallet },
+  { name: 'Comptables', href: '/admin/dashboard/accountants', icon: Users },
+  { name: 'Paiements TD', href: '/admin/dashboard/payments', icon: Wallet },
   { name: 'Paramètres', href: '/admin/dashboard/settings', icon: Settings },
 ];
 

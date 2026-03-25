@@ -3,6 +3,8 @@ import { readDb, writeDb } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
+import { notificationService } from '@/services/notification.service';
+
 export async function GET() {
   const db = readDb();
   return NextResponse.json(db.tds);
@@ -13,9 +15,21 @@ export async function POST(request: Request) {
   const body = await request.json();
   const newTD = {
     ...body,
-    id: Date.now().toString(),
+    id: Math.random().toString(36).substring(7),
+    status: 'en attente',
+    createdAt: new Date().toISOString(),
   };
   db.tds.push(newTD);
   writeDb(db);
+
+  // Notify Admin
+  await notificationService.notifyRole(
+    'admin',
+    'Nouveau TD créé',
+    `Un nouveau TD pour ${newTD.subject} a été créé par ${newTD.teacher} et attend validation.`,
+    'info',
+    '/admin/dashboard/td-management'
+  );
+
   return NextResponse.json(newTD, { status: 201 });
 }

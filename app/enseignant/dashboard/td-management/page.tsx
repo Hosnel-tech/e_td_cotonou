@@ -44,6 +44,17 @@ export default function TDManagementPage() {
     setIsDetailsOpen(true);
   };
 
+  const handleStatusUpdate = async (id: string, status: any) => {
+    try {
+      await tdService.updateStatus(id, status);
+      const updated = await tdService.getTDs();
+      setTds(updated);
+    } catch (error) {
+       console.error('Error updating TD status:', error);
+       alert('Erreur lors de la mise à jour du statut du TD.');
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-[#F4FAFD]">
       {/* Sidebar Area */}
@@ -133,6 +144,7 @@ export default function TDManagementPage() {
         <section>
           <TDTable 
             onOpenDetails={handleOpenDetails} 
+            onStatusUpdate={handleStatusUpdate}
             data={filteredTDs}
           />
         </section>

@@ -71,6 +71,17 @@ export default function AdminTDManagementPage() {
     setIsModalOpen(true);
   };
 
+  const handleStatusUpdate = async (id: string, status: any) => {
+    try {
+      await tdService.updateStatus(id, status);
+      const updated = await tdService.getTDs();
+      setAllTds(updated);
+    } catch (error) {
+      console.error('Error updating TD status:', error);
+      alert('Erreur lors de la mise à jour du statut.');
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
       <AdminSidebar />
@@ -188,6 +199,7 @@ export default function AdminTDManagementPage() {
             externalViewMode={viewMode}
             onViewModeChange={setViewMode}
             onOpenDetails={handleOpenDetails}
+            onStatusUpdate={handleStatusUpdate}
           />
 
           <Pagination

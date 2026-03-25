@@ -41,8 +41,8 @@ export default function AdminDashboardPage() {
     fetchData();
   }, []);
 
-  const unpaidCount = payments.filter(p => p.status === 'en attente').length;
-  const paidCount = payments.filter(p => p.status === 'payé' || p.status === 'validé').length;
+  const unpaidCount = tds.filter(t => t.status === 'terminé').length;
+  const paidCount = tds.filter(t => t.status === 'payé').length;
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat">

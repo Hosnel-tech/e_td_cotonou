@@ -73,6 +73,18 @@ export default function TeachersPage() {
     setIsModalOpen(true);
   };
 
+  const handleStatusUpdate = async (id: string, status: any) => {
+    try {
+      await teacherService.updateStatus(id, status);
+      // Refresh local state
+      const updatedTeachers = await teacherService.getTeachers();
+      setTeachers(updatedTeachers);
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Une erreur est survenue lors de la mise à jour du statut.');
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
       {/* Permanent Admin Sidebar */}
@@ -166,6 +178,7 @@ export default function TeachersPage() {
                <TeacherTable 
                  teachers={paginatedTeachers}
                  onView={handleViewTeacher}
+                 onStatusUpdate={handleStatusUpdate}
                  isSelected={isSelected}
                  toggleSelectOne={toggleSelectOne}
                  isAllSelected={isAllSelected}

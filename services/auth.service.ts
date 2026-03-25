@@ -1,4 +1,9 @@
-import { User, AuthSession } from '@/types/auth.types';
+import { User, UserRole } from '@/types/user.types';
+
+export interface AuthSession {
+  user: User | null;
+  status: 'authenticated' | 'unauthenticated' | 'pending';
+}
 
 export const authService = {
   async getCurrentUser(): Promise<User | null> {
@@ -15,11 +20,45 @@ export const authService = {
     };
   },
 
-  async login(): Promise<void> {
-    console.log('Login logic would go here');
+  async login(email: string, password: string): Promise<User> {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (res.status === 403) {
+      const data = await res.json();
+      throw new Error(data.error || 'Accès refusé');
+    }
+
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Identifiants invalides');
+    }
+
+    return res.json();
+  },
+
+  async register(data: any): Promise<User> {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Erreur lors de l’inscription');
+    }
+
+    return res.json();
   },
 
   async logout(): Promise<void> {
-    console.log('Logout logic would go here');
+    const res = await fetch('/api/auth/logout', { method: 'POST' });
+    if (res.ok) {
+        window.location.href = '/login';
+    }
   }
 };

@@ -1,104 +1,167 @@
 "use client";
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, User, Mail, Phone, Lock, Save } from 'lucide-react';
+import { useState } from 'react';
+import { accountantService } from '@/services/accountant.service';
 
 interface AddAccountantModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess: () => void;
 }
 
-export default function AddAccountantModal({ isOpen, onClose }: AddAccountantModalProps) {
+export default function AddAccountantModal({ isOpen, onClose, onSuccess }: AddAccountantModalProps) {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await accountantService.createAccountant(formData as any);
+      onSuccess();
+      onClose();
+      setFormData({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+    } catch (error) {
+      console.error('Error creating accountant:', error);
+      alert('Erreur lors de la création du compte.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/25 z-[60] backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 transition-opacity"
           />
-
-          {/* Modal Container */}
-          <div className="fixed inset-0 flex items-center justify-center z-[70] pointer-events-none p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="w-full max-w-[875px] bg-white rounded-2xl shadow-2xl pointer-events-auto overflow-hidden relative"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 pointer-events-none"
+          >
+            <div 
+              className="bg-white w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl pointer-events-auto flex flex-col"
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* Header */}
-              <div className="p-10 pb-4 flex items-center justify-between">
-                <h2 className="text-black text-3xl font-semibold font-montserrat">Ajouter un comptable</h2>
-                <button 
-                  onClick={onClose}
-                  className="p-2 hover:bg-slate-100 rounded-full transition-colors"
-                >
-                  <X className="text-black" size={24} />
+              <div className="p-8 bg-sky-900 text-white flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Créer un Comptable</h2>
+                <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <X size={24} />
                 </button>
               </div>
 
-              {/* Form Content */}
-              <div className="p-10 pt-4 space-y-8">
-                {/* Name Field */}
-                <div className="space-y-3">
-                  <label className="block">
-                    <span className="text-black text-base font-semibold font-montserrat">Nom du comptable </span>
-                    <span className="text-red-600 text-base font-semibold font-montserrat">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Jean Claude"
-                    className="w-full h-14 px-8 bg-white rounded-[10px] border border-stone-300 focus:border-sky-900 outline-none text-black text-base font-normal font-montserrat transition-colors"
-                  />
+              <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Prénom</label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input 
+                        required
+                        type="text"
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
+                        placeholder="Jean"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Nom</label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input 
+                        required
+                        type="text"
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
+                        placeholder="DUPONT"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* Email Field */}
-                <div className="space-y-3">
-                  <label className="block">
-                    <span className="text-black text-base font-semibold font-montserrat">Email </span>
-                    <span className="text-red-600 text-base font-semibold font-montserrat">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="jeanclaude@gmail.com"
-                    className="w-full h-14 px-8 bg-white rounded-[10px] border border-stone-300 focus:border-sky-900 outline-none text-black text-base font-normal font-montserrat transition-colors"
-                  />
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Email Professionnel</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                      required
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
+                      placeholder="accountant@example.com"
+                    />
+                  </div>
                 </div>
 
-                {/* Phone Field */}
-                <div className="space-y-3">
-                  <label className="block">
-                    <span className="text-black text-base font-semibold font-montserrat">Téléphone </span>
-                    <span className="text-red-600 text-base font-semibold font-montserrat">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="01 68 89 03 12"
-                    className="w-full h-14 px-8 bg-white rounded-[10px] border border-stone-300 focus:border-sky-900 outline-none text-black text-base font-normal font-montserrat transition-colors"
-                  />
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Téléphone</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                      required
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
+                      placeholder="+229 XX XX XX XX"
+                    />
+                  </div>
                 </div>
 
-                {/* Actions */}
-                <div className="pt-4 flex items-center justify-end gap-5">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Mot de passe provisoire</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                      required
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
+                      placeholder="********"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 flex gap-4">
                   <button
+                    type="button"
                     onClick={onClose}
-                    className="px-8 py-4 bg-white rounded-lg outline outline-[0.83px] outline-red-600 text-red-600 text-base font-semibold font-montserrat hover:bg-red-50 transition-all"
+                    className="flex-1 px-8 py-4 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all active:scale-95"
                   >
                     Annuler
                   </button>
                   <button
-                    className="px-8 py-4 bg-sky-900 rounded-lg outline outline-[0.83px] text-white text-base font-semibold font-montserrat hover:bg-sky-950 transition-all"
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 px-8 py-4 bg-sky-900 text-white font-bold rounded-xl hover:bg-sky-950 transition-all shadow-lg hover:shadow-sky-900/20 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
                   >
-                    Ajouter un comptable
+                    <Save size={20} />
+                    {loading ? 'Création...' : 'Enregistrer'}
                   </button>
                 </div>
-              </div>
-            </motion.div>
-          </div>
+              </form>
+            </div>
+          </motion.div>
         </>
       )}
     </AnimatePresence>

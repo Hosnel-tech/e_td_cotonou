@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, User, BookOpen, CreditCard, ChevronDown, Calendar, Check, Loader2 } from 'lucide-react';
+import { authService } from '@/services/auth.service';
 
 type Step = 1 | 2 | 3;
 
@@ -36,11 +37,14 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    
-    router.push('/login');
+    try {
+      await authService.register(formData);
+      router.push('/login');
+    } catch (error: any) {
+      alert(error.message || "Une erreur est survenue lors de l'inscription.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
