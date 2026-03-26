@@ -12,8 +12,8 @@ import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdminTDTable from '@/components/dashboard/admin/AdminTDTable';
 import AdminTDCard from '@/components/dashboard/admin/AdminTDCard';
 import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
-import { useSelection } from '@/hooks/useSelection';
-import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
+import { exportToCSV } from '@/lib/export.utils';
+import { Check } from 'lucide-react'; // For primary action icon
 
 import Pagination from '@/components/dashboard/admin/Pagination';
 import { tdService } from '@/services/td.service';
@@ -60,9 +60,6 @@ export default function AdminTDManagementPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const selection = useSelection(filtered);
-  const { isSelected, toggleSelectOne, selectionCount, clearSelection } = selection;
-
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -82,6 +79,8 @@ export default function AdminTDManagementPage() {
     }
   };
 
+
+
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
       <AdminSidebar />
@@ -92,37 +91,37 @@ export default function AdminTDManagementPage() {
         </header>
 
         <section className="flex flex-wrap gap-6">
-          <StatCard 
-            label="Nombre total" 
-            value={allTds.length.toString()} 
-            icon={ClipboardList} 
-            variant="green" 
+          <StatCard
+            label="Nombre total"
+            value={allTds.length.toString()}
+            icon={ClipboardList}
+            variant="green"
             trend={allTds.length > 0 ? "Actualisé" : "Initialisé"}
-            staggerIndex={0} 
+            staggerIndex={0}
           />
-          <StatCard 
-            label="En cours" 
-            value={allTds.filter(t => t.status === 'en cours').length.toString()} 
-            icon={Clock} 
-            variant="red" 
+          <StatCard
+            label="En cours"
+            value={allTds.filter(t => t.status === 'en cours').length.toString()}
+            icon={Clock}
+            variant="red"
             trend={allTds.filter(t => t.status === 'en cours').length > 0 ? "Actif" : "Aucun"}
-            staggerIndex={1} 
+            staggerIndex={1}
           />
-          <StatCard 
-            label="Terminés" 
-            value={allTds.filter(t => t.status === 'terminé').length.toString()} 
-            icon={CheckCircle2} 
-            variant="orange" 
+          <StatCard
+            label="Terminés"
+            value={allTds.filter(t => t.status === 'terminé').length.toString()}
+            icon={CheckCircle2}
+            variant="orange"
             trend={allTds.filter(t => t.status === 'terminé').length > 0 ? "Effectué" : "Initialisé"}
-            staggerIndex={2} 
+            staggerIndex={2}
           />
-          <StatCard 
-            label="Payés" 
-            value={allTds.filter(t => t.status === 'payé').length.toString()} 
-            icon={Wallet} 
-            variant="sky" 
+          <StatCard
+            label="Payés"
+            value={allTds.filter(t => t.status === 'payé').length.toString()}
+            icon={Wallet}
+            variant="sky"
             trend={allTds.filter(t => t.status === 'payé').length > 0 ? "Confirmé" : "Initialisé"}
-            staggerIndex={3} 
+            staggerIndex={3}
           />
         </section>
 
@@ -188,18 +187,16 @@ export default function AdminTDManagementPage() {
             </div>
           </div>
 
-          <AdminTDTable 
-            tds={paginated} 
-            showFooter={false} 
+          <AdminTDTable
+            tds={paginated}
+            showFooter={false}
             showHeader={false}
             showBulkActions={false}
             showModal={false}
-            title="" 
-            externalSelection={selection} 
-            externalViewMode={viewMode}
-            onViewModeChange={setViewMode}
+            title=""
             onOpenDetails={handleOpenDetails}
             onStatusUpdate={handleStatusUpdate}
+            hideSelection={true}
           />
 
           <Pagination
@@ -209,8 +206,6 @@ export default function AdminTDManagementPage() {
             totalItems={filtered.length}
           />
         </section>
-
-        <BulkActionsBar count={selectionCount} onClear={clearSelection} />
       </main>
 
       <AdminTDDetailsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} data={selectedTD} />

@@ -20,37 +20,29 @@ interface AdminTDTableProps {
   showBulkActions?: boolean;
   showModal?: boolean;
   title?: string;
-  externalSelection?: ReturnType<typeof useSelection>;
-  externalViewMode?: 'list' | 'grid';
-  onViewModeChange?: (mode: 'list' | 'grid') => void;
   onOpenDetails?: (td: TD) => void;
   onStatusUpdate?: (id: string, status: string) => void;
+  hideSelection?: boolean;
 }
 
-export default function AdminTDTable({ 
-  tds = [], 
-  limit, 
-  showFooter = true, 
+export default function AdminTDTable({
+  tds = [],
+  limit,
+  showFooter = true,
   showHeader = true,
   showBulkActions = true,
   showModal = true,
   title = "Mes travaux dirigés",
-  externalSelection,
-  externalViewMode,
-  onViewModeChange,
   onOpenDetails,
-  onStatusUpdate
+  onStatusUpdate,
+  hideSelection = true
 }: AdminTDTableProps) {
-  const [internalViewMode, setInternalViewMode] = useState<'list' | 'grid'>('list');
-  const viewMode = externalViewMode || internalViewMode;
-  const setViewMode = onViewModeChange || setInternalViewMode;
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isInternalModalOpen, setIsInternalModalOpen] = useState(false);
 
-  // Use external selection if provided, otherwise manage internally
-  const internalSelection = useSelection(tds);
-  const selection = externalSelection || internalSelection;
+  const selection = useSelection(tds);
 
   const displayData = limit ? tds.slice(0, limit) : tds;
 
@@ -101,15 +93,17 @@ export default function AdminTDTable({
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-sky-900/5 h-20 border-b border-stone-100">
-                  <th className="p-5 text-left w-20">
-                    <button 
-                      onClick={() => selection.toggleSelectAll()}
-                      className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${selection.isAllSelected ? 'bg-sky-900' : 'bg-white'}`}
-                    >
-                      {selection.isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
-                      {!selection.isAllSelected && selection.isIndeterminate && <div className="w-3 h-0.5 bg-sky-900" />}
-                    </button>
-                  </th>
+                  {!hideSelection && (
+                    <th className="p-5 text-left w-20">
+                      <button 
+                        onClick={() => selection.toggleSelectAll()}
+                        className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${selection.isAllSelected ? 'bg-sky-900' : 'bg-white'}`}
+                      >
+                        {selection.isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                        {!selection.isAllSelected && selection.isIndeterminate && <div className="w-3 h-0.5 bg-sky-900" />}
+                      </button>
+                    </th>
+                  )}
                   <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left">Enseignants</th>
                   <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left">Matières</th>
                   <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight text-left text-center">Classe</th>
@@ -129,14 +123,16 @@ export default function AdminTDTable({
                         key={td.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        onClick={(e) => selection.toggleSelectOne(td.id, e.shiftKey)}
-                        className={`border-b border-stone-100 hover:bg-slate-50/50 transition-colors cursor-pointer ${isSelected ? 'bg-sky-900/5' : ''}`}
+                        onClick={(e) => !hideSelection && selection.toggleSelectOne(td.id, e.shiftKey)}
+                        className={`border-b border-stone-100 hover:bg-slate-50/50 transition-colors ${!hideSelection ? 'cursor-pointer' : ''} ${!hideSelection && isSelected ? 'bg-sky-900/5' : ''}`}
                       >
-                        <td className="p-5">
-                          <div className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${isSelected ? 'bg-sky-900' : 'bg-white'}`}>
-                            {isSelected && <Check className="text-white" size={18} strokeWidth={4} />}
-                          </div>
-                        </td>
+                        {!hideSelection && (
+                          <td className="p-5">
+                            <div className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${isSelected ? 'bg-sky-900' : 'bg-white'}`}>
+                              {isSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                            </div>
+                          </td>
+                        )}
                         <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.teacher}</td>
                         <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.subject}</td>
                         <td className="px-4 py-4 font-semibold text-black font-montserrat">{td.classe}</td>
@@ -231,8 +227,8 @@ export default function AdminTDTable({
                     key={td.id} 
                     {...td} 
                     staggerIndex={idx}
-                    isSelected={selection.isSelected(td.id)}
-                    onToggleSelection={(shift) => selection.toggleSelectOne(td.id, shift)}
+                    isSelected={!hideSelection && selection.isSelected(td.id)}
+                    onToggleSelection={!hideSelection ? (shift) => selection.toggleSelectOne(td.id, shift) : undefined}
                     onOpenDetails={() => handleOpenDetails(td)}
                   />
                 ))
@@ -274,11 +270,6 @@ export default function AdminTDTable({
         <BulkActionsBar 
           count={selection.selectionCount} 
           onClear={selection.clearSelection} 
-          primaryAction={{
-            label: 'Exporter',
-            icon: Download,
-            onClick: () => console.log('Exporting selected TDs...')
-          }}
         />
       )}
 

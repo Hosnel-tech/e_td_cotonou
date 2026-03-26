@@ -5,7 +5,8 @@ import {
   Users, 
   Clock, 
   Calendar, 
-  History 
+  History,
+  Check
 } from 'lucide-react';
 
 interface TDCardProps {
@@ -17,6 +18,8 @@ interface TDCardProps {
   status: 'en cours' | 'terminé' | 'rejeté';
   type?: 'Primaire' | 'Secondaire';
   onOpenDetails?: (data: any) => void;
+  isSelected?: boolean;
+  onToggleSelection?: (isShift?: boolean) => void;
 }
 
 export default function TDCard({
@@ -27,7 +30,9 @@ export default function TDCard({
   duree,
   status,
   type,
-  onOpenDetails
+  onOpenDetails,
+  isSelected,
+  onToggleSelection
 }: TDCardProps) {
   const isEnCours = status === 'en cours';
   const isTermine = status === 'terminé';
@@ -42,12 +47,24 @@ export default function TDCard({
   return (
     <motion.div
       whileHover={{ y: -5 }}
-      className="bg-white rounded-[10px] p-6 shadow-[0px_0px_10px_0px_rgba(0,75,112,0.15)] flex flex-col space-y-4 border border-transparent hover:border-sky-900/10 transition-all group"
+      onClick={(e) => onToggleSelection?.(e.shiftKey)}
+      className={`bg-white rounded-[10px] p-6 shadow-[0px_0px_10px_0px_rgba(0,75,112,0.15)] flex flex-col space-y-4 border transition-all group cursor-pointer ${
+        isSelected ? 'border-sky-900 bg-sky-900/[0.02]' : 'border-transparent hover:border-sky-900/10'
+      }`}
     >
       <div className="flex justify-between items-start">
-        <div className="space-y-1">
-          <span className="text-black/40 text-[10px] font-semibold font-montserrat tracking-wider uppercase">MATIERE</span>
-          <h3 className="text-black text-xl font-semibold font-montserrat truncate max-w-[120px]">{matter}</h3>
+        <div className="flex items-center gap-3">
+          {onToggleSelection && (
+            <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+              isSelected ? 'bg-sky-900 border-sky-900' : 'border-black/10 bg-white'
+            }`}>
+              {isSelected && <Check size={14} strokeWidth={4} className="text-white" />}
+            </div>
+          )}
+          <div className="space-y-1">
+            <span className="text-black/40 text-[10px] font-semibold font-montserrat tracking-wider uppercase">MATIERE</span>
+            <h3 className="text-black text-xl font-semibold font-montserrat truncate max-w-[120px]">{matter}</h3>
+          </div>
         </div>
         <div className={`px-3 py-1 rounded-[20px] inline-flex items-center justify-center w-fit transition-colors ${
           isEnCours ? 'bg-sky-900/10 text-sky-900' : 
@@ -110,7 +127,10 @@ export default function TDCard({
       </div>
 
       <button 
-        onClick={handleDetailsClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDetailsClick();
+        }}
         className="w-full mt-2 px-8 py-3 bg-green-800 hover:bg-green-900 text-white rounded-lg flex items-center justify-center gap-2.5 transition-all shadow-md active:scale-[0.98]"
       >
         <span className="text-sm font-semibold font-montserrat">En savoir plus</span>

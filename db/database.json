@@ -8,46 +8,32 @@
       "status": "actif",
       "avatar": "/avatars/admin.png",
       "createdAt": "2024-01-01T00:00:00Z"
-    },
-    {
-      "id": "2",
-      "name": "Jean Dupont",
-      "email": "jean.dupont@email.com",
-      "role": "enseignant",
-      "status": "en attente",
-      "subject": "Mathématiques",
-      "className": "Terminale C",
-      "niveau": "secondaire",
-      "school": "Lycée Coulibaly",
-      "createdAt": "2024-03-24T10:00:00Z"
-    },
-    {
-      "id": "3",
-      "name": "Marie Claire",
-      "email": "marie.claire@email.com",
-      "role": "comptable",
-      "status": "actif",
-      "firstName": "Marie",
-      "lastName": "Claire",
-      "createdAt": "2024-03-20T08:00:00Z"
     }
   ],
-  "tds": [
-    {
-      "id": "td1",
-      "teacher": "Jean Dupont",
-      "subject": "Mathématiques",
-      "classe": "Terminale C",
-      "niveau": "secondaire",
-      "date": "2024-03-26",
-      "time": "14:00",
-      "status": "rejeté",
-      "duration": "2h"
-    }
-  ],
+  "tds": [],
   "payments": [],
   "transfers": [],
-  "notifications": [],
+  "notifications": [
+    {
+      "id": "1774520122430f6hqp",
+      "userId": "2",
+      "title": "Compte rejeté",
+      "message": "Votre demande d’inscription a été rejetée.",
+      "type": "error",
+      "read": false,
+      "createdAt": "2026-03-26T10:15:22.430Z"
+    },
+    {
+      "id": "1774520132954x9733f",
+      "userId": "2",
+      "title": "Compte validé",
+      "message": "Votre compte a été validé par l’administrateur. Bienvenue !",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-03-26T10:15:32.954Z",
+      "actionUrl": "/enseignant/dashboard"
+    }
+  ],
   "upcomingTDs": [],
   "currentUser": {
     "id": "1",

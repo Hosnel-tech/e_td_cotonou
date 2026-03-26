@@ -11,24 +11,23 @@ import StatCard from '@/components/dashboard/enseignant/StatCard';
 import PendingPaymentsTable from '@/components/dashboard/comptable/PendingPaymentsTable';
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
+import { paymentService } from '@/services/payment.service';
 import { transferService } from '@/services/transfer.service';
-import { Transfer } from '@/types/financial.types';
-import { tdService } from '@/services/td.service';
-import { TD } from '@/types/td.types';
+import { Payment, Transfer } from '@/types/financial.types';
 
 export default function AccountantDashboard() {
-  const [tds, setTds] = useState<TD[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [tdData, transData] = await Promise.all([
-          tdService.getTDs(),
+        const [payData, transData] = await Promise.all([
+          paymentService.getPayments(),
           transferService.getTransfers()
         ]);
-        setTds(tdData);
+        setPayments(payData);
         setTransfers(transData);
       } catch (error) {
         console.error('Error fetching accountant data:', error);
@@ -39,14 +38,14 @@ export default function AccountantDashboard() {
     fetchData();
   }, []);
 
-  const selection = useSelection(tds.filter(t => t.status === 'terminé'));
+  const selection = useSelection(payments);
 
   const totalDecaisse = transfers.reduce((sum, t) => sum + parseInt(t.amount.replace(/\D/g, '') || '0'), 0);
-  const totalEnAttente = tds
-    .filter(t => t.status === 'terminé')
-    .length * 5000; // Mock calculation or just count
-  const validesCeMois = tds.filter(t => t.status === 'payé').length;
-  const litiges = tds.filter(t => t.status === 'rejeté').length;
+  const totalEnAttente = payments
+    .filter(p => p.status.toLowerCase() === 'en attente')
+    .reduce((sum, p) => sum + parseInt(p.amount.replace(/\D/g, '') || '0'), 0);
+  const validesCeMois = payments.filter(p => p.status.toLowerCase() === 'payé' || p.status.toLowerCase() === 'validé').length;
+  const litiges = payments.filter(p => p.status.toLowerCase() === 'rejeté' || p.status.toLowerCase() === 'litige').length;
 
   return (
     <>
@@ -110,53 +109,14 @@ export default function AccountantDashboard() {
       </section>
 
       {/* Pending Payments Table */}
-      <section className="bg-white rounded-xl shadow-sm border border-stone-100 overflow-hidden mt-8">
-        <div className="p-8 border-b border-stone-100 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-sky-900">TD en attente de règlement</h2>
-          <span className="bg-amber-100 text-amber-700 px-4 py-1 rounded-full text-xs font-bold uppercase">
-             {tds.filter(t => t.status === 'terminé').length} À Traiter
-          </span>
-        </div>
-        <table className="w-full text-left">
-          <thead className="bg-sky-900/5">
-            <tr>
-              <th className="px-8 py-5 text-sky-900 text-xl font-bold">Enseignant / Séance</th>
-              <th className="px-6 py-5 text-sky-900 text-xl font-bold text-center">Date</th>
-              <th className="px-6 py-5 text-sky-900 text-xl font-bold text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-stone-200 text-black">
-            {tds.filter(t => t.status === 'terminé').slice(0, 5).map((td) => (
-              <tr key={td.id} className="hover:bg-slate-50 transition-colors h-20">
-                <td className="px-8 py-4">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-lg">{td.subject}</span>
-                    <span className="text-sm text-stone-500">{td.classe}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-center font-medium">
-                  {td.date}
-                </td>
-                <td className="px-6 py-4">
-                   <div className="flex justify-center">
-                      <button 
-                        onClick={() => window.location.href = '/comptable/paiements'}
-                        className="p-2 bg-sky-900 text-white rounded-lg hover:bg-sky-950 transition-all font-bold text-sm px-4"
-                      >
-                        Traiter
-                      </button>
-                   </div>
-                </td>
-              </tr>
-            ))}
-            {tds.filter(t => t.status === 'terminé').length === 0 && (
-              <tr>
-                <td colSpan={3} className="py-10 text-center text-gray-400 italic">Aucun TD en attente de règlement</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
+      <PendingPaymentsTable 
+        payments={payments}
+        isSelected={selection.isSelected}
+        toggleSelectOne={selection.toggleSelectOne}
+        isAllSelected={selection.isAllSelected}
+        isIndeterminate={selection.isIndeterminate}
+        toggleSelectAll={selection.toggleSelectAll}
+      />
 
       {/* Quick Actions / Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">

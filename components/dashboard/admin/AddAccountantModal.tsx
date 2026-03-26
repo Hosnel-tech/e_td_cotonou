@@ -15,20 +15,22 @@ interface AddAccountantModalProps {
 export default function AddAccountantModal({ isOpen, onClose, onSuccess }: AddAccountantModalProps) {
   const confirm = useConfirm();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     phone: '',
-    password: '',
+    password: 'password123', // Default or hidden for now as per mockup
   });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const [lastName, ...firstNames] = formData.fullName.split(' ');
+    const firstName = firstNames.join(' ');
+
     const ok = await confirm({
       title: "Créer ce compte comptable ?",
-      description: `Un accès sera créé pour ${formData.firstName} ${formData.lastName} (${formData.email}).`,
+      description: `Un accès sera créé pour ${formData.fullName} (${formData.email}).`,
       confirmLabel: "Oui, créer le compte",
       variant: "info",
     });
@@ -37,10 +39,18 @@ export default function AddAccountantModal({ isOpen, onClose, onSuccess }: AddAc
 
     setLoading(true);
     try {
-      await accountantService.createAccountant(formData as any);
+      await accountantService.createAccountant({
+        firstName: firstName || 'Compte',
+        lastName: lastName || formData.fullName,
+        name: formData.fullName,
+        role: 'comptable',
+        email: formData.email,
+        phone: formData.phone,
+        createdAt: new Date().toISOString(),
+      } as any); // password and other creation-only fields
       onSuccess();
       onClose();
-      setFormData({ firstName: '', lastName: '', email: '', phone: '', password: '' });
+      setFormData({ fullName: '', email: '', phone: '', password: 'password123' });
     } catch (error) {
       console.error('Error creating accountant:', error);
       alert('Erreur lors de la création du compte.');
@@ -58,117 +68,90 @@ export default function AddAccountantModal({ isOpen, onClose, onSuccess }: AddAc
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 transition-opacity"
+            className="fixed inset-0 bg-black/25 backdrop-blur-[2px] z-50 transition-opacity"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 pointer-events-none"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           >
             <div 
-              className="bg-white w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl pointer-events-auto flex flex-col"
+              className="bg-white w-full max-w-[875px] rounded-2xl shadow-2xl relative flex flex-col p-12 overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-8 bg-sky-900 text-white flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Créer un Comptable</h2>
-                <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                  <X size={24} />
+              {/* Header */}
+              <div className="flex justify-between items-center mb-12">
+                <h2 className="text-[32px] font-bold text-black font-montserrat">Ajouter un comptable</h2>
+                <button 
+                  onClick={onClose} 
+                  className="w-10 h-10 flex items-center justify-center text-black hover:bg-slate-100 rounded-full transition-all"
+                >
+                  <X size={32} />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Prénom</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <input 
-                        required
-                        type="text"
-                        value={formData.firstName}
-                        onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
-                        placeholder="Jean"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Nom</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                      <input 
-                        required
-                        type="text"
-                        value={formData.lastName}
-                        onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
-                        placeholder="DUPONT"
-                      />
-                    </div>
-                  </div>
+              <form onSubmit={handleSubmit} className="space-y-10">
+                {/* Nom */}
+                <div className="space-y-3">
+                  <label className="text-base font-semibold text-black font-montserrat flex items-center gap-1">
+                    Nom & Prénoms <span className="text-red-600">*</span>
+                  </label>
+                  <input 
+                    required
+                    type="text"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    className="w-full h-14 bg-white border border-stone-300 rounded-[10px] px-6 text-base font-normal font-montserrat text-black placeholder:text-stone-400 outline-none focus:border-sky-900 transition-all"
+                    placeholder="Jean Claude"
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Email Professionnel</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input 
-                      required
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
-                      placeholder="accountant@example.com"
-                    />
-                  </div>
+                {/* Email */}
+                <div className="space-y-3">
+                  <label className="text-base font-semibold text-black font-montserrat flex items-center gap-1">
+                    Email <span className="text-red-600">*</span>
+                  </label>
+                  <input 
+                    required
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full h-14 bg-white border border-stone-300 rounded-[10px] px-6 text-base font-normal font-montserrat text-black placeholder:text-stone-400 outline-none focus:border-sky-900 transition-all"
+                    placeholder="jeanclaude@gmail.com"
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Téléphone</label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input 
-                      required
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
-                      placeholder="+229 XX XX XX XX"
-                    />
-                  </div>
+                {/* Phone */}
+                <div className="space-y-3">
+                  <label className="text-base font-semibold text-black font-montserrat flex items-center gap-1">
+                    Téléphone <span className="text-red-600">*</span>
+                  </label>
+                  <input 
+                    required
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full h-14 bg-white border border-stone-300 rounded-[10px] px-6 text-base font-normal font-montserrat text-black placeholder:text-stone-400 outline-none focus:border-sky-900 transition-all"
+                    placeholder="01 68 89 03 12"
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Mot de passe provisoire</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input 
-                      required
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                      className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-900 focus:border-transparent outline-none transition-all font-medium"
-                      placeholder="********"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-4 flex gap-4">
+                {/* Buttons */}
+                <div className="pt-6 flex justify-end gap-6">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-8 py-4 border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-slate-50 transition-all active:scale-95"
+                    className="px-10 py-4 bg-white border border-red-600 text-red-600 text-base font-bold rounded-lg hover:bg-red-50 transition-all active:scale-95"
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 px-8 py-4 bg-sky-900 text-white font-bold rounded-xl hover:bg-sky-950 transition-all shadow-lg hover:shadow-sky-900/20 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
+                    className="px-10 py-4 bg-sky-900 text-white text-base font-bold rounded-lg hover:bg-sky-950 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
                   >
-                    <Save size={20} />
-                    {loading ? 'Création...' : 'Enregistrer'}
+                    {loading ? 'Création...' : 'Ajouter un comptable'}
                   </button>
                 </div>
               </form>

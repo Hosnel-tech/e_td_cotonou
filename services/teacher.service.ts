@@ -43,4 +43,22 @@ export const teacherService = {
     const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Failed to delete teacher');
   },
+
+  async bulkUpdateStatus(ids: string[], status: AccountStatus): Promise<void> {
+    const res = await fetch(`${BASE}/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, action: 'update-status', status }),
+    });
+    if (!res.ok) throw new Error('Failed to update teachers');
+  },
+
+  async bulkDelete(ids: string[]): Promise<void> {
+    const res = await fetch(`${BASE}/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, action: 'delete' }),
+    });
+    if (!res.ok) throw new Error('Failed to delete teachers');
+  },
 };

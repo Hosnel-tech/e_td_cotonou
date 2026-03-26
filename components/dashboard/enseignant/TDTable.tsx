@@ -7,6 +7,7 @@ import { LayoutList, LayoutGrid, ArrowRight, SearchX } from 'lucide-react';
 import TDCard from './TDCard';
 import { getTDType } from './tdUtils';
 import { TD } from '@/types/td.types';
+import { Check, Trash2, List, Eye } from 'lucide-react';
 
 interface TDTableProps {
   onOpenDetails?: (data: any) => void;
@@ -15,6 +16,11 @@ interface TDTableProps {
   limit?: number;
   initialView?: 'list' | 'grid';
   showActions?: boolean;
+  isSelected?: (id: string) => boolean;
+  toggleSelectOne?: (id: string, isShift?: boolean) => void;
+  isAllSelected?: boolean;
+  isIndeterminate?: boolean;
+  toggleSelectAll?: () => void;
 }
 
 export default function TDTable({ 
@@ -23,7 +29,12 @@ export default function TDTable({
   data, 
   limit, 
   initialView = 'list',
-  showActions = true
+  showActions = true,
+  isSelected,
+  toggleSelectOne,
+  isAllSelected,
+  isIndeterminate,
+  toggleSelectAll
 }: TDTableProps) {
   const confirm = useConfirm();
   const [view, setView] = useState<'list' | 'grid'>(initialView);
@@ -78,6 +89,19 @@ export default function TDTable({
               <table className="w-full text-left">
                 <thead className="bg-[#F4FAFD]">
                   <tr>
+                    {toggleSelectAll && (
+                      <th className="pl-8 w-20">
+                        <div 
+                          onClick={() => toggleSelectAll()}
+                          className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
+                            isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'
+                          }`}
+                        >
+                          {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                          {!isAllSelected && isIndeterminate && <div className="w-3 h-0.5 bg-white rounded-full" />}
+                        </div>
+                      </th>
+                    )}
                     <th className="px-8 py-5 text-sky-900 text-xl font-semibold font-montserrat">Matières</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Classe</th>
                     <th className="px-6 py-5 text-sky-900 text-xl font-semibold font-montserrat">Niveau</th>
@@ -98,8 +122,23 @@ export default function TDTable({
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.05 * index }}
-                        className="hover:bg-gray-50/30 transition-colors"
+                        className={`hover:bg-gray-50/30 transition-colors cursor-pointer ${
+                          isSelected?.(td.id) ? 'bg-sky-900/[0.03]' : ''
+                        }`}
+                        onClick={(e) => toggleSelectOne?.(td.id, e.shiftKey)}
                       >
+                        {toggleSelectOne && (
+                          <td className="pl-8" onClick={(e) => e.stopPropagation()}>
+                            <div 
+                              onClick={(e) => toggleSelectOne(td.id, e.shiftKey)}
+                              className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all cursor-pointer ${
+                                isSelected?.(td.id) ? 'bg-sky-900' : 'bg-white hover:bg-gray-50'
+                              }`}
+                            >
+                              {isSelected?.(td.id) && <Check className="text-white" size={18} strokeWidth={4} />}
+                            </div>
+                          </td>
+                        )}
                         <td className="px-8 py-6 text-black text-xl font-normal font-montserrat">{td.subject}</td>
                         <td className="px-6 py-6 text-black text-xl font-normal font-montserrat">{td.classe}</td>
                         <td className="px-6 py-6">
@@ -141,12 +180,13 @@ export default function TDTable({
                                   Marquer terminé
                                 </button>
                               )}
-                              <button 
-                                onClick={() => handleOpenDetails(td)}
-                                className="px-6 py-2 bg-[#0F673B] text-white rounded-lg text-sm font-semibold font-montserrat hover:bg-green-700 transition-colors shadow-sm cursor-pointer"
-                              >
-                                En savoir plus
-                              </button>
+                                <button 
+                                  onClick={() => onOpenDetails?.(td)}
+                                  className="w-10 h-10 bg-sky-900 text-white rounded-lg flex items-center justify-center hover:bg-sky-950 transition-all shadow-sm cursor-pointer"
+                                  title="Détails"
+                                >
+                                  <Eye size={20} />
+                                </button>
                             </div>
                           </td>
                         )}
@@ -193,6 +233,8 @@ export default function TDTable({
                     duree={td.duration}
                     type={getTDType(td.classe)}
                     status={td.status.toLowerCase() as 'en cours' | 'terminé'}
+                    isSelected={isSelected?.(td.id)}
+                    onToggleSelection={(shift) => toggleSelectOne?.(td.id, shift)}
                     onOpenDetails={() => handleOpenDetails(td)}
                   />
                 ))

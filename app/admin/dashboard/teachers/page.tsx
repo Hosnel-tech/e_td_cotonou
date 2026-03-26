@@ -12,6 +12,8 @@ import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import TeacherDetailsModal from '@/components/dashboard/admin/TeacherDetailsModal';
 import Pagination from '@/components/dashboard/admin/Pagination';
+import { exportToCSV } from '@/lib/export.utils';
+import { Check, X, Trash2 } from 'lucide-react';
 import { teacherService } from '@/services/teacher.service';
 import { Teacher } from '@/types/user.types';
 
@@ -84,6 +86,20 @@ export default function TeachersPage() {
       alert('Une erreur est survenue lors de la mise à jour du statut.');
     }
   };
+
+  const handleBulkDelete = async () => {
+    try {
+      await teacherService.bulkDelete(selection.selectedIds);
+      const updated = await teacherService.getTeachers();
+      setTeachers(updated);
+      clearSelection();
+    } catch (error) {
+       console.error('Bulk delete error:', error);
+       alert('Erreur lors de la suppression groupée.');
+    }
+  };
+
+
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
@@ -195,10 +211,10 @@ export default function TeachersPage() {
           />
         </section>
         
-        {/* Bulk Actions */}
         <BulkActionsBar 
           count={selectionCount} 
           onClear={clearSelection}
+          onDelete={handleBulkDelete}
         />
       </main>
 

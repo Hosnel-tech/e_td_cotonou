@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { Eye, Check, X, SearchX } from 'lucide-react';
+import { Eye, Check, X, SearchX, Trash2 } from 'lucide-react';
 import { Accountant } from '@/types/user.types';
 import { useConfirm } from '@/hooks/useConfirm';
 
@@ -10,11 +10,12 @@ interface AccountantTableProps {
   onView: (accountant: Accountant) => void;
   onStatusUpdate?: (id: string, status: 'actif' | 'inactif') => void;
   onDelete?: (id: string) => void;
-  isSelected: (id: string) => boolean;
-  toggleSelectOne: (id: string, isShift?: boolean) => void;
-  isAllSelected: boolean;
-  isIndeterminate: boolean;
-  toggleSelectAll: () => void;
+  isSelected?: (id: string) => boolean;
+  toggleSelectOne?: (id: string, isShift?: boolean) => void;
+  isAllSelected?: boolean;
+  isIndeterminate?: boolean;
+  toggleSelectAll?: () => void;
+  hideSelection?: boolean;
 }
 
 export default function AccountantTable({ 
@@ -26,7 +27,8 @@ export default function AccountantTable({
   toggleSelectOne,
   isAllSelected,
   isIndeterminate,
-  toggleSelectAll
+  toggleSelectAll,
+  hideSelection = true
 }: AccountantTableProps) {
   const confirm = useConfirm();
   return (
@@ -34,17 +36,19 @@ export default function AccountantTable({
       <table className="w-full text-left min-w-[1000px]">
         <thead>
           <tr className="bg-sky-900/5 h-20">
-            <th className="pl-8 w-20">
-              <div 
-                onClick={toggleSelectAll} 
-                className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
-                  isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'
-                }`}
-              >
-                {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
-                {!isAllSelected && isIndeterminate && <div className="w-3 h-0.5 bg-white rounded-full" />}
-              </div>
-            </th>
+            {!hideSelection && (
+              <th className="pl-8 w-20">
+                <div 
+                  onClick={toggleSelectAll} 
+                  className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
+                    isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'
+                  }`}
+                >
+                  {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
+                  {!isAllSelected && isIndeterminate && <div className="w-3 h-0.5 bg-white rounded-full" />}
+                </div>
+              </th>
+            )}
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Comptable</th>
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Email</th>
             <th className="px-6 py-4 text-sky-900 text-xl font-semibold font-montserrat tracking-tight">Téléphone</th>
@@ -55,7 +59,7 @@ export default function AccountantTable({
         <tbody className="divide-y divide-stone-200">
           {accountants.length > 0 ? (
             accountants.map((accountant, idx) => {
-              const selected = isSelected(accountant.id);
+              const selected = isSelected?.(accountant.id) ?? false;
 
               return (
                 <motion.tr 
@@ -63,21 +67,23 @@ export default function AccountantTable({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                   key={accountant.id} 
-                  className={`h-20 hover:bg-slate-50 transition-colors group cursor-pointer ${
-                    selected ? 'bg-sky-900/[0.03]' : ''
+                  className={`h-20 hover:bg-slate-50 transition-colors group ${!hideSelection ? 'cursor-pointer' : ''} ${
+                    !hideSelection && selected ? 'bg-sky-900/[0.03]' : ''
                   }`} 
-                  onClick={(e) => toggleSelectOne(accountant.id, e.shiftKey)}
+                  onClick={(e) => !hideSelection && toggleSelectOne?.(accountant.id, e.shiftKey)}
                 >
-                  <td className="pl-8" onClick={(e) => e.stopPropagation()}>
-                    <div 
-                      onClick={(e) => toggleSelectOne(accountant.id, e.shiftKey)}
-                      className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${
-                        selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'
-                      }`}
-                    >
-                      {selected && <Check className="text-white" size={18} strokeWidth={4} />}
-                    </div>
-                  </td>
+                  {!hideSelection && (
+                    <td className="pl-8" onClick={(e) => e.stopPropagation()}>
+                      <div 
+                        onClick={(e) => toggleSelectOne?.(accountant.id, e.shiftKey)}
+                        className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 flex items-center justify-center transition-all ${
+                          selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'
+                        }`}
+                      >
+                        {selected && <Check className="text-white" size={18} strokeWidth={4} />}
+                      </div>
+                    </td>
+                  )}
                   <td className="px-6 py-4 text-black text-xl font-normal">
                     {accountant.lastName} {accountant.firstName}
                   </td>
@@ -128,7 +134,7 @@ export default function AccountantTable({
 
                       <button 
                         onClick={() => onView(accountant)} 
-                        className="w-9 h-9 bg-stone-100 text-sky-900 rounded-[5px] flex items-center justify-center hover:bg-stone-200 transition-all shadow-sm hover:scale-105 cursor-pointer"
+                        className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 transition-all shadow-sm hover:scale-105 cursor-pointer"
                         title="Voir les détails"
                       >
                         <Eye size={20} strokeWidth={2.5} />
@@ -144,10 +150,10 @@ export default function AccountantTable({
                           });
                           if (ok) onDelete?.(accountant.id);
                         }}
-                        className="w-9 h-9 bg-red-600/10 text-red-600 rounded-[5px] flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm cursor-pointer"
+                        className="w-9 h-9 bg-red-600 text-white rounded-[5px] flex items-center justify-center hover:bg-red-700 transition-all shadow-sm cursor-pointer"
                         title="Supprimer le compte"
                       >
-                        <X size={18} strokeWidth={2.5} />
+                        <Trash2 size={18} strokeWidth={2.5} />
                       </button>
                     </div>
                   </td>

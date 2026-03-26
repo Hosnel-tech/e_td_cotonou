@@ -19,6 +19,9 @@ import TDTable from '@/components/dashboard/enseignant/TDTable';
 import DashboardSearch from '@/components/dashboard/enseignant/DashboardSearch';
 import { tdService } from '@/services/td.service';
 import { TD } from '@/types/td.types';
+import { useSelection } from '@/hooks/useSelection';
+import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
+import { useConfirm } from '@/hooks/useConfirm';
 
 export default function TDManagementPage() {
   const [tds, setTds] = useState<TD[]>([]);
@@ -26,6 +29,8 @@ export default function TDManagementPage() {
   const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const confirm = useConfirm();
 
   useEffect(() => {
     tdService.getTDs().then(setTds);
@@ -38,6 +43,9 @@ export default function TDManagementPage() {
       return matchesSearch;
     });
   }, [searchQuery, tds]);
+
+  const selection = useSelection(filteredTDs);
+  const { isSelected, toggleSelectOne, selectionCount, clearSelection, isAllSelected, isIndeterminate, toggleSelectAll } = selection;
 
   const handleOpenDetails = (data: TD) => {
     setSelectedTD(data);
@@ -52,6 +60,18 @@ export default function TDManagementPage() {
     } catch (error) {
        console.error('Error updating TD status:', error);
        alert('Erreur lors de la mise à jour du statut du TD.');
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      await tdService.bulkDelete(selection.selectedIds);
+      const updated = await tdService.getTDs();
+      setTds(updated);
+      clearSelection();
+    } catch (error) {
+       console.error('Bulk delete error:', error);
+       alert('Erreur lors de la suppression groupée.');
     }
   };
 
@@ -140,14 +160,24 @@ export default function TDManagementPage() {
           </div>
         </section>
 
-        {/* Unified TD Table / Grid */}
         <section>
           <TDTable 
             onOpenDetails={handleOpenDetails} 
             onStatusUpdate={handleStatusUpdate}
             data={filteredTDs}
+            isSelected={isSelected}
+            toggleSelectOne={toggleSelectOne}
+            isAllSelected={isAllSelected}
+            isIndeterminate={isIndeterminate}
+            toggleSelectAll={toggleSelectAll}
           />
         </section>
+
+        <BulkActionsBar 
+          count={selectionCount} 
+          onClear={clearSelection} 
+          onDelete={handleBulkDelete}
+        />
 
         {/* Pagination Controls */}
         <footer className="flex items-center justify-between bg-white p-8 rounded-lg shadow-sm border border-stone-100">

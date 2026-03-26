@@ -176,7 +176,7 @@ export default function TeacherTable({
                       
                       <button 
                         onClick={() => onView?.(teacher)} 
-                        className="w-9 h-9 bg-stone-100 text-sky-900 rounded-[5px] flex items-center justify-center hover:bg-stone-200 transition-all shadow-sm hover:scale-105 cursor-pointer"
+                        className="w-9 h-9 bg-sky-900 text-white rounded-[5px] flex items-center justify-center hover:bg-sky-950 transition-all shadow-sm hover:scale-105 cursor-pointer"
                         title="Voir les détails"
                       >
                         <Eye size={20} strokeWidth={2.5} />

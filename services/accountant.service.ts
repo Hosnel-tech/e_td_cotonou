@@ -36,5 +36,14 @@ export const accountantService = {
   async deleteAccountant(id: string): Promise<void> {
     const res = await fetch(`${BASE}/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Failed to delete accountant');
+  },
+
+  async bulkDelete(ids: string[]): Promise<void> {
+    const res = await fetch(`${BASE}/bulk`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, action: 'delete' }),
+    });
+    if (!res.ok) throw new Error('Failed to delete accountants');
   }
 };

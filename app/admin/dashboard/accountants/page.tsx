@@ -8,11 +8,10 @@ import { useState, useRef, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AccountantTable from '@/components/dashboard/admin/AccountantTable';
-import { useSelection } from '@/hooks/useSelection';
-import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import AccountantDetailsModal from '@/components/dashboard/admin/AccountantDetailsModal';
 import AddAccountantModal from '@/components/dashboard/admin/AddAccountantModal';
 import Pagination from '@/components/dashboard/admin/Pagination';
+import { exportToCSV } from '@/lib/export.utils';
 import { accountantService } from '@/services/accountant.service';
 import { Accountant } from '@/types/user.types';
 
@@ -69,8 +68,7 @@ export default function AccountantsPage() {
     currentPage * ITEMS_PER_PAGE
   );
 
-  const selection = useSelection(filteredAccountants);
-  const { isSelected, toggleSelectOne, isAllSelected, isIndeterminate, toggleSelectAll, selectionCount, clearSelection } = selection;
+
 
   const handleViewAccountant = (acc: Accountant) => {
     setSelectedAccountant(acc);
@@ -98,6 +96,8 @@ export default function AccountantsPage() {
        alert('Erreur lors de la suppression.');
     }
   };
+
+
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
@@ -203,11 +203,7 @@ export default function AccountantsPage() {
                  onView={handleViewAccountant}
                  onStatusUpdate={handleStatusUpdate}
                  onDelete={handleDelete}
-                 isSelected={isSelected}
-                 toggleSelectOne={toggleSelectOne}
-                 isAllSelected={isAllSelected}
-                 isIndeterminate={isIndeterminate}
-                 toggleSelectAll={toggleSelectAll}
+                 hideSelection={true}
                />
              </motion.div>
           </AnimatePresence>
@@ -219,11 +215,7 @@ export default function AccountantsPage() {
           />
         </section>
         
-        {/* Bulk Actions */}
-        <BulkActionsBar 
-          count={selectionCount} 
-          onClear={clearSelection}
-        />
+
       </main>
 
       {/* Accountant Details Modal */}

@@ -10,6 +10,7 @@ interface AdminTDCardProps extends TD {
   isSelected?: boolean;
   onToggleSelection?: (isShift: boolean) => void;
   onOpenDetails?: () => void;
+  hideSelection?: boolean;
 }
 
 const statusConfig: Record<string, { pill: string; label: string }> = {
@@ -33,6 +34,7 @@ export default function AdminTDCard({
   isSelected = false,
   onToggleSelection,
   onOpenDetails,
+  hideSelection = true
 }: AdminTDCardProps) {
   const cfg      = statusConfig[status] ?? statusConfig['en cours'];
   const isPending = status === 'en attente';
@@ -41,21 +43,25 @@ export default function AdminTDCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05 * staggerIndex, duration: 0.4 }}
-      whileHover={{ y: -4 }}
-      onClick={(e) => onToggleSelection?.(e.shiftKey)}
-      className={`bg-white rounded-[10px] shadow-sm p-6 flex flex-col gap-4 border cursor-pointer transition-all ${
-        isSelected ? 'border-sky-900 ring-2 ring-sky-900/10' : 'border-stone-100'
-      }`}
+      transition={{ delay: 0.1 * staggerIndex }}
+      whileHover={{ y: -5 }}
+      onClick={(e) => !hideSelection && onToggleSelection?.(e.shiftKey)}
+      className={`bg-white rounded-xl shadow-sm border p-6 flex flex-col gap-6 transition-all group ${
+        !hideSelection && isSelected ? 'border-sky-900 shadow-md ring-1 ring-sky-900/5' : 'border-stone-100 hover:border-sky-900/10 hover:shadow-md'
+      } ${!hideSelection ? 'cursor-pointer' : ''}`}
     >
       <div className="flex justify-between items-start">
-        <div className="flex items-start gap-3">
-          <div className={`mt-1 w-5 h-5 rounded-[4px] border border-sky-900 flex items-center justify-center transition-all ${isSelected ? 'bg-sky-900' : 'bg-white'}`}>
-            {isSelected && <Check className="text-white" size={12} strokeWidth={4} />}
-          </div>
+        <div className="flex items-center gap-3">
+          {!hideSelection && onToggleSelection && (
+            <div className={`w-5 h-5 rounded-[4px] border border-sky-900 flex items-center justify-center transition-all ${
+              isSelected ? 'bg-sky-900' : 'bg-white'
+            }`}>
+              {isSelected && <Check size={12} strokeWidth={4} className="text-white" />}
+            </div>
+          )}
           <div className="space-y-1">
-            <span className="text-black/40 text-[10px] font-bold uppercase">MATIERE</span>
-            <h3 className="text-black text-xl font-semibold leading-tight">{subject}</h3>
+            <span className="text-[10px] font-bold text-sky-900/40 font-montserrat tracking-widest uppercase">Matière</span>
+            <h3 className="text-xl font-bold text-black font-montserrat tracking-tight truncate max-w-[150px]">{subject}</h3>
           </div>
         </div>
         <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase border shadow-sm ${cfg.pill}`}>{cfg.label}</span>
