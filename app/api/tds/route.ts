@@ -3,7 +3,7 @@ import { readDb, writeDb } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-import { notificationService } from '@/services/notification.service';
+import { serverNotifyRole } from '@/lib/notifications.server';
 
 export async function GET() {
   const db = readDb();
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   writeDb(db);
 
   // Notify Admin
-  await notificationService.notifyRole(
+  serverNotifyRole(
     'admin',
     'Nouveau TD créé',
     `Un nouveau TD pour ${newTD.subject} a été créé par ${newTD.teacher} et attend validation.`,

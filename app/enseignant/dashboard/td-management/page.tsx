@@ -173,7 +173,11 @@ export default function TDManagementPage() {
       </main>
 
       {/* Modals */}
-      <NewTDModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <NewTDModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={() => tdService.getTDs().then(setTds)}
+      />
       <TDDetailsModal 
         isOpen={isDetailsOpen} 
         onClose={() => setIsDetailsOpen(false)} 

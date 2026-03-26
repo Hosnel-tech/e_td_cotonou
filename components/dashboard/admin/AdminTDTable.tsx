@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { List, LayoutGrid, Check, X, Eye, ArrowRight, Download, SearchX } from 'lucide-react';
 import { useState } from 'react';
+import { useConfirm } from '@/hooks/useConfirm';
 import Link from 'next/link';
 import { getTDType } from '@/components/dashboard/enseignant/tdUtils';
 import AdminTDCard from './AdminTDCard';
@@ -52,6 +53,8 @@ export default function AdminTDTable({
   const selection = externalSelection || internalSelection;
 
   const displayData = limit ? tds.slice(0, limit) : tds;
+
+  const confirm = useConfirm();
 
   const handleOpenDetails = (td: TD) => {
     if (onOpenDetails) {
@@ -156,14 +159,30 @@ export default function AdminTDTable({
                             {td.status === 'en attente' && (
                               <>
                                 <button 
-                                  onClick={() => onStatusUpdate?.(td.id, 'en cours')}
+                                  onClick={async () => {
+                                    const ok = await confirm({
+                                      title: 'Valider ce TD ?',
+                                      description: `Confirmer la validation du TD de ${td.subject} (${td.classe}). L'enseignant sera notifié.`,
+                                      confirmLabel: 'Oui, valider',
+                                      variant: 'success',
+                                    });
+                                    if (ok) onStatusUpdate?.(td.id, 'en cours');
+                                  }}
                                   className="w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm bg-green-800 text-white hover:bg-green-900 hover:scale-110 cursor-pointer"
                                   title="Valider le TD"
                                 >
                                   <Check size={16} strokeWidth={3} />
                                 </button>
                                 <button 
-                                  onClick={() => onStatusUpdate?.(td.id, 'rejeté')}
+                                  onClick={async () => {
+                                    const ok = await confirm({
+                                      title: 'Rejeter ce TD ?',
+                                      description: `Cette action rejetera le TD de ${td.subject} (${td.classe}). L'enseignant sera notifié du refus.`,
+                                      confirmLabel: 'Oui, rejeter',
+                                      variant: 'danger',
+                                    });
+                                    if (ok) onStatusUpdate?.(td.id, 'rejeté');
+                                  }}
                                   className="w-8 h-8 rounded-md flex items-center justify-center transition-all shadow-sm bg-red-600 text-white hover:bg-red-700 hover:scale-110 cursor-pointer"
                                   title="Rejeter le TD"
                                 >

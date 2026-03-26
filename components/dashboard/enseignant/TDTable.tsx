@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useConfirm } from '@/hooks/useConfirm';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutList, LayoutGrid, ArrowRight, SearchX } from 'lucide-react';
 import TDCard from './TDCard';
@@ -24,6 +25,7 @@ export default function TDTable({
   initialView = 'list',
   showActions = true
 }: TDTableProps) {
+  const confirm = useConfirm();
   const [view, setView] = useState<'list' | 'grid'>(initialView);
 
   // Apply limit if specified (dashboard mode)
@@ -125,7 +127,15 @@ export default function TDTable({
                             <div className="flex items-center justify-end gap-3">
                               {td.status.toLowerCase() === 'en cours' && (
                                 <button 
-                                  onClick={() => onStatusUpdate?.(td.id, 'terminé')}
+                                  onClick={async () => {
+                                    const ok = await confirm({
+                                      title: 'Voulez-vous clôturer ce TD ?',
+                                      description: `En marquant le TD de ${td.subject} (${td.classe}) comme terminé, vous confirmez que la séance a bien eu lieu. Le service de comptabilité sera notifié pour le paiement.`,
+                                      confirmLabel: 'Oui, clôturer',
+                                      variant: 'info',
+                                    });
+                                    if (ok) onStatusUpdate?.(td.id, 'terminé');
+                                  }}
                                   className="px-6 py-2 bg-sky-900 text-white rounded-lg text-sm font-semibold font-montserrat hover:bg-sky-950 transition-colors shadow-sm cursor-pointer"
                                 >
                                   Marquer terminé

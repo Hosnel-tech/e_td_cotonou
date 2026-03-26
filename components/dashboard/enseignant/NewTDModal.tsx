@@ -9,13 +9,18 @@ import {
   ChevronDown 
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useConfirm } from '@/hooks/useConfirm';
+import { tdService } from '@/services/td.service';
 
 interface NewTDModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
+export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalProps) {
+  const confirm = useConfirm();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     subject: 'Français',
@@ -49,6 +54,51 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.date || !formData.startTime || !formData.endTime) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    const ok = await confirm({
+      title: "Confirmer l'ajout de ce TD ?",
+      description: `Une nouvelle séance de ${formData.subject} sera créée pour le ${formData.date} à ${formData.startTime}.`,
+      confirmLabel: "Oui, ajouter",
+      variant: "info",
+    });
+
+    if (!ok) return;
+
+    setLoading(true);
+    try {
+      await tdService.createTD({
+        subject: formData.subject,
+        classe: "Tle", // Default for now or could be a field
+        niveau: "secondaire", // Default for now
+        date: formData.date,
+        time: formData.startTime,
+        duration: formData.duration,
+        status: "en cours",
+        teacher: "M. DUPONT" // Matches TD interface
+      });
+      onSuccess?.();
+      onClose();
+      setFormData({
+        name: '',
+        subject: 'Français',
+        startTime: '',
+        endTime: '',
+        date: '',
+        duration: ''
+      });
+    } catch (error) {
+      console.error('Error creating TD:', error);
+      alert("Erreur lors de l'ajout du TD.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -209,14 +259,11 @@ export default function NewTDModal({ isOpen, onClose }: NewTDModalProps) {
                 Annuler
               </button>
               <button 
-                onClick={() => {
-                   console.log('New TD Data:', formData);
-                   alert('TD ajouté avec succès !');
-                   onClose();
-                }}
-                className="px-10 py-5 bg-sky-900 text-white rounded-lg text-base font-medium font-montserrat hover:bg-sky-950 transition-colors shadow-lg active:scale-95 transition-all"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="px-10 py-5 bg-sky-900 text-white rounded-lg text-base font-medium font-montserrat hover:bg-sky-950 transition-colors shadow-lg active:scale-95 transition-all disabled:opacity-50"
               >
-                Ajouter un TD
+                {loading ? 'Ajout en cours...' : 'Ajouter un TD'}
               </button>
             </div>
 

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { 
   Search, Download, Plus, Filter, Check, SearchSlash
 } from 'lucide-react';
+import { useConfirm } from '@/hooks/useConfirm';
 import { useState, useEffect } from 'react';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import PaymentManagementTable from '@/components/dashboard/comptable/PaymentManagementTable';
@@ -17,6 +18,7 @@ import { TD } from '@/types/td.types';
 import ComptableSidebar from '@/components/dashboard/comptable/ComptableSidebar';
 
 export default function AccountantPaymentsPage() {
+  const confirm = useConfirm();
   const [tds, setTds] = useState<TD[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -117,7 +119,15 @@ export default function AccountantPaymentsPage() {
                       <div className="flex items-center justify-center gap-3">
                         {td.status === 'terminé' && (
                           <button
-                            onClick={() => handleStatusUpdate(td.id, 'payé')}
+                            onClick={async () => {
+                              const ok = await confirm({
+                                title: "Confirmer le règlement ?",
+                                description: `Voulez-vous marquer le TD de ${td.subject} (${td.classe}) comme payé ? Cette action notifiera l'enseignant.`,
+                                confirmLabel: "Confirmer le paiement",
+                                variant: "success",
+                              });
+                              if (ok) handleStatusUpdate(td.id, 'payé');
+                            }}
                             className="px-8 py-3.5 bg-green-800 text-white rounded-xl font-bold shadow-lg hover:bg-green-900 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 cursor-pointer"
                           >
                             <Check size={20} strokeWidth={3} />

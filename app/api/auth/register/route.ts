@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readDb, writeDb } from '@/lib/db';
-import { notificationService } from '@/services/notification.service';
+import { serverNotifyRole } from '@/lib/notifications.server';
 import { Teacher } from '@/types/user.types';
 
 export async function POST(req: Request) {
@@ -30,10 +30,10 @@ export async function POST(req: Request) {
     writeDb(db);
 
     // Notify Admin
-    await notificationService.notifyRole(
+    serverNotifyRole(
       'admin',
       'Nouvelle inscription',
-      `L’enseignant ${newUser.name} s’est inscrit et attend validation.`,
+      `L'enseignant ${newUser.name} s'est inscrit et attend validation.`,
       'info',
       '/admin/teachers'
     );

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readDb, writeDb } from '@/lib/db';
-import { notificationService } from '@/services/notification.service';
+import { serverNotify, serverNotifyRole } from '@/lib/notifications.server';
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,23 +31,23 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     switch (newStatus) {
       case 'en cours': // Validated by Admin
         if (teacherId) {
-          await notificationService.notify(teacherId, 'TD Validé', `Votre TD de ${oldTD.subject} a été validé.`, 'success');
+          serverNotify(teacherId, 'TD Validé', `Votre TD de ${oldTD.subject} a été validé.`, 'success');
         }
         break;
       case 'rejeté': // Rejected by Admin
         if (teacherId) {
-          await notificationService.notify(teacherId, 'TD Rejeté', `Votre TD de ${oldTD.subject} a été rejeté.`, 'error');
+          serverNotify(teacherId, 'TD Rejeté', `Votre TD de ${oldTD.subject} a été rejeté.`, 'error');
         }
         break;
       case 'terminé': // Finished by Teacher
-        await notificationService.notifyRole('admin', 'TD Terminé', `${oldTD.teacher} a terminé son TD de ${oldTD.subject}.`, 'info');
-        await notificationService.notifyRole('comptable', 'TD à payer', `Un nouveau TD est prêt pour le paiement (${oldTD.subject}).`, 'info');
+        serverNotifyRole('admin', 'TD Terminé', `${oldTD.teacher} a terminé son TD de ${oldTD.subject}.`, 'info');
+        serverNotifyRole('comptable', 'TD à payer', `Un nouveau TD est prêt pour le paiement (${oldTD.subject}).`, 'info');
         break;
       case 'payé': // Paid by Accountant
         if (teacherId) {
-          await notificationService.notify(teacherId, 'Paiement Reçu', `Votre TD de ${oldTD.subject} a été marqué comme payé.`, 'success', '/enseignant/dashboard/payments');
+          serverNotify(teacherId, 'Paiement Reçu', `Votre TD de ${oldTD.subject} a été marqué comme payé.`, 'success', '/enseignant/dashboard/payments');
         }
-        await notificationService.notifyRole('admin', 'Paiement Effectué', `Le TD de ${oldTD.subject} (${oldTD.teacher}) a été payé.`, 'info');
+        serverNotifyRole('admin', 'Paiement Effectué', `Le TD de ${oldTD.subject} (${oldTD.teacher}) a été payé.`, 'info');
         break;
     }
   }

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Eye, Check, X, SearchX } from 'lucide-react';
 import { Accountant } from '@/types/user.types';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface AccountantTableProps {
   accountants: Accountant[];
@@ -27,6 +28,7 @@ export default function AccountantTable({
   isIndeterminate,
   toggleSelectAll
 }: AccountantTableProps) {
+  const confirm = useConfirm();
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left min-w-[1000px]">
@@ -92,7 +94,15 @@ export default function AccountantTable({
                     <div className="flex items-center justify-center gap-3" onClick={(e) => e.stopPropagation()}>
                       {accountant.status === 'actif' ? (
                         <button
-                          onClick={() => onStatusUpdate?.(accountant.id, 'inactif')}
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: "Désactiver ce comptable ?",
+                              description: `Le comptable ${accountant.lastName} ${accountant.firstName} n'aura plus accès à la plateforme.`,
+                              confirmLabel: "Oui, désactiver",
+                              variant: "warning",
+                            });
+                            if (ok) onStatusUpdate?.(accountant.id, 'inactif');
+                          }}
                           className="w-9 h-9 bg-amber-400 text-white rounded-[5px] flex items-center justify-center hover:bg-amber-500 transition-all shadow-md hover:scale-105 cursor-pointer"
                           title="Désactiver le compte"
                         >
@@ -100,7 +110,15 @@ export default function AccountantTable({
                         </button>
                       ) : (
                         <button
-                          onClick={() => onStatusUpdate?.(accountant.id, 'actif')}
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: "Activer ce comptable ?",
+                              description: `Le comptable ${accountant.lastName} ${accountant.firstName} retrouvera l'accès à la plateforme.`,
+                              confirmLabel: "Oui, activer",
+                              variant: "success",
+                            });
+                            if (ok) onStatusUpdate?.(accountant.id, 'actif');
+                          }}
                           className="w-9 h-9 bg-green-800 text-white rounded-[5px] flex items-center justify-center hover:bg-green-900 transition-all shadow-md hover:scale-105 cursor-pointer"
                           title="Activer le compte"
                         >
@@ -117,10 +135,14 @@ export default function AccountantTable({
                       </button>
                       
                       <button
-                        onClick={() => {
-                          if (confirm('Êtes-vous sûr de vouloir supprimer ce comptable ?')) {
-                            onDelete?.(accountant.id);
-                          }
+                        onClick={async () => {
+                          const ok = await confirm({
+                            title: "Supprimer ce comptable ?",
+                            description: `Cette action est irréversible. Toutes les données de ${accountant.lastName} ${accountant.firstName} seront effacées.`,
+                            confirmLabel: "Oui, supprimer",
+                            variant: "danger",
+                          });
+                          if (ok) onDelete?.(accountant.id);
                         }}
                         className="w-9 h-9 bg-red-600/10 text-red-600 rounded-[5px] flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm cursor-pointer"
                         title="Supprimer le compte"

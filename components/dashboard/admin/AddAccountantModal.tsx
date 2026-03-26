@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Mail, Phone, Lock, Save } from 'lucide-react';
 import { useState } from 'react';
 import { accountantService } from '@/services/accountant.service';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface AddAccountantModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface AddAccountantModalProps {
 }
 
 export default function AddAccountantModal({ isOpen, onClose, onSuccess }: AddAccountantModalProps) {
+  const confirm = useConfirm();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -23,6 +25,16 @@ export default function AddAccountantModal({ isOpen, onClose, onSuccess }: AddAc
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const ok = await confirm({
+      title: "Créer ce compte comptable ?",
+      description: `Un accès sera créé pour ${formData.firstName} ${formData.lastName} (${formData.email}).`,
+      confirmLabel: "Oui, créer le compte",
+      variant: "info",
+    });
+
+    if (!ok) return;
+
     setLoading(true);
     try {
       await accountantService.createAccountant(formData as any);

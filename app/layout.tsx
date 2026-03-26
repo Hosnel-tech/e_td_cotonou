@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter } from "next/font/google";
 import "./globals.css";
+import { ConfirmProvider } from "@/hooks/useConfirm";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -14,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "E-TD Cotonou - L’excellence du soutien scolaire",
+  title: "E-TD Cotonou - L'excellence du soutien scolaire",
   description:
     "La plateforme tout en un pour gérer les travaux dirigés au Bénin.",
 };
@@ -29,7 +30,9 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${inter.variable} font-montserrat antialiased`}
       >
-        {children}
+        <ConfirmProvider>
+          {children}
+        </ConfirmProvider>
       </body>
     </html>
   );

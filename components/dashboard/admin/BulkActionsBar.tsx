@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideIcon, Trash2, X } from 'lucide-react';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface BulkActionsBarProps {
   count: number;
@@ -22,6 +23,7 @@ export default function BulkActionsBar({
   primaryAction,
   showDelete = true 
 }: BulkActionsBarProps) {
+  const confirm = useConfirm();
   return (
     <AnimatePresence>
       {count > 0 && (
@@ -43,21 +45,37 @@ export default function BulkActionsBar({
           <div className="flex items-center gap-2">
             {showDelete && (
               <button
-                onClick={onDelete}
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: `Supprimer ${count} ${count > 1 ? 'éléments' : 'élément'} ?`,
+                    description: `Cette action supprimera définitivement les ${count} éléments sélectionnés. Cette opération est irréversible.`,
+                    confirmLabel: "Oui, supprimer",
+                    variant: "danger",
+                  });
+                  if (ok) onDelete?.();
+                }}
                 className="group flex items-center gap-2 px-4 py-2 hover:bg-white/10 rounded-xl transition-all text-white border border-transparent hover:border-white/20"
               >
                 <Trash2 size={18} className="group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-semibold font-montserrat">Supprimer</span>
+                <span className="text-sm font-semibold font-montserrat tracking-tight">Supprimer</span>
               </button>
             )}
 
             {primaryAction && (
               <button
-                onClick={primaryAction.onClick}
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: `${primaryAction.label} pour ${count} ${count > 1 ? 'éléments' : 'élément'} ?`,
+                    description: `Voulez-vous appliquer cette action aux ${count} éléments sélectionnés ?`,
+                    confirmLabel: "Confirmer",
+                    variant: "info",
+                  });
+                  if (ok) primaryAction.onClick();
+                }}
                 className="group flex items-center gap-2 px-4 py-2 hover:bg-white/10 rounded-xl transition-all text-white border border-transparent hover:border-white/20"
               >
                 <primaryAction.icon size={18} className="group-hover:scale-110 transition-transform" />
-                <span className="text-sm font-semibold font-montserrat">{primaryAction.label}</span>
+                <span className="text-sm font-semibold font-montserrat tracking-tight">{primaryAction.label}</span>
               </button>
             )}
 

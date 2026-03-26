@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Search, SearchSlash, Check, Wallet, Filter
 } from 'lucide-react';
+import { useConfirm } from '@/hooks/useConfirm';
 import { useState, useEffect } from 'react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
@@ -12,6 +13,7 @@ import { TD } from '@/types/td.types';
 import TDTable from '@/components/dashboard/enseignant/TDTable';
 
 export default function AdminPaymentsPage() {
+  const confirm = useConfirm();
   const [tds, setTds] = useState<TD[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -109,8 +111,16 @@ export default function AdminPaymentsPage() {
                             <div className="flex items-center justify-center gap-3">
                               {td.status === 'terminé' && (
                                 <button
-                                  onClick={() => handleStatusUpdate(td.id, 'payé')}
-                                  className="px-6 py-3 bg-sky-900 text-white rounded-xl font-bold shadow-md hover:bg-sky-950 transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                                  onClick={async () => {
+                                    const ok = await confirm({
+                                      title: "Valider ce paiement ?",
+                                      description: `Confirmer le paiement pour la séance de ${td.subject} (${td.classe}). L'enseignant sera informé.`,
+                                      confirmLabel: "Oui, valider",
+                                      variant: "success",
+                                    });
+                                    if (ok) handleStatusUpdate(td.id, 'payé');
+                                  }}
+                                  className="px-6 py-3 bg-sky-900 text-white rounded-xl font-bold font-montserrat shadow-md hover:bg-sky-950 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
                                 >
                                   <Check size={18} />
                                   Valider Paiement

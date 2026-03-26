@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Eye, Check, X, SearchX } from 'lucide-react';
 import { Teacher } from '@/types/user.types';
+import { useConfirm } from '@/hooks/useConfirm';
 
 interface TeacherTableProps {
   teachers: Teacher[];
@@ -25,6 +26,7 @@ export default function TeacherTable({
   isIndeterminate,
   toggleSelectAll
 }: TeacherTableProps) {
+  const confirm = useConfirm();
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left min-w-[1000px]">
@@ -108,14 +110,30 @@ export default function TeacherTable({
                       {teacher.status === 'en attente' ? (
                         <>
                           <button
-                            onClick={() => onStatusUpdate?.(teacher.id, 'actif')}
+                            onClick={async () => {
+                              const ok = await confirm({
+                                title: "Valider cet enseignant ?",
+                                description: `Activer le compte de ${teacher.name} lui donnera accès au tableau de bord. Il sera notifié.`,
+                                confirmLabel: "Oui, activer",
+                                variant: "success",
+                              });
+                              if (ok) onStatusUpdate?.(teacher.id, 'actif');
+                            }}
                             className="w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md bg-green-800 text-white hover:bg-green-900 hover:scale-105 cursor-pointer"
                             title="Valider l'enseignant"
                           >
                             <Check size={20} strokeWidth={3} />
                           </button>
                           <button
-                            onClick={() => onStatusUpdate?.(teacher.id, 'rejeté')}
+                            onClick={async () => {
+                              const ok = await confirm({
+                                title: "Rejeter cette demande ?",
+                                description: `Rejeter la demande de ${teacher.name}. Il sera notifié du refus.`,
+                                confirmLabel: "Oui, rejeter",
+                                variant: "danger",
+                              });
+                              if (ok) onStatusUpdate?.(teacher.id, 'rejeté');
+                            }}
                             className="w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md bg-red-600 text-white hover:bg-red-700 hover:scale-105 cursor-pointer"
                             title="Rejeter la demande"
                           >
@@ -124,7 +142,15 @@ export default function TeacherTable({
                         </>
                       ) : teacher.status === 'actif' ? (
                         <button
-                          onClick={() => onStatusUpdate?.(teacher.id, 'inactif')}
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: "Désactiver ce compte ?",
+                              description: `${teacher.name} n'aura plus accès à la plateforme.`,
+                              confirmLabel: "Oui, désactiver",
+                              variant: "warning",
+                            });
+                            if (ok) onStatusUpdate?.(teacher.id, 'inactif');
+                          }}
                           className="w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md bg-gray-500 text-white hover:bg-gray-600 hover:scale-105 cursor-pointer"
                           title="Désactiver le compte"
                         >
@@ -132,7 +158,15 @@ export default function TeacherTable({
                         </button>
                       ) : teacher.status === 'inactif' || teacher.status === 'rejeté' ? (
                         <button
-                          onClick={() => onStatusUpdate?.(teacher.id, 'actif')}
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: "Réactiver ce compte ?",
+                              description: `${teacher.name} retrouvera l'accès à la plateforme.`,
+                              confirmLabel: "Oui, réactiver",
+                              variant: "info",
+                            });
+                            if (ok) onStatusUpdate?.(teacher.id, 'actif');
+                          }}
                           className="w-9 h-9 rounded-[5px] flex items-center justify-center transition-all shadow-md bg-sky-900 text-white hover:bg-sky-950 hover:scale-105 cursor-pointer"
                           title="Réactiver le compte"
                         >

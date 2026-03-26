@@ -3,7 +3,7 @@ import { readDb, writeDb } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-import { notificationService } from '@/services/notification.service';
+import { serverNotify } from '@/lib/notifications.server';
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,11 +29,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   // Status Change Notifications
   if (newStatus && newStatus !== oldStatus) {
     if (newStatus === 'actif') {
-      await notificationService.notify(id, 'Compte validé', 'Votre compte a été validé par l’administrateur. Bienvenue !', 'success', '/enseignant/dashboard');
-      await notificationService.sendEmail(db.users[index].email, 'Confirmation de compte', 'Votre compte E-TD a été validé.');
+      serverNotify(id, 'Compte validé', 'Votre compte a été validé par l’administrateur. Bienvenue !', 'success', '/enseignant/dashboard');
+      // sendEmail mock
+      console.log(`[EMAIL] To: ${db.users[index].email} | Compte validé`);
     } else if (newStatus === 'rejeté') {
-      await notificationService.notify(id, 'Compte rejeté', 'Votre demande d’inscription a été rejetée.', 'error');
-      await notificationService.sendEmail(db.users[index].email, 'Accès refusé', 'Désolé, votre demande a été rejetée.');
+      serverNotify(id, 'Compte rejeté', 'Votre demande d’inscription a été rejetée.', 'error');
+      console.log(`[EMAIL] To: ${db.users[index].email} | Accès refusé`);
     }
   }
 
