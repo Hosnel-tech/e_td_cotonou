@@ -2,12 +2,13 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, GraduationCap } from 'lucide-react';
-import { Teacher } from './TeacherTable';
+import { Teacher } from '@/types/user.types';
 
 interface TeacherDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   teacher: Teacher | null;
+  onStatusUpdate?: (id: string, status: string) => Promise<void>;
 }
 
 interface InfoRowProps {
@@ -41,8 +42,17 @@ const SectionCard = ({ title, children }: SectionCardProps) => (
   </div>
 );
 
-export default function TeacherDetailsModal({ isOpen, onClose, teacher }: TeacherDetailsModalProps) {
+export default function TeacherDetailsModal({ isOpen, onClose, teacher, onStatusUpdate }: TeacherDetailsModalProps) {
   if (!teacher) return null;
+
+  const handleValidate = async () => {
+    if (onStatusUpdate && teacher) {
+      await onStatusUpdate(teacher.id, 'actif');
+      onClose();
+    } else {
+      onClose();
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -91,10 +101,10 @@ export default function TeacherDetailsModal({ isOpen, onClose, teacher }: Teache
                 <SectionCard title="Informations personnelles">
                   <InfoRow label="Nom :" value={teacher.name} />
                   <InfoRow label="Email :" value={teacher.email} />
-                  <InfoRow label="Téléphone :" value={teacher.phone} />
-                  <InfoRow label="Date de naissance :" value={teacher.birthDate} />
-                  <InfoRow label="Nationalité :" value={teacher.nationality} />
-                  <InfoRow label="Localisation :" value={teacher.location} divider={false} />
+                  <InfoRow label="Téléphone :" value={teacher.phone ?? '-'} />
+                  <InfoRow label="Date de naissance :" value={teacher.birthDate ?? '-'} />
+                  <InfoRow label="Nationalité :" value={teacher.nationality ?? '-'} />
+                  <InfoRow label="Localisation :" value={teacher.location ?? '-'} divider={false} />
                 </SectionCard>
 
                 {/* Pedagogical Info */}
@@ -106,9 +116,9 @@ export default function TeacherDetailsModal({ isOpen, onClose, teacher }: Teache
 
                 {/* Banking Info */}
                 <SectionCard title="Informations bancaires">
-                  <InfoRow label="Numéro bancaire :" value={teacher.bankAccount} />
-                  <InfoRow label="Numéro IFU :" value={teacher.ifu} />
-                  <InfoRow label="Banque :" value={teacher.bankName} divider={false} />
+                  <InfoRow label="Numéro bancaire :" value={teacher.bankAccount ?? '-'} />
+                  <InfoRow label="Numéro IFU :" value={teacher.ifu ?? '-'} />
+                  <InfoRow label="Banque :" value={teacher.bankName ?? '-'} divider={false} />
                 </SectionCard>
 
                 {/* Status */}
@@ -128,7 +138,7 @@ export default function TeacherDetailsModal({ isOpen, onClose, teacher }: Teache
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={onClose}
+                    onClick={handleValidate}
                     className="px-10 py-5 bg-sky-900 text-white text-base font-semibold font-montserrat rounded-lg hover:bg-sky-950 transition-colors shadow-lg"
                   >
                     Valider

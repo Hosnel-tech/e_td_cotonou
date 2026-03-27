@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Search, ChevronDown, SearchSlash
 } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import TeacherTable from '@/components/dashboard/admin/TeacherTable';
@@ -22,7 +23,7 @@ type StatusFilter = typeof STATUS_FILTERS[number];
 
 const ITEMS_PER_PAGE = 10;
 
-export default function TeachersPage() {
+function TeachersPageContent() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
@@ -34,9 +35,23 @@ export default function TeachersPage() {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const searchParams = useSearchParams();
+
   useEffect(() => {
     teacherService.getTeachers().then(setTeachers);
   }, []);
+
+  // Auto-open modal when navigating from a notification deep-link
+  useEffect(() => {
+    const teacherId = searchParams.get('teacher');
+    if (teacherId && teachers.length > 0) {
+      const found = teachers.find(t => t.id === teacherId);
+      if (found) {
+        setSelectedTeacher(found);
+        setIsModalOpen(true);
+      }
+    }
+  }, [searchParams, teachers]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -223,7 +238,16 @@ export default function TeachersPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         teacher={selectedTeacher}
+        onStatusUpdate={handleStatusUpdate}
       />
     </div>
+  );
+}
+
+export default function TeachersPage() {
+  return (
+    <Suspense fallback={null}>
+      <TeachersPageContent />
+    </Suspense>
   );
 }

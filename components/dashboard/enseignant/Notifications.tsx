@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { Bell, Check, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { notificationService } from '@/services/notification.service';
 import { Notification } from '@/types/notification.types';
 
 interface NotificationsProps {
@@ -15,10 +14,14 @@ export default function Notifications({ onOpenDetails }: NotificationsProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    notificationService.getNotifications().then(data => {
-      setNotifications(data);
-      setIsLoading(false);
-    });
+    // Use /me endpoint to only fetch the current user's notifications
+    fetch('/api/notifications/me', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        setNotifications(data);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
   }, []);
 
   return (

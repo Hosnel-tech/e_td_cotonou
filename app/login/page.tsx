@@ -3,18 +3,30 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('example@gmail.com');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason === 'deactivated') {
+      setError("Votre compte a été désactivé. Veuillez contacter l'administrateur.");
+    } else if (reason === 'pending') {
+      setError("Votre compte est en attente de validation. Veuillez patienter.");
+    } else if (reason === 'unauthorized') {
+      setError("Vous n'avez pas accès à cette page.");
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,8 +49,9 @@ export default function LoginPage() {
           router.push('/enseignant/dashboard');
           break;
       }
-    } catch (err) {
-      setError("Identifiants invalides. Veuillez réessayer.");
+    } catch (err: any) {
+      // Use the server's specific error message (pending, deactivated, rejected, etc.)
+      setError(err.message || "Identifiants invalides. Veuillez réessayer.");
     } finally {
       setIsLoading(false);
     }
@@ -163,5 +176,13 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

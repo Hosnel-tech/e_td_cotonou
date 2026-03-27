@@ -4,10 +4,13 @@ export interface Notification {
   id: string;
   title: string;
   desc: string;
+  message?: string;
   time: string;
-  type: 'success' | 'error';
-  tdData: TD & { type?: string };
+  type: 'success' | 'error' | 'info' | 'warning';
+  tdData?: TD & { type?: string };
+  actionUrl?: string;
 }
+
 
 export interface UpcomingTD {
   id: string;

@@ -10,15 +10,6 @@
       "createdAt": "2024-01-01T00:00:00Z"
     },
     {
-      "id": "2",
-      "name": "Jean Dupont",
-      "email": "jean.dupont@email.com",
-      "role": "enseignant",
-      "status": "actif",
-      "avatar": "https://ik.imagekit.io/hwjv8hvj0/student-girl.png",
-      "createdAt": "2024-02-01T10:00:00Z"
-    },
-    {
       "id": "3",
       "name": "Marie Kabore",
       "email": "marie@etd-cotonou.bj",
@@ -28,50 +19,33 @@
       "createdAt": "2024-02-15T09:00:00Z"
     },
     {
-      "id": "4",
-      "name": "Marc Soglo",
-      "email": "marc.soglo@email.com",
+      "id": "2ip6jh",
+      "name": "Paul Gettry",
+      "email": "hosnel634@gmail.com",
       "role": "enseignant",
       "status": "actif",
-      "avatar": "/avatars/teacher2.png",
-      "createdAt": "2024-03-01T08:30:00Z"
-    }
-  ],
-  "tds": [
-    {
-      "id": "td1",
-      "teacher": "Jean Dupont",
-      "subject": "Mathématiques",
-      "classe": "Terminale C",
+      "phone": "0197756734",
+      "subject": "SVT",
+      "className": "3ème",
       "niveau": "secondaire",
-      "date": "2026-03-28",
-      "time": "08:00",
-      "status": "en cours",
-      "duration": "2h"
+      "school": "GBEGAMEY",
+      "createdAt": "2026-03-27T09:51:11.343Z"
     },
     {
-      "id": "td2",
-      "teacher": "Marc Soglo",
-      "subject": "Physique",
-      "classe": "1ère D",
-      "niveau": "secondaire",
-      "date": "2026-03-30",
-      "time": "14:00",
+      "id": "cv7ksr",
+      "name": "Janne Drak",
+      "email": "jures7739@gmail.com",
+      "role": "enseignant",
       "status": "en attente",
-      "duration": "1h30"
-    },
-    {
-      "id": "td3",
-      "teacher": "Jean Dupont",
-      "subject": "Mathématiques",
-      "classe": "3ème",
+      "phone": "0197756734",
+      "subject": "Philo",
+      "className": "Tle",
       "niveau": "secondaire",
-      "date": "2026-03-25",
-      "time": "10:00",
-      "status": "terminé",
-      "duration": "2h"
+      "school": "LES PYLÖNES",
+      "createdAt": "2026-03-27T09:55:02.177Z"
     }
   ],
+  "tds": [],
   "payments": [
     {
       "id": "pay1",
@@ -147,16 +121,50 @@
       "type": "info",
       "read": false,
       "createdAt": "2026-03-26T10:00:00Z"
+    },
+    {
+      "id": "1774605071345jqv9t",
+      "userId": "1",
+      "title": "Nouvelle inscription",
+      "message": "L'enseignant Paul Gettry s'est inscrit et attend validation.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-03-27T09:51:11.345Z",
+      "actionUrl": "/admin/dashboard/teachers?teacher=2ip6jh"
+    },
+    {
+      "id": "1774605302180ex7m7",
+      "userId": "1",
+      "title": "Nouvelle inscription",
+      "message": "L'enseignant Janne Drak s'est inscrit et attend validation.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-03-27T09:55:02.180Z",
+      "actionUrl": "/admin/dashboard/teachers?teacher=cv7ksr"
+    },
+    {
+      "id": "1774607032852y3tn76",
+      "userId": "2ip6jh",
+      "title": "Compte validé",
+      "message": "Votre compte a été validé par l’administrateur. Bienvenue !",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-03-27T10:23:52.852Z",
+      "actionUrl": "/enseignant/dashboard"
     }
   ],
   "upcomingTDs": [],
   "currentUser": {
-    "id": "3",
-    "name": "Marie Kabore",
-    "email": "marie@etd-cotonou.bj",
-    "role": "comptable",
+    "id": "2ip6jh",
+    "name": "Paul Gettry",
+    "email": "hosnel634@gmail.com",
+    "role": "enseignant",
     "status": "actif",
-    "avatar": "https://ik.imagekit.io/hwjv8hvj0/Group%201171277702%20(1).png",
-    "createdAt": "2024-02-15T09:00:00Z"
+    "phone": "0197756734",
+    "subject": "SVT",
+    "className": "3ème",
+    "niveau": "secondaire",
+    "school": "GBEGAMEY",
+    "createdAt": "2026-03-27T09:51:11.343Z"
   }
 }

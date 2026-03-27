@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { BookOpen, Bell, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface ActivityItemProps {
   title: string;
@@ -11,6 +12,7 @@ interface ActivityItemProps {
   isNotification?: boolean;
   actionLabel?: string;
   actionVariant?: 'primary' | 'secondary';
+  actionUrl?: string;
 }
 
 
@@ -18,40 +20,54 @@ import { useState, useEffect } from 'react';
 import { notificationService } from '@/services/notification.service';
 import { Notification, UpcomingTD } from '@/types/notification.types';
 
-const ActivityItem = ({ title, subtitle, time, icon: Icon, isNotification, actionLabel = 'Voir plus' }: ActivityItemProps) => (
-  <motion.div
-    initial={{ opacity: 0, x: 20 }}
-    animate={{ opacity: 1, x: 0 }}
-    className="p-4 rounded-lg bg-sky-900/5 relative flex items-center h-24 shadow-sm border border-sky-900/5 hover:bg-sky-900/[0.07] transition-colors"
-  >
-    {/* Left: Avatar + Text */}
-    <div className="flex items-center gap-4">
-      <div className="w-12 h-12 bg-sky-900 rounded-full flex items-center justify-center text-white shrink-0 shadow-md">
-        <Icon size={24} />
-      </div>
-      <div className="space-y-0.5 overflow-hidden">
-        <h4 className="text-base font-semibold text-black font-montserrat truncate leading-tight">
-          {isNotification ? title : <>{title} – <span className="font-normal">{subtitle}</span></>}
-        </h4>
-        <p className="text-sm font-normal text-black font-montserrat opacity-70 leading-tight">
-          {isNotification ? subtitle : 'Détails du TD'}
-        </p>
-      </div>
-    </div>
+const ActivityItem = ({ title, subtitle, time, icon: Icon, isNotification, actionLabel = 'Voir plus', actionUrl }: ActivityItemProps) => {
+  const router = useRouter();
 
-    {/* Timestamp (Top Right) */}
-    <div className="absolute top-4 right-4">
-      <span className="text-[10px] font-medium text-black/50 font-montserrat">{time}</span>
-    </div>
+  const handleAction = () => {
+    if (actionUrl) {
+      router.push(actionUrl);
+    }
+  };
 
-    {/* Action badge (Bottom Right) */}
-    <div className="absolute bottom-4 right-4">
-      <button className="h-7 px-4 bg-sky-900 rounded-[5px] flex items-center justify-center text-white text-[10px] font-semibold font-montserrat hover:bg-sky-950 transition-colors shadow-sm">
-        {actionLabel}
-      </button>
-    </div>
-  </motion.div>
-);
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="p-4 rounded-lg bg-sky-900/5 relative flex items-center h-24 shadow-sm border border-sky-900/5 hover:bg-sky-900/[0.07] transition-colors"
+    >
+      {/* Left: Avatar + Text */}
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-sky-900 rounded-full flex items-center justify-center text-white shrink-0 shadow-md">
+          <Icon size={24} />
+        </div>
+        <div className="space-y-0.5 overflow-hidden">
+          <h4 className="text-base font-semibold text-black font-montserrat truncate leading-tight">
+            {isNotification ? title : <>{title} – <span className="font-normal">{subtitle}</span></>}
+          </h4>
+          <p className="text-sm font-normal text-black font-montserrat opacity-70 leading-tight">
+            {isNotification ? subtitle : 'Détails du TD'}
+          </p>
+        </div>
+      </div>
+
+      {/* Timestamp (Top Right) */}
+      <div className="absolute top-4 right-4">
+        <span className="text-[10px] font-medium text-black/50 font-montserrat">{time}</span>
+      </div>
+
+      {/* Action badge (Bottom Right) */}
+      <div className="absolute bottom-4 right-4">
+        <button
+          onClick={handleAction}
+          className={`h-7 px-4 bg-sky-900 rounded-[5px] flex items-center justify-center text-white text-[10px] font-semibold font-montserrat hover:bg-sky-950 transition-colors shadow-sm ${actionUrl ? 'cursor-pointer' : 'cursor-default opacity-50'}`}
+        >
+          {actionLabel}
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
 
 export default function ActivitySection() {
   const [upcomingTds, setUpcomingTds] = useState<UpcomingTD[]>([]);
@@ -140,10 +156,11 @@ export default function ActivitySection() {
               <ActivityItem 
                 key={notif.id} 
                 title={notif.title} 
-                subtitle={notif.desc} 
+                subtitle={notif.desc || notif.message || ''} 
                 time={notif.time} 
                 icon={Bell} 
-                isNotification={true} 
+                isNotification={true}
+                actionUrl={notif.actionUrl}
               />
             ))
           )}

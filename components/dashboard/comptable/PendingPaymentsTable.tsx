@@ -9,37 +9,29 @@ import { Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
 
 interface PendingPaymentsTableProps {
-  payments: Payment[];
+  tds: TD[];
   isSelected: (id: string) => boolean;
   toggleSelectOne: (id: string, isShift?: boolean) => void;
   isAllSelected: boolean;
   isIndeterminate: boolean;
   toggleSelectAll: () => void;
+  onMarkAsPaid?: (id: string) => void;
 }
 
 export default function PendingPaymentsTable({
-  payments,
+  tds,
   isSelected,
   toggleSelectOne,
   isAllSelected,
   isIndeterminate,
-  toggleSelectAll
+  toggleSelectAll,
+  onMarkAsPaid
 }: PendingPaymentsTableProps) {
   const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleOpenDetails = (payment: Payment) => {
-    setSelectedTD({
-      id: payment.id,
-      subject: payment.subject,
-      teacher: payment.teacher,
-      classe: payment.grade || 'N/A',
-      date: payment.date,
-      niveau: payment.niveau,
-      duration: payment.duration,
-      time: '08:00 - 11:00',
-      status: 'terminé',
-    });
+  const handleOpenDetails = (td: TD) => {
+    setSelectedTD(td);
     setIsModalOpen(true);
   };
 
@@ -81,23 +73,23 @@ export default function PendingPaymentsTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-300">
-            {payments.length > 0 ? (
-              payments.map((payment, idx) => {
-                const selected = isSelected(payment.id);
+            {tds.length > 0 ? (
+              tds.map((td, idx) => {
+                const selected = isSelected(td.id);
                 return (
                   <motion.tr 
-                    key={payment.id}
+                    key={td.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * idx }}
                     className={`h-20 transition-colors group cursor-pointer ${
                       selected ? 'bg-sky-900/[0.03]' : 'hover:bg-gray-50/50'
                     }`}
-                    onClick={(e) => toggleSelectOne(payment.id, e.shiftKey)}
+                    onClick={(e) => toggleSelectOne(td.id, e.shiftKey)}
                   >
                     <td className="pl-8" onClick={(e) => e.stopPropagation()}>
                       <div 
-                        onClick={(e) => toggleSelectOne(payment.id, e.shiftKey)}
+                        onClick={(e) => toggleSelectOne(td.id, e.shiftKey)}
                         className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
                           selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'
                         }`}
@@ -105,28 +97,28 @@ export default function PendingPaymentsTable({
                         {selected && <Check className="text-white" size={18} strokeWidth={4} />}
                       </div>
                     </td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{payment.teacher}</td>
-                    <td className="text-black text-xl font-medium px-4 font-montserrat">{payment.subject}</td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{payment.grade}</td>
+                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.teacher}</td>
+                    <td className="text-black text-xl font-medium px-4 font-montserrat">{td.subject}</td>
+                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.classe}</td>
                     <td className="text-black text-xl font-normal px-4 font-montserrat">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        payment.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+                        td.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
                       }`}>
-                        {payment.niveau}
+                        {td.niveau}
                       </span>
                     </td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{payment.date}</td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{payment.duration}</td>
-                    <td className="text-black text-xl font-bold px-4 font-montserrat">{payment.amount}</td>
+                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.date}</td>
+                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.duration}</td>
+                    <td className="text-black text-xl font-bold px-4 font-montserrat">--- F</td>
                     <td className="px-4 text-center">
                       <span className="px-5 py-2 bg-green-800 rounded-2xl text-white text-xs font-semibold font-montserrat inline-block shadow-sm">
-                        {payment.status}
+                        {td.status}
                       </span>
                     </td>
                     <td className="px-4 text-center">
                       <div className="flex items-center justify-center gap-3">
                         <button 
-                          onClick={(e) => { e.stopPropagation(); handleOpenDetails(payment); }}
+                          onClick={(e) => { e.stopPropagation(); handleOpenDetails(td); }}
                           className="p-2 bg-slate-100 text-sky-900 rounded-md hover:bg-slate-200 transition-all active:scale-90"
                           title="Voir les détails"
                         >
@@ -135,7 +127,7 @@ export default function PendingPaymentsTable({
                         <button 
                           onClick={(e) => { 
                             e.stopPropagation(); 
-                            alert('Paiement marqué comme effectué'); 
+                            if (onMarkAsPaid) onMarkAsPaid(td.id);
                           }}
                           className="px-5 py-2 bg-sky-900 rounded-[5px] text-white text-xs font-semibold font-montserrat hover:bg-sky-950 transition-all shadow-md active:scale-95 whitespace-nowrap"
                         >

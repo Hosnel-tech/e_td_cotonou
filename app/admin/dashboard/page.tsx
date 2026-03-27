@@ -86,10 +86,10 @@ export default function AdminDashboardPage() {
           />
           <StatCard 
             label="Enseignants" 
-            value={isLoading ? "..." : teachers.length.toString()} 
+            value={isLoading ? "..." : teachers.filter(t => t.status === 'actif').length.toString()} 
             icon={Users} 
             variant="red" 
-            trend={teachers.length > 0 ? "En hausse" : "Initialisé"}
+            trend={teachers.filter(t => t.status === 'actif').length > 0 ? "En hausse" : "Initialisé"}
             staggerIndex={1} 
           />
           <StatCard 

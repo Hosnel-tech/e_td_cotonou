@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { readDb, writeDb } from '@/lib/db';
+import { readDb } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,9 +14,21 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(diffHours / 24)}j`;
 }
 
+/**
+ * GET /api/notifications/me
+ * Returns only the notifications for the currently logged-in user.
+ * Sorted newest-first.
+ */
 export async function GET() {
   const db = readDb();
+  const currentUser = db.currentUser;
+
+  if (!currentUser) {
+    return NextResponse.json([], { status: 200 });
+  }
+
   const notifications = (db.notifications || [])
+    .filter((n: any) => n.userId === currentUser.id)
     .slice()
     .reverse() // newest first
     .map((n: any) => ({
@@ -31,21 +43,6 @@ export async function GET() {
       createdAt: n.createdAt,
       actionUrl: n.actionUrl,
     }));
+
   return NextResponse.json(notifications);
-}
-
-export async function POST(request: Request) {
-  const db = readDb();
-  const body = await request.json();
-  const newNotif = { ...body, id: Date.now().toString() };
-  db.notifications.push(newNotif);
-  writeDb(db);
-  return NextResponse.json(newNotif, { status: 201 });
-}
-
-export async function DELETE() {
-  const db = readDb();
-  db.notifications = [];
-  writeDb(db);
-  return NextResponse.json({ message: 'Notifications cleared' });
 }

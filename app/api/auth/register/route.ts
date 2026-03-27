@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       'Nouvelle inscription',
       `L'enseignant ${newUser.name} s'est inscrit et attend validation.`,
       'info',
-      '/admin/teachers'
+      `/admin/dashboard/teachers?teacher=${newUser.id}`
     );
 
     return NextResponse.json(newUser);

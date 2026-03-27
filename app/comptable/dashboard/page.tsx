@@ -11,41 +11,60 @@ import StatCard from '@/components/dashboard/enseignant/StatCard';
 import PendingPaymentsTable from '@/components/dashboard/comptable/PendingPaymentsTable';
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
-import { paymentService } from '@/services/payment.service';
 import { transferService } from '@/services/transfer.service';
-import { Payment, Transfer } from '@/types/financial.types';
+import { Transfer } from '@/types/financial.types';
+import { TD } from '@/types/td.types';
 
 export default function AccountantDashboard() {
-  const [payments, setPayments] = useState<Payment[]>([]);
+  const [terminedTDs, setTerminedTDs] = useState<TD[]>([]);
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [payData, transData] = await Promise.all([
-          paymentService.getPayments(),
-          transferService.getTransfers()
-        ]);
-        setPayments(payData);
-        setTransfers(transData);
-      } catch (error) {
-        console.error('Error fetching accountant data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const fetchData = async () => {
+    try {
+      const [tdsRes, transData] = await Promise.all([
+        fetch('/api/tds', { cache: 'no-store' }).then(r => r.json()),
+        transferService.getTransfers()
+      ]);
+      const allTDs = tdsRes as TD[];
+      // Only show TDs that are terminé (awaiting payment)
+      setTerminedTDs(allTDs.filter(t => t.status === 'terminé'));
+      setTransfers(transData);
+      
+      // Calculate active stats
+      const paidThisMonth = allTDs.filter(t => t.status === 'payé').length;
+      setValidesCeMois(paidThisMonth);
+    } catch (error) {
+      console.error('Error fetching accountant data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const selection = useSelection(payments);
+  useEffect(() => { fetchData(); }, []);
+
+  const [validesCeMois, setValidesCeMois] = useState(0);
+
+  const handleMarkAsPaid = async (tdId: string) => {
+    try {
+      await fetch(`/api/tds/${tdId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'payé' }),
+      });
+      // Refresh TDs list
+      await fetchData();
+    } catch (error) {
+      console.error('Error marking TD as paid:', error);
+    }
+  };
+
+  const selection = useSelection(terminedTDs);
 
   const totalDecaisse = transfers.reduce((sum, t) => sum + parseInt(t.amount.replace(/\D/g, '') || '0'), 0);
-  const totalEnAttente = payments
-    .filter(p => p.status.toLowerCase() === 'en attente')
-    .reduce((sum, p) => sum + parseInt(p.amount.replace(/\D/g, '') || '0'), 0);
-  const validesCeMois = payments.filter(p => p.status.toLowerCase() === 'payé' || p.status.toLowerCase() === 'validé').length;
-  const litiges = payments.filter(p => p.status.toLowerCase() === 'rejeté' || p.status.toLowerCase() === 'litige').length;
+  const tdsPending = terminedTDs.length;
+  const totalEnAttente = tdsPending;
+  const litiges = 0; // placeholder
 
   return (
     <>
@@ -110,12 +129,13 @@ export default function AccountantDashboard() {
 
       {/* Pending Payments Table */}
       <PendingPaymentsTable 
-        payments={payments}
+        tds={terminedTDs}
         isSelected={selection.isSelected}
         toggleSelectOne={selection.toggleSelectOne}
         isAllSelected={selection.isAllSelected}
         isIndeterminate={selection.isIndeterminate}
         toggleSelectAll={selection.toggleSelectAll}
+        onMarkAsPaid={handleMarkAsPaid}
       />
 
       {/* Quick Actions / Recent Activity */}

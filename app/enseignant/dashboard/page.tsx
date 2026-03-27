@@ -17,8 +17,12 @@ import Notifications from '@/components/dashboard/enseignant/Notifications';
 import TDDetailsModal from '@/components/dashboard/enseignant/TDDetailsModal';
 import { tdService } from '@/services/td.service';
 import { TD } from '@/types/td.types';
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 export default function DashboardPage() {
+  // Redirect if account is deactivated, pending, or not authenticated
+  useAuthGuard({ requiredRole: 'enseignant' });
+
   const [tds, setTds] = useState<TD[]>([]);
   const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
