@@ -22,10 +22,10 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const session = await authService.login(email, password);
+      const user = await authService.login(email, password);
       
       // Redirect based on role
-      switch (session.user.role) {
+      switch (user.role) {
         case 'admin':
           router.push('/admin/dashboard');
           break;

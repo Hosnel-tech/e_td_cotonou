@@ -10,6 +10,18 @@ import { authService } from '@/services/auth.service';
 
 type Step = 1 | 2 | 3;
 
+const CLASSES = ['CM2', '3ème', 'Tle'] as const;
+const SCHOOLS = [
+  'SURU LERE', 'AKPAKPA CENTRE', 'SEGBEYA', 'GBEGAMEY', 'L\'OCEAN', 
+  'FIYEGNON', 'LITTORAL', 'LES PYLÖNES', 'LES PYRAMIDES', 'ENTENTE'
+] as const;
+
+const SUBJECTS_BY_CLASS: Record<string, string[]> = {
+  'CM2': ['ES', 'EST', 'Math', 'Communication orale', 'Expression écrite', 'Dessin/Couture'],
+  '3ème': ['Français', 'Anglais', 'Math', 'SVT', 'Hist-Geo', 'PCT'],
+  'Tle': ['Français', 'Anglais', 'Math', 'SVT', 'Hist-Geo', 'Physique', 'Chimie', 'Philo']
+};
+
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
@@ -49,7 +61,14 @@ export default function RegisterPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+      // Reset matiere if classe changes
+      if (name === 'classe') {
+        newData.matiere = '';
+      }
+      return newData;
+    });
   };
 
   return (
@@ -161,9 +180,9 @@ export default function RegisterPage() {
                     <label className="text-xl font-semibold text-black font-montserrat">Genre <span className="text-red-600">*</span></label>
                     <div className="relative">
                       <select name="genre" value={formData.genre} onChange={handleInputChange} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.genre ? 'text-black' : 'text-stone-400'}`}>
-                        <option value="" disabled>Sélectionner votre genre</option>
-                        <option value="M">Masculin</option>
-                        <option value="F">Féminin</option>
+                        <option value="" disabled className="text-stone-400">Sélectionner votre genre</option>
+                        <option value="M" className="text-black">Masculin</option>
+                        <option value="F" className="text-black">Féminin</option>
                       </select>
                       <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                     </div>
@@ -178,7 +197,7 @@ export default function RegisterPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                     <label className="text-xl font-semibold text-black font-montserrat">Numéro <span className="text-red-600">*</span></label>
-                    <input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="+229 00 00 00 00" className="w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg text-black placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium" />
+                    <input name="phone" value={formData.phone} onChange={handleInputChange} placeholder="00 00 00 00 00" className="w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg text-black placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium" />
                   </div>
                   <div className="space-y-3 relative">
                     <label className="text-xl font-semibold text-black font-montserrat">Date de naissance <span className="text-red-600">*</span></label>
@@ -208,9 +227,10 @@ export default function RegisterPage() {
                   <label className="text-xl font-semibold text-black font-montserrat">Classe <span className="text-red-600">*</span></label>
                   <div className="relative">
                     <select name="classe" value={formData.classe} onChange={handleInputChange} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.classe ? 'text-black' : 'text-stone-400'}`}>
-                      <option value="" disabled>Sélectionner votre classe</option>
-                      <option value="6e">6ème</option>
-                      <option value="5e">5ème</option>
+                      <option value="" disabled className="text-stone-400">Sélectionner votre classe</option>
+                      {CLASSES.map((c) => (
+                        <option key={c} value={c} className="text-black">{c}</option>
+                      ))}
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>
@@ -219,10 +239,13 @@ export default function RegisterPage() {
                 <div className="space-y-3">
                   <label className="text-xl font-semibold text-black font-montserrat">Matière <span className="text-red-600">*</span></label>
                   <div className="relative">
-                    <select name="matiere" value={formData.matiere} onChange={handleInputChange} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.matiere ? 'text-black' : 'text-stone-400'}`}>
-                      <option value="" disabled>Sélectionner votre matière</option>
-                      <option value="maths">Mathématiques</option>
-                      <option value="pc">Physique-Chimie</option>
+                    <select name="matiere" value={formData.matiere} onChange={handleInputChange} disabled={!formData.classe} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.matiere ? 'text-black' : 'text-stone-400'} disabled:opacity-50 disabled:bg-stone-50`}>
+                      <option value="" disabled className="text-stone-400">
+                        {formData.classe ? 'Sélectionner votre matière' : 'Sélectionnez d’abord une classe'}
+                      </option>
+                      {formData.classe && SUBJECTS_BY_CLASS[formData.classe]?.map((m) => (
+                        <option key={m} value={m} className="text-black">{m}</option>
+                      ))}
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>
@@ -232,8 +255,10 @@ export default function RegisterPage() {
                   <label className="text-xl font-semibold text-black font-montserrat">Etablissement <span className="text-red-600">*</span></label>
                   <div className="relative">
                     <select name="etablissement" value={formData.etablissement} onChange={handleInputChange} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.etablissement ? 'text-black' : 'text-stone-400'}`}>
-                      <option value="" disabled>Sélectionner votre établissement</option>
-                      <option value="cotonou">Cotonou</option>
+                      <option value="" disabled className="text-stone-400">Sélectionner votre établissement</option>
+                      {SCHOOLS.map((s) => (
+                        <option key={s} value={s} className="text-black">{s}</option>
+                      ))}
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>

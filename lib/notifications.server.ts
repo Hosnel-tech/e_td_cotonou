@@ -22,8 +22,22 @@ export function serverNotify(userId: string, title: string, message: string, typ
 
 export function serverNotifyRole(role: string, title: string, message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info', actionUrl?: string) {
   const db = readDb();
+  if (!db.notifications) db.notifications = [];
+  
   const usersToNotify = db.users.filter((u: any) => u.role === role);
   usersToNotify.forEach((user: any) => {
-    serverNotify(user.id, title, message, type, actionUrl);
+    const newNotification = {
+      id: Date.now().toString() + Math.random().toString(36).substring(7),
+      userId: user.id,
+      title,
+      message,
+      type,
+      read: false,
+      createdAt: new Date().toISOString(),
+      actionUrl,
+    };
+    db.notifications.push(newNotification);
   });
+  
+  writeDb(db);
 }

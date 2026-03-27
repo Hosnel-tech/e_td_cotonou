@@ -8,39 +8,155 @@
       "status": "actif",
       "avatar": "/avatars/admin.png",
       "createdAt": "2024-01-01T00:00:00Z"
-    }
-  ],
-  "tds": [],
-  "payments": [],
-  "transfers": [],
-  "notifications": [
-    {
-      "id": "1774520122430f6hqp",
-      "userId": "2",
-      "title": "Compte rejeté",
-      "message": "Votre demande d’inscription a été rejetée.",
-      "type": "error",
-      "read": false,
-      "createdAt": "2026-03-26T10:15:22.430Z"
     },
     {
-      "id": "1774520132954x9733f",
-      "userId": "2",
-      "title": "Compte validé",
-      "message": "Votre compte a été validé par l’administrateur. Bienvenue !",
-      "type": "success",
+      "id": "2",
+      "name": "Jean Dupont",
+      "email": "jean.dupont@email.com",
+      "role": "enseignant",
+      "status": "actif",
+      "avatar": "https://ik.imagekit.io/hwjv8hvj0/student-girl.png",
+      "createdAt": "2024-02-01T10:00:00Z"
+    },
+    {
+      "id": "3",
+      "name": "Marie Kabore",
+      "email": "marie@etd-cotonou.bj",
+      "role": "comptable",
+      "status": "actif",
+      "avatar": "https://ik.imagekit.io/hwjv8hvj0/Group%201171277702%20(1).png",
+      "createdAt": "2024-02-15T09:00:00Z"
+    },
+    {
+      "id": "4",
+      "name": "Marc Soglo",
+      "email": "marc.soglo@email.com",
+      "role": "enseignant",
+      "status": "actif",
+      "avatar": "/avatars/teacher2.png",
+      "createdAt": "2024-03-01T08:30:00Z"
+    }
+  ],
+  "tds": [
+    {
+      "id": "td1",
+      "teacher": "Jean Dupont",
+      "subject": "Mathématiques",
+      "classe": "Terminale C",
+      "niveau": "secondaire",
+      "date": "2026-03-28",
+      "time": "08:00",
+      "status": "en cours",
+      "duration": "2h"
+    },
+    {
+      "id": "td2",
+      "teacher": "Marc Soglo",
+      "subject": "Physique",
+      "classe": "1ère D",
+      "niveau": "secondaire",
+      "date": "2026-03-30",
+      "time": "14:00",
+      "status": "en attente",
+      "duration": "1h30"
+    },
+    {
+      "id": "td3",
+      "teacher": "Jean Dupont",
+      "subject": "Mathématiques",
+      "classe": "3ème",
+      "niveau": "secondaire",
+      "date": "2026-03-25",
+      "time": "10:00",
+      "status": "terminé",
+      "duration": "2h"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay1",
+      "teacher": "Jean Dupont",
+      "subject": "Mathématiques",
+      "grade": "Terminale C",
+      "niveau": "secondaire",
+      "date": "2026-03-25",
+      "duration": "2h",
+      "amount": "15.000",
+      "status": "En attente"
+    },
+    {
+      "id": "pay2",
+      "teacher": "Marc Soglo",
+      "subject": "Physique",
+      "grade": "1ère D",
+      "niveau": "secondaire",
+      "date": "2026-03-20",
+      "duration": "1.5h",
+      "amount": "12.000",
+      "status": "Payé"
+    },
+    {
+      "id": "pay3",
+      "teacher": "Jean Dupont",
+      "subject": "Mathématiques",
+      "grade": "3ème",
+      "niveau": "secondaire",
+      "date": "2026-03-22",
+      "duration": "2h",
+      "amount": "15.000",
+      "status": "En attente"
+    },
+    {
+      "id": "pay4",
+      "teacher": "Kossi Agossa",
+      "subject": "Anglais",
+      "grade": "CM2",
+      "niveau": "primaire",
+      "date": "2026-03-24",
+      "duration": "1h",
+      "amount": "8.000",
+      "status": "En attente"
+    }
+  ],
+  "transfers": [
+    {
+      "id": "trans1",
+      "bank": "Ecobank",
+      "amount": "120.000",
+      "date": "2026-03-15"
+    },
+    {
+      "id": "trans2",
+      "bank": "BOA",
+      "amount": "85.000",
+      "date": "2026-03-10"
+    },
+    {
+      "id": "trans3",
+      "bank": "NSIA",
+      "amount": "45.000",
+      "date": "2026-03-05"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif1",
+      "userId": "1",
+      "title": "Nouveau TD",
+      "message": "Jean Dupont a programmé un nouveau TD.",
+      "type": "info",
       "read": false,
-      "createdAt": "2026-03-26T10:15:32.954Z",
-      "actionUrl": "/enseignant/dashboard"
+      "createdAt": "2026-03-26T10:00:00Z"
     }
   ],
   "upcomingTDs": [],
   "currentUser": {
-    "id": "1",
-    "name": "Administrateur",
-    "email": "admin@etd-cotonou.bj",
-    "role": "admin",
+    "id": "3",
+    "name": "Marie Kabore",
+    "email": "marie@etd-cotonou.bj",
+    "role": "comptable",
     "status": "actif",
-    "avatar": "/avatars/admin.png"
+    "avatar": "https://ik.imagekit.io/hwjv8hvj0/Group%201171277702%20(1).png",
+    "createdAt": "2024-02-15T09:00:00Z"
   }
 }
