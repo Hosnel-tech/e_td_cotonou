@@ -14,14 +14,23 @@ export default function Notifications({ onOpenDetails }: NotificationsProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Use /me endpoint to only fetch the current user's notifications
-    fetch('/api/notifications/me', { cache: 'no-store' })
-      .then(res => res.json())
-      .then(data => {
-        setNotifications(data);
-        setIsLoading(false);
-      })
-      .catch(() => setIsLoading(false));
+    const fetchNotifications = () => {
+      fetch('/api/notifications/me', { cache: 'no-store' })
+        .then(res => res.json())
+        .then(data => {
+          setNotifications(data);
+          setIsLoading(false);
+        })
+        .catch(() => setIsLoading(false));
+    };
+
+    // Initial fetch
+    fetchNotifications();
+
+    // Polling every 10 seconds (standard "senior" approach for real-time feel without websockets)
+    const intervalId = setInterval(fetchNotifications, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -78,14 +87,16 @@ export default function Notifications({ onOpenDetails }: NotificationsProps) {
               </div>
 
               {/* Absolute "Voir plus" (Bottom Right) */}
-              <button 
-                onClick={() => onOpenDetails?.(notif.tdData)}
-                className="absolute bottom-4 right-4 h-6 px-3 bg-sky-900 rounded-[5px] flex items-center justify-center shadow-sm hover:bg-sky-950 transition-colors active:scale-95"
-              >
-                <span className="text-white text-[10px] font-semibold font-montserrat whitespace-nowrap">
-                  Voir plus
-                </span>
-              </button>
+              {notif.title !== "Compte validé" && notif.tdData && (
+                <button 
+                  onClick={() => onOpenDetails?.(notif.tdData)}
+                  className="absolute bottom-4 right-4 h-6 px-3 bg-sky-900 rounded-[5px] flex items-center justify-center shadow-sm hover:bg-sky-950 transition-colors active:scale-95"
+                >
+                  <span className="text-white text-[10px] font-semibold font-montserrat whitespace-nowrap">
+                    Voir plus
+                  </span>
+                </button>
+              )}
             </motion.div>
           ))
         )}

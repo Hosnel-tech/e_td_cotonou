@@ -25,7 +25,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   // Handle workflow notifications
   if (newStatus && newStatus !== oldTD.status) {
-    const teacher = db.users.find(u => u.name === oldTD.teacher);
+    const teacher = db.users.find((u: any) => u.name.trim() === oldTD.teacher.trim());
     const teacherId = teacher?.id;
 
     switch (newStatus) {

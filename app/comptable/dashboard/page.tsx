@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { 
   Plus, Search, Filter, Download, 
-  Wallet, Clock, CheckCircle2, AlertCircle,
+  Wallet, CircleDollarSign, CheckCircle2, BadgeCheck,
   FileText, ArrowUpRight, Check
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -12,28 +12,33 @@ import PendingPaymentsTable from '@/components/dashboard/comptable/PendingPaymen
 import { useSelection } from '@/hooks/useSelection';
 import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import { transferService } from '@/services/transfer.service';
-import { Transfer } from '@/types/financial.types';
+import { Transfer, Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
+
+// Helper: parse French-formatted amount strings (e.g. "15.000" → 15000)
+const parseAmount = (raw: string) =>
+  parseInt(raw.replace(/\./g, '').replace(/\D/g, '') || '0', 10);
 
 export default function AccountantDashboard() {
   const [terminedTDs, setTerminedTDs] = useState<TD[]>([]);
   const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [allTDs, setAllTDs] = useState<TD[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const fetchData = async () => {
     try {
-      const [tdsRes, transData] = await Promise.all([
+      const [tdsRes, transData, paymentsRes] = await Promise.all([
         fetch('/api/tds', { cache: 'no-store' }).then(r => r.json()),
-        transferService.getTransfers()
+        transferService.getTransfers(),
+        fetch('/api/payments', { cache: 'no-store' }).then(r => r.json()),
       ]);
-      const allTDs = tdsRes as TD[];
-      // Only show TDs that are terminé (awaiting payment)
-      setTerminedTDs(allTDs.filter(t => t.status === 'terminé'));
+      const tdList = tdsRes as TD[];
+      const payList = paymentsRes as Payment[];
+      setAllTDs(tdList);
+      setTerminedTDs(tdList.filter(t => t.status === 'terminé'));
       setTransfers(transData);
-      
-      // Calculate active stats
-      const paidThisMonth = allTDs.filter(t => t.status === 'payé').length;
-      setValidesCeMois(paidThisMonth);
+      setPayments(payList);
     } catch (error) {
       console.error('Error fetching accountant data:', error);
     } finally {
@@ -43,8 +48,6 @@ export default function AccountantDashboard() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const [validesCeMois, setValidesCeMois] = useState(0);
-
   const handleMarkAsPaid = async (tdId: string) => {
     try {
       await fetch(`/api/tds/${tdId}`, {
@@ -52,7 +55,6 @@ export default function AccountantDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'payé' }),
       });
-      // Refresh TDs list
       await fetchData();
     } catch (error) {
       console.error('Error marking TD as paid:', error);
@@ -61,10 +63,21 @@ export default function AccountantDashboard() {
 
   const selection = useSelection(terminedTDs);
 
-  const totalDecaisse = transfers.reduce((sum, t) => sum + parseInt(t.amount.replace(/\D/g, '') || '0'), 0);
-  const tdsPending = terminedTDs.length;
-  const totalEnAttente = tdsPending;
-  const litiges = 0; // placeholder
+  // ── Stats calculations ───────────────────────────────────────────────────────
+  //
+  // montantTotal : somme de TOUS les paiements ("En attente" + "Payé").
+  //   → Représente le montant cumulé de tous les TDs facturés (terminés + payés).
+  //   → Les TDs "en cours" ne génèrent pas encore de paiement, donc non inclus.
+  //
+  // montantDu : uniquement les paiements "En attente".
+  //   → Ce sont les TDs terminés qui n'ont pas encore été payés par l'administration.
+  //
+  const montantTotal = payments.reduce((sum, p) => sum + parseAmount(p.amount), 0);
+  const montantDu    = payments
+    .filter(p => p.status === 'En attente')
+    .reduce((sum, p) => sum + parseAmount(p.amount), 0);
+  const tdTermines = allTDs.filter(t => t.status === 'terminé').length;
+  const tdPayes    = allTDs.filter(t => t.status === 'payé').length;
 
   return (
     <>
@@ -93,36 +106,37 @@ export default function AccountantDashboard() {
 
       {/* Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatCard 
-          label="Total décaissé" 
-          value={isLoading ? "..." : `${totalDecaisse.toLocaleString()} F`}
-          icon={Wallet} 
-          variant="green" 
-          trend={totalDecaisse > 0 ? "Actualisé" : "Initialisé"}
+        <StatCard
+          label="Montant total"
+          value={isLoading ? "..." : `${montantTotal.toLocaleString('fr-FR')} F`}
+          icon={Wallet}
+          variant="green"
+          trend={montantTotal > 0 ? "Cumulé" : "Initialisé"}
           staggerIndex={0}
         />
-        <StatCard 
-          label="En attente" 
-          value={isLoading ? "..." : `${totalEnAttente.toLocaleString()} F`}
-          icon={Clock} 
-          variant="orange" 
-          trend={totalEnAttente > 0 ? "À traiter" : "À jour"}
+        <StatCard
+          label="Montant dû"
+          value={isLoading ? "..." : `${montantDu.toLocaleString('fr-FR')} F`}
+          icon={CircleDollarSign}
+          variant="orange"
+          trend={montantDu > 0 ? "À régler" : "À jour"}
+          trendUp={montantDu === 0}
           staggerIndex={1}
         />
-        <StatCard 
-          label="Validés ce mois" 
-          value={isLoading ? "..." : validesCeMois.toString()}
-          icon={CheckCircle2} 
-          variant="sky" 
-          trend={validesCeMois > 0 ? "Actualisé" : "Initialisé"}
+        <StatCard
+          label="TD terminés"
+          value={isLoading ? "..." : tdTermines.toString()}
+          icon={CheckCircle2}
+          variant="sky"
+          trend={tdTermines > 0 ? "En attente paiement" : "Aucun"}
           staggerIndex={2}
         />
-        <StatCard 
-          label="Litiges" 
-          value={isLoading ? "..." : litiges.toString()}
-          icon={AlertCircle} 
-          variant="red" 
-          trend={litiges > 0 ? "À voir" : "Aucun"}
+        <StatCard
+          label="TD payés"
+          value={isLoading ? "..." : tdPayes.toString()}
+          icon={BadgeCheck}
+          variant="red"
+          trend={tdPayes > 0 ? "Confirmés" : "Aucun"}
           staggerIndex={3}
         />
       </section>

@@ -10,6 +10,8 @@ export interface TD {
   time: string;
   status: TDStatus;
   duration: string;
+  epreuveName?: string;
+  epreuveUrl?: string;
 }
 
 export interface TDDetails extends TD {

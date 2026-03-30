@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { ClipboardList, Users, AlertCircle, Wallet } from 'lucide-react';
+import { ClipboardList, Users, Wallet, CircleDollarSign, CheckCircle2, BadgeCheck, Timer, Hourglass } from 'lucide-react';
 import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import AdminHero from '@/components/dashboard/admin/AdminHero';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
@@ -14,6 +14,10 @@ import { TD } from '@/types/td.types';
 import { Teacher } from '@/types/user.types';
 import { Payment } from '@/types/financial.types';
 import { useState, useEffect } from 'react';
+
+// Helper: parse French-formatted amount strings (e.g. "15.000" → 15000)
+const parseAmount = (raw: string) =>
+  parseInt(raw.replace(/\./g, '').replace(/\D/g, '') || '0', 10);
 
 export default function AdminDashboardPage() {
   const [tds, setTds] = useState<TD[]>([]);
@@ -41,8 +45,23 @@ export default function AdminDashboardPage() {
     fetchData();
   }, []);
 
-  const unpaidCount = tds.filter(t => t.status === 'terminé').length;
-  const paidCount = tds.filter(t => t.status === 'payé').length;
+  // ── Stats calculations ───────────────────────────────────────────────────────
+  //
+  // montantTotal : somme de TOUS les paiements ("En attente" + "Payé").
+  //   → Représente le chiffre d'affaires total cumulé des TDs terminés + payés.
+  //   → Les TDs "en cours" ne sont pas encore facturés, donc sans montant trackable.
+  //
+  // montantDu : uniquement les paiements "En attente".
+  //   → Ce sont les TDs qui ont le statut "terminé" et qui attendent d'être payés.
+  //
+  const montantTotal = payments.reduce((sum, p) => sum + parseAmount(p.amount), 0);
+  const montantDu    = payments
+    .filter(p => p.status === 'En attente')
+    .reduce((sum, p) => sum + parseAmount(p.amount), 0);
+  const tdEnAttente = tds.filter(t => t.status === 'en attente').length;
+  const tdEnCours   = tds.filter(t => t.status === 'en cours').length;
+  const tdTermines  = tds.filter(t => t.status === 'terminé').length;
+  const tdPayes     = tds.filter(t => t.status === 'payé').length;
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-montserrat">
@@ -74,41 +93,85 @@ export default function AdminDashboardPage() {
         {/* Global Hero Section */}
         <AdminHero />
 
-        {/* Dynamic Stats Grid */}
-        <section className="flex flex-wrap gap-8">
-          <StatCard 
-            label="Travaux dirigés" 
-            value={isLoading ? "..." : tds.length.toString()} 
-            icon={ClipboardList} 
-            variant="green" 
-            trend={tds.length > 0 ? "En hausse" : "Initialisé"}
-            staggerIndex={0} 
-          />
-          <StatCard 
-            label="Enseignants" 
-            value={isLoading ? "..." : teachers.filter(t => t.status === 'actif').length.toString()} 
-            icon={Users} 
-            variant="red" 
-            trend={teachers.filter(t => t.status === 'actif').length > 0 ? "En hausse" : "Initialisé"}
-            staggerIndex={1} 
-          />
-          <StatCard 
-            label="Non payés" 
-            value={isLoading ? "..." : unpaidCount.toString()} 
-            icon={AlertCircle} 
-            variant="orange" 
-            trend={unpaidCount > 0 ? "À traiter" : "À jour"}
-            staggerIndex={2} 
-          />
-          <StatCard 
-            label="Payés" 
-            value={isLoading ? "..." : paidCount.toString()} 
-            icon={Wallet} 
-            variant="sky" 
-            trend={paidCount > 0 ? "Confirmé" : "Initialisé"}
-            staggerIndex={3} 
-          />
-        </section>
+        {/* ── Section 1 : Vue d'ensemble des TD ── */}
+        <div className="space-y-3">
+          <h2 className="text-base font-semibold text-gray-400 uppercase tracking-widest">Vue d'ensemble</h2>
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard
+              label="Total TD"
+              value={isLoading ? "..." : tds.length.toString()}
+              icon={ClipboardList}
+              variant="green"
+              trend={tds.length > 0 ? "En hausse" : "Initialisé"}
+              staggerIndex={0}
+            />
+            <StatCard
+              label="Enseignants actifs"
+              value={isLoading ? "..." : teachers.filter(t => t.status === 'actif').length.toString()}
+              icon={Users}
+              variant="sky"
+              trend={teachers.filter(t => t.status === 'actif').length > 0 ? "En hausse" : "Initialisé"}
+              staggerIndex={1}
+            />
+            <StatCard
+              label="TD en attente"
+              value={isLoading ? "..." : tdEnAttente.toString()}
+              icon={Hourglass}
+              variant="orange"
+              trend={tdEnAttente > 0 ? "À valider" : "Aucun"}
+              trendUp={tdEnAttente === 0}
+              staggerIndex={2}
+            />
+            <StatCard
+              label="TD en cours"
+              value={isLoading ? "..." : tdEnCours.toString()}
+              icon={Timer}
+              variant="red"
+              trend={tdEnCours > 0 ? "En progression" : "Aucun"}
+              staggerIndex={3}
+            />
+          </section>
+        </div>
+
+        {/* ── Section 2 : Finances ── */}
+        <div className="space-y-3">
+          <h2 className="text-base font-semibold text-gray-400 uppercase tracking-widest">Finances</h2>
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard
+              label="Montant total"
+              value={isLoading ? "..." : `${montantTotal.toLocaleString('fr-FR')} F`}
+              icon={Wallet}
+              variant="green"
+              trend={montantTotal > 0 ? "Cumulé" : "Initialisé"}
+              staggerIndex={4}
+            />
+            <StatCard
+              label="Montant dû"
+              value={isLoading ? "..." : `${montantDu.toLocaleString('fr-FR')} F`}
+              icon={CircleDollarSign}
+              variant="orange"
+              trend={montantDu > 0 ? "À régler" : "À jour"}
+              trendUp={montantDu === 0}
+              staggerIndex={5}
+            />
+            <StatCard
+              label="TD terminés"
+              value={isLoading ? "..." : tdTermines.toString()}
+              icon={CheckCircle2}
+              variant="sky"
+              trend={tdTermines > 0 ? "En attente paiement" : "Aucun"}
+              staggerIndex={6}
+            />
+            <StatCard
+              label="TD payés"
+              value={isLoading ? "..." : tdPayes.toString()}
+              icon={BadgeCheck}
+              variant="red"
+              trend={tdPayes > 0 ? "Confirmés" : "Aucun"}
+              staggerIndex={7}
+            />
+          </section>
+        </div>
 
         {/* Activity & Notifications Section */}
         <ActivitySection />

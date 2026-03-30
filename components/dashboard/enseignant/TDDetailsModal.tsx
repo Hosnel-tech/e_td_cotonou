@@ -13,9 +13,10 @@ interface TDDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   tdData: TD | null;
+  onStatusUpdate?: (id: string, status: any) => void;
 }
 
-export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsModalProps) {
+export default function TDDetailsModal({ isOpen, onClose, tdData, onStatusUpdate }: TDDetailsModalProps) {
   if (!tdData) return null;
 
   return (
@@ -85,9 +86,20 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
                   <InfoRow label="Date :" value={tdData.date} />
                   <div className="px-8 py-5 flex items-center justify-between">
                     <span className="text-neutral-400 text-lg font-semibold font-montserrat">Epreuve :</span>
-                    <button className="p-1 hover:bg-stone-50 rounded transition-colors group">
-                      <Download size={24} className="text-green-800 transition-transform group-active:scale-90" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-base font-semibold font-montserrat ${tdData.epreuveName ? 'text-black' : 'text-neutral-300'}`}>
+                        {tdData.epreuveName || 'Non jointe'}
+                      </span>
+                      {tdData.epreuveUrl && (
+                        <a 
+                          href={tdData.epreuveUrl} 
+                          download={tdData.epreuveName}
+                          className="p-1 hover:bg-stone-50 rounded transition-colors group"
+                        >
+                          <Download size={24} className="text-green-800 transition-transform group-active:scale-90" />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -114,6 +126,7 @@ export default function TDDetailsModal({ isOpen, onClose, tdData }: TDDetailsMod
               {/* Action Footer */}
               <div className="flex justify-end pt-4">
                 <button 
+                  onClick={() => tdData.status === 'en cours' && onStatusUpdate?.(tdData.id, 'terminé')}
                   disabled={tdData.status !== 'en cours'}
                   className={`px-10 py-5 text-xl font-semibold font-montserrat rounded-lg shadow-lg transition-all active:scale-95 ${
                     tdData.status === 'en cours'

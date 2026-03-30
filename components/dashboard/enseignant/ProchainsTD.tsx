@@ -11,10 +11,18 @@ export default function ProchainsTD() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    notificationService.getUpcomingTDs().then(data => {
-      setUpcomingTds(data);
-      setIsLoading(false);
-    });
+    const fetchUpcoming = () => {
+      notificationService.getUpcomingTDs().then(data => {
+        // Filter strictly for "en cours" status on the frontend as well
+        const filtered = data.filter(td => td.status === 'En cours');
+        setUpcomingTds(filtered);
+        setIsLoading(false);
+      });
+    };
+
+    fetchUpcoming();
+    const intervalId = setInterval(fetchUpcoming, 10000);
+    return () => clearInterval(intervalId);
   }, []);
 
   return (

@@ -18,5 +18,5 @@ export interface UpcomingTD {
   class: string;
   time: string;
   relative: string;
-  status: 'Marqué terminé' | 'Programmé';
+  status: 'Marqué terminé' | 'Programmé' | 'En cours';
 }

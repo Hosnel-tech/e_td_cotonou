@@ -32,20 +32,35 @@
       "createdAt": "2026-03-27T09:51:11.343Z"
     },
     {
-      "id": "cv7ksr",
-      "name": "Janne Drak",
-      "email": "jures7739@gmail.com",
+      "id": "y3wfjg",
+      "name": "Jean Paul",
+      "email": "jeanpaul@gmail.com",
       "role": "enseignant",
-      "status": "en attente",
-      "phone": "0197756734",
-      "subject": "Philo",
-      "className": "Tle",
+      "status": "actif",
+      "phone": "0168236715",
+      "subject": "EST",
+      "className": "CM2",
       "niveau": "secondaire",
-      "school": "LES PYLÖNES",
-      "createdAt": "2026-03-27T09:55:02.177Z"
+      "school": "FIYEGNON",
+      "createdAt": "2026-03-30T09:27:25.750Z"
     }
   ],
-  "tds": [],
+  "tds": [
+    {
+      "subject": "ES",
+      "classe": "CM2",
+      "niveau": "primaire",
+      "date": "2026-04-01",
+      "time": "14:00",
+      "duration": "2h 30min",
+      "status": "en cours",
+      "teacher": "M. DUPONT",
+      "epreuveName": "Hosnel_AZAMMAN_CV.pdf",
+      "epreuveUrl": "blob:http://localhost:3000/f9354827-0007-4519-8b9f-97081fd12cae",
+      "id": "9hldfh",
+      "createdAt": "2026-03-30T10:56:55.947Z"
+    }
+  ],
   "payments": [
     {
       "id": "pay1",
@@ -151,20 +166,50 @@
       "read": false,
       "createdAt": "2026-03-27T10:23:52.852Z",
       "actionUrl": "/enseignant/dashboard"
+    },
+    {
+      "id": "1774862845754qxv89l",
+      "userId": "1",
+      "title": "Nouvelle inscription",
+      "message": "L'enseignant Jean Paul s'est inscrit et attend validation.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-03-30T09:27:25.754Z",
+      "actionUrl": "/admin/dashboard/teachers?teacher=y3wfjg"
+    },
+    {
+      "id": "1774863234674qcq7hd",
+      "userId": "y3wfjg",
+      "title": "Compte validé",
+      "message": "Votre compte a été validé par l’administrateur. Bienvenue !",
+      "type": "success",
+      "read": false,
+      "createdAt": "2026-03-30T09:33:54.674Z",
+      "actionUrl": "/enseignant/dashboard"
+    },
+    {
+      "id": "17748682159491oj49k",
+      "userId": "1",
+      "title": "Nouveau TD créé",
+      "message": "Un nouveau TD pour ES a été créé par M. DUPONT et attend validation.",
+      "type": "info",
+      "read": false,
+      "createdAt": "2026-03-30T10:56:55.949Z",
+      "actionUrl": "/admin/dashboard/td-management"
     }
   ],
   "upcomingTDs": [],
   "currentUser": {
-    "id": "2ip6jh",
-    "name": "Paul Gettry",
-    "email": "hosnel634@gmail.com",
+    "id": "y3wfjg",
+    "name": "Jean Paul",
+    "email": "jeanpaul@gmail.com",
     "role": "enseignant",
     "status": "actif",
-    "phone": "0197756734",
-    "subject": "SVT",
-    "className": "3ème",
+    "phone": "0168236715",
+    "subject": "EST",
+    "className": "CM2",
     "niveau": "secondaire",
-    "school": "GBEGAMEY",
-    "createdAt": "2026-03-27T09:51:11.343Z"
+    "school": "FIYEGNON",
+    "createdAt": "2026-03-30T09:27:25.750Z"
   }
 }

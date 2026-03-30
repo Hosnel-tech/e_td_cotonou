@@ -7,20 +7,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, User, BookOpen, CreditCard, ChevronDown, Calendar, Check, Loader2 } from 'lucide-react';
 import { authService } from '@/services/auth.service';
+import { CLASSES, SUBJECTS_BY_CLASS, SCHOOLS } from '@/constants/education';
 
 type Step = 1 | 2 | 3;
-
-const CLASSES = ['CM2', '3ème', 'Tle'] as const;
-const SCHOOLS = [
-  'SURU LERE', 'AKPAKPA CENTRE', 'SEGBEYA', 'GBEGAMEY', 'L\'OCEAN', 
-  'FIYEGNON', 'LITTORAL', 'LES PYLÖNES', 'LES PYRAMIDES', 'ENTENTE'
-] as const;
-
-const SUBJECTS_BY_CLASS: Record<string, string[]> = {
-  'CM2': ['ES', 'EST', 'Math', 'Communication orale', 'Expression écrite', 'Dessin/Couture'],
-  '3ème': ['Français', 'Anglais', 'Math', 'SVT', 'Hist-Geo', 'PCT'],
-  'Tle': ['Français', 'Anglais', 'Math', 'SVT', 'Hist-Geo', 'Physique', 'Chimie', 'Philo']
-};
 
 export default function RegisterPage() {
   const router = useRouter();

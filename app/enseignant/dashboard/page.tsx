@@ -36,11 +36,17 @@ export default function DashboardPage() {
     setIsDetailsOpen(true);
   };
 
+  const handleCloseDetails = () => {
+    setIsDetailsOpen(false);
+    setSelectedTD(null); // Crucial: clear the selected TD to prevent re-opening or stale data
+  };
+
   const handleStatusUpdate = async (id: string, status: any) => {
     try {
       await tdService.updateStatus(id, status);
       const updated = await tdService.getTDs();
       setTds(updated);
+      handleCloseDetails(); // Close modal after successful action
     } catch (error) {
        console.error('Error updating TD status:', error);
        alert('Erreur lors de la mise à jour du statut du TD.');
@@ -134,8 +140,9 @@ export default function DashboardPage() {
       {/* TD Details Modal */}
       <TDDetailsModal 
         isOpen={isDetailsOpen} 
-        onClose={() => setIsDetailsOpen(false)} 
+        onClose={handleCloseDetails} 
         tdData={selectedTD} 
+        onStatusUpdate={handleStatusUpdate}
       />
     </div>
   );

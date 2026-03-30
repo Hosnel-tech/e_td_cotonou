@@ -8,9 +8,11 @@ import {
   Upload, 
   ChevronDown 
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useConfirm } from '@/hooks/useConfirm';
 import { tdService } from '@/services/td.service';
+import { authService } from '@/services/auth.service';
+import { SUBJECTS_BY_CLASS } from '@/constants/education';
 
 interface NewTDModalProps {
   isOpen: boolean;
@@ -21,14 +23,42 @@ interface NewTDModalProps {
 export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalProps) {
   const confirm = useConfirm();
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [userClass, setUserClass] = useState<string>('');
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: '',
-    subject: 'Français',
+    subject: '',
     startTime: '',
     endTime: '',
     date: '',
     duration: ''
   });
+
+  // Fetch current user and class on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await authService.getCurrentUser();
+      if (user && user.role === 'enseignant') {
+        setCurrentUser(user);
+        const className = user.className || 'Tle'; // Default to Tle if not set
+        setUserClass(className);
+        const subjects = SUBJECTS_BY_CLASS[className] || [];
+        setAvailableSubjects(subjects);
+        
+        // Default the form subject if it's currently empty
+        if (!formData.subject && subjects.length > 0) {
+          setFormData(prev => ({ ...prev, subject: subjects[0] }));
+        }
+      }
+    };
+
+    if (isOpen) {
+      fetchUser();
+    }
+  }, [isOpen]);
 
   // Automatically calculate duration when startTime or endTime changes
   useEffect(() => {
@@ -56,6 +86,16 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.name || !formData.date || !formData.startTime || !formData.endTime) {
       alert('Veuillez remplir tous les champs obligatoires.');
@@ -71,23 +111,26 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
 
     if (!ok) return;
 
-    setLoading(true);
     try {
       await tdService.createTD({
         subject: formData.subject,
-        classe: "Tle", // Default for now or could be a field
-        niveau: "secondaire", // Default for now
+        classe: userClass, // Use the teacher's assigned class
+        niveau: userClass === 'CM2' ? 'primaire' : 'secondaire', // Automatic mapping
         date: formData.date,
         time: formData.startTime,
         duration: formData.duration,
-        status: "en cours",
-        teacher: "M. DUPONT" // Matches TD interface
+        status: "en attente",
+        teacher: currentUser?.name || "Enseignant", // Matches TD interface
+        epreuveName: selectedFile?.name,
+        epreuveUrl: selectedFile ? URL.createObjectURL(selectedFile) : undefined
       });
       onSuccess?.();
       onClose();
+      // Reset
+      setSelectedFile(null);
       setFormData({
         name: '',
-        subject: 'Français',
+        subject: availableSubjects[0] || '',
         startTime: '',
         endTime: '',
         date: '',
@@ -153,19 +196,23 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
                 {/* Subject */}
                 <div className="space-y-3">
                   <label className="block text-base font-semibold font-montserrat text-black">
-                    Matière <span className="text-red-600">*</span>
+                    Matière <span className="text-red-600 font-normal opacity-50 ml-1">(Classe : {userClass})</span> <span className="text-red-600">*</span>
                   </label>
                   <div className="relative group">
                     <select 
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black appearance-none transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
+                      disabled={availableSubjects.length === 0}
+                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black appearance-none transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)] disabled:bg-gray-50 disabled:opacity-50"
                     >
-                      <option value="Français">Français</option>
-                      <option value="Anglais">Anglais</option>
-                      <option value="SVT">SVT</option>
-                      <option value="Mathématiques">Mathématiques</option>
+                      {availableSubjects.length === 0 ? (
+                        <option value="">Chargement...</option>
+                      ) : (
+                        availableSubjects.map(subject => (
+                          <option key={subject} value={subject}>{subject}</option>
+                        ))
+                      )}
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>
@@ -242,11 +289,26 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
               </div>
 
               {/* File Upload Area */}
-              <div className="w-full h-48 border-[0.83px] border-sky-900 border-dashed rounded-lg bg-white flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-sky-50 transition-colors group">
-                <Upload className="text-sky-900 group-hover:scale-110 transition-transform" size={32} />
-                <span className="text-black text-base font-normal font-montserrat">
-                  Charger le fichier de l’épreuve
+              <div 
+                onClick={handleFileClick}
+                className={`w-full h-48 border-[0.83px] border-dashed rounded-lg flex flex-col items-center justify-center gap-4 cursor-pointer transition-colors group ${
+                  selectedFile ? 'border-green-800 bg-green-50/30' : 'border-sky-900 bg-white hover:bg-sky-50'
+                }`}
+              >
+                <input 
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.jpg,.png"
+                />
+                <Upload className={`${selectedFile ? 'text-green-800' : 'text-sky-900'} group-hover:scale-110 transition-transform`} size={32} />
+                <span className={`text-base font-normal font-montserrat ${selectedFile ? 'text-green-800 font-semibold' : 'text-black'}`}>
+                  {selectedFile ? `Fichier sélectionné : ${selectedFile.name}` : 'Charger le fichier de l’épreuve'}
                 </span>
+                {selectedFile && (
+                  <span className="text-xs text-green-800/60 font-medium italic">Cliquez pour changer de fichier</span>
+                )}
               </div>
             </div>
 

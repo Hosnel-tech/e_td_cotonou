@@ -208,7 +208,12 @@ export default function AdminTDManagementPage() {
         </section>
       </main>
 
-      <AdminTDDetailsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} data={selectedTD} />
+      <AdminTDDetailsModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        data={selectedTD} 
+        onStatusUpdate={handleStatusUpdate}
+      />
     </div>
   );
 }

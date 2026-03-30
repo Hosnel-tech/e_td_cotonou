@@ -8,6 +8,7 @@ interface AdminTDDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   data: TD | null;
+  onStatusUpdate?: (id: string, status: any) => void;
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -49,10 +50,17 @@ const SectionCard = ({ title, children }: SectionCardProps) => (
   </div>
 );
 
-export default function AdminTDDetailsModal({ isOpen, onClose, data }: AdminTDDetailsModalProps) {
+export default function AdminTDDetailsModal({ isOpen, onClose, data, onStatusUpdate }: AdminTDDetailsModalProps) {
   if (!data) return null;
 
   const cfg = statusConfig[data.status] ?? statusConfig['en cours'];
+
+  const handleAction = async (status: string) => {
+    if (onStatusUpdate) {
+      await onStatusUpdate(data.id, status);
+      onClose();
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -124,15 +132,23 @@ export default function AdminTDDetailsModal({ isOpen, onClose, data }: AdminTDDe
                   <InfoRow label="Heure :" value={data.time} />
                   <InfoRow label="Durée :" value={data.duration} />
                   <InfoRow label="Date :" value={data.date} />
-                  <InfoRow
-                    label="Epreuve :"
-                    value={
-                      <button className="text-green-800 hover:text-green-900 transition-colors">
-                        <Download size={24} />
-                      </button>
-                    }
-                    divider={false}
-                  />
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-neutral-400 text-lg font-semibold font-montserrat">Epreuve :</span>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-base font-semibold font-montserrat ${data.epreuveName ? 'text-black' : 'text-neutral-300'}`}>
+                        {data.epreuveName || 'Non jointe'}
+                      </span>
+                      {data.epreuveUrl && (
+                        <a 
+                          href={data.epreuveUrl} 
+                          download={data.epreuveName}
+                          className="text-green-800 hover:text-green-900 transition-colors p-1 hover:bg-stone-50 rounded"
+                        >
+                          <Download size={24} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </SectionCard>
 
                 {/* Section 3: Statut du TD */}
@@ -153,7 +169,7 @@ export default function AdminTDDetailsModal({ isOpen, onClose, data }: AdminTDDe
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={onClose}
+                      onClick={() => handleAction('rejeté')}
                       className="px-8 py-4 bg-red-600 text-white text-xl font-semibold font-montserrat rounded-lg hover:bg-red-700 transition-colors shadow-md"
                     >
                       Rejeter
@@ -162,7 +178,7 @@ export default function AdminTDDetailsModal({ isOpen, onClose, data }: AdminTDDe
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={onClose}
+                      onClick={() => handleAction('en cours')}
                       className="px-8 py-4 bg-green-800 text-white text-xl font-semibold font-montserrat rounded-lg hover:bg-green-900 transition-colors shadow-md"
                     >
                       Valider
