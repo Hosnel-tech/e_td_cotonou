@@ -1,184 +1,184 @@
 "use client";
 
 import { motion } from 'framer-motion';
-import { ChevronRight, Check, Eye, SearchX } from 'lucide-react';
-import Link from 'next/link';
+import { ChevronLeft, ChevronRight, Eye, SearchX, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
-import { Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
 
 interface PendingPaymentsTableProps {
   tds: TD[];
-  isSelected: (id: string) => boolean;
-  toggleSelectOne: (id: string, isShift?: boolean) => void;
-  isAllSelected: boolean;
-  isIndeterminate: boolean;
-  toggleSelectAll: () => void;
-  onMarkAsPaid?: (id: string) => void;
 }
 
 export default function PendingPaymentsTable({
-  tds,
-  isSelected,
-  toggleSelectOne,
-  isAllSelected,
-  isIndeterminate,
-  toggleSelectAll,
-  onMarkAsPaid
+  tds
 }: PendingPaymentsTableProps) {
   const [selectedTD, setSelectedTD] = useState<TD | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   const handleOpenDetails = (td: TD) => {
     setSelectedTD(td);
     setIsModalOpen(true);
   };
 
+  // Pagination logic
+  const totalPages = Math.ceil(tds.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTDs = tds.slice(startIndex, startIndex + itemsPerPage);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <motion.section 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="bg-white rounded-lg shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] p-8"
+      transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="bg-white rounded-lg shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.10)] mb-12"
     >
-      <div className="flex items-center gap-4 mb-10">
-        <h2 className="text-black text-2xl font-bold font-montserrat tracking-tight">Paiements en attente</h2>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="bg-sky-900/5 h-20">
-            <tr>
-              <th className="pl-8 w-20">
-                <div 
-                  onClick={toggleSelectAll}
-                  className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
-                    isAllSelected ? 'bg-sky-900' : isIndeterminate ? 'bg-sky-900/40' : 'bg-white'
-                  }`}
-                >
-                  {isAllSelected && <Check className="text-white" size={18} strokeWidth={4} />}
-                  {!isAllSelected && isIndeterminate && <div className="w-3 h-0.5 bg-white rounded-full" />}
-                </div>
-              </th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Enseignant</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Matières</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Classe</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Niveau</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Date</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Durée</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Montant</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center">Statut</th>
-              <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-stone-300">
-            {tds.length > 0 ? (
-              tds.map((td, idx) => {
-                const selected = isSelected(td.id);
-                return (
+      <div className="p-8">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-black text-2xl font-bold font-montserrat tracking-tight">Paiements en attente</h2>
+          <div className="px-4 py-1 bg-sky-900/10 rounded-full text-sky-900 text-sm font-bold uppercase tracking-wider">
+            {tds.length} TD{tds.length > 1 ? 's' : ''} à régler
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-sky-900/5 h-20">
+                <th className="text-sky-900 text-xl font-semibold px-6 font-montserrat rounded-l-lg">Enseignant</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Matière</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Classe</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center">Niveau</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Date</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Durée</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center last:rounded-r-lg">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {paginatedTDs.length > 0 ? (
+                paginatedTDs.map((td, idx) => (
                   <motion.tr 
                     key={td.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 * idx }}
-                    className={`h-20 transition-colors group cursor-pointer ${
-                      selected ? 'bg-sky-900/[0.03]' : 'hover:bg-gray-50/50'
-                    }`}
-                    onClick={(e) => toggleSelectOne(td.id, e.shiftKey)}
+                    className="h-24 hover:bg-slate-50/50 transition-colors group"
                   >
-                    <td className="pl-8" onClick={(e) => e.stopPropagation()}>
-                      <div 
-                        onClick={(e) => toggleSelectOne(td.id, e.shiftKey)}
-                        className={`w-7 h-7 rounded-[5px] border-[1.67px] border-sky-900 cursor-pointer flex items-center justify-center transition-all ${
-                          selected ? 'bg-sky-900' : 'bg-white group-hover:bg-gray-50'
-                        }`}
-                      >
-                        {selected && <Check className="text-white" size={18} strokeWidth={4} />}
+                    <td className="px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-sky-900/10 flex items-center justify-center text-sky-900 font-bold uppercase">
+                          {td.teacher.charAt(0)}
+                        </div>
+                        <span className="text-black text-xl font-medium font-montserrat">{td.teacher}</span>
                       </div>
                     </td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.teacher}</td>
-                    <td className="text-black text-xl font-medium px-4 font-montserrat">{td.subject}</td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.classe}</td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                    <td className="text-black/80 text-xl font-normal px-4 font-montserrat">{td.subject}</td>
+                    <td className="text-black/80 text-xl font-normal px-4 font-montserrat">{td.classe}</td>
+                    <td className="px-4 text-center">
+                      <span className={`px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider ${
                         td.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
                       }`}>
                         {td.niveau}
                       </span>
                     </td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.date}</td>
-                    <td className="text-black text-xl font-normal px-4 font-montserrat">{td.duration}</td>
-                    <td className="text-black text-xl font-bold px-4 font-montserrat">--- F</td>
+                    <td className="text-black/80 text-xl font-normal px-4 font-montserrat">{td.date}</td>
+                    <td className="text-black/80 text-xl font-normal px-4 font-montserrat font-mono">{td.duration}</td>
                     <td className="px-4 text-center">
-                      <span className="px-5 py-2 bg-green-800 rounded-2xl text-white text-xs font-semibold font-montserrat inline-block shadow-sm">
-                        {td.status}
-                      </span>
-                    </td>
-                    <td className="px-4 text-center">
-                      <div className="flex items-center justify-center gap-3">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleOpenDetails(td); }}
-                          className="p-2 bg-slate-100 text-sky-900 rounded-md hover:bg-slate-200 transition-all active:scale-90"
-                          title="Voir les détails"
-                        >
-                          <Eye size={18} />
-                        </button>
-                        <button 
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            if (onMarkAsPaid) onMarkAsPaid(td.id);
-                          }}
-                          className="px-5 py-2 bg-sky-900 rounded-[5px] text-white text-xs font-semibold font-montserrat hover:bg-sky-950 transition-all shadow-md active:scale-95 whitespace-nowrap"
-                        >
-                          Marquer payé
-                        </button>
-                      </div>
+                      <button 
+                        onClick={() => handleOpenDetails(td)}
+                        className="w-12 h-12 flex items-center justify-center bg-slate-100 text-sky-900 rounded-xl hover:bg-sky-900 hover:text-white transition-all active:scale-90 shadow-sm mx-auto"
+                        title="Détails"
+                      >
+                        <Eye size={24} />
+                      </button>
                     </td>
                   </motion.tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan={10} className="py-24 text-center">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center justify-center gap-5"
-                  >
-                    <div className="w-24 h-24 bg-sky-50 rounded-full flex items-center justify-center text-sky-900/20">
-                      <SearchX size={56} strokeWidth={1.5} />
-                    </div>
-                    <div className="space-y-1">
-                      <h4 className="text-2xl font-bold text-sky-900 font-montserrat tracking-tight">Aucun paiement en attente</h4>
-                      <p className="text-xl text-stone-400 font-montserrat tracking-tight">Tous les paiements ont été traités avec succès.</p>
-                    </div>
-                  </motion.div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-24 text-center">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex flex-col items-center justify-center gap-4"
+                    >
+                      <div className="w-20 h-20 bg-sky-900/5 rounded-full flex items-center justify-center text-sky-900/20">
+                        <SearchX size={40} strokeWidth={1.5} />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-xl font-bold text-sky-900 font-montserrat tracking-tight">Aucun paiement en attente</h4>
+                        <p className="text-black/40 font-montserrat">Tous les cours terminés ont été réglés.</p>
+                      </div>
+                    </motion.div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="flex justify-center mt-12 pb-4">
-        <Link href="/comptable/paiements" className="w-full max-w-[510px]">
-          <motion.button
-            whileHover={{ scale: 1.02, backgroundColor: '#072e4a' }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full h-16 bg-sky-900 rounded-[10px] flex items-center justify-center gap-3 text-white text-xl font-semibold font-inter shadow-xl group transition-all"
-          >
-            Accéder à tous les paiements
-            <ChevronRight size={28} className="group-hover:translate-x-1 transition-transform" />
-          </motion.button>
-        </Link>
-      </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="p-8 border-t border-stone-100 flex items-center justify-between bg-slate-50/30 rounded-b-lg">
+          <div className="text-black/40 text-sm font-medium font-montserrat">
+            Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, tds.length)} sur {tds.length}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-stone-200 text-sky-900 hover:bg-sky-900 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-sky-900 transition-all"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="flex items-center gap-2 mx-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`w-10 h-10 rounded-xl text-sm font-bold font-montserrat transition-all ${
+                    currentPage === page 
+                      ? 'bg-sky-900 text-white shadow-lg shadow-sky-900/20' 
+                      : 'bg-white border border-stone-100 text-sky-900 hover:border-sky-900/30 hover:bg-sky-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
 
-      <AdminTDDetailsModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        data={selectedTD} 
-      />
+            <button 
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-stone-200 text-sky-900 hover:bg-sky-900 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-sky-900 transition-all"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selectedTD && (
+        <AdminTDDetailsModal 
+          isOpen={isModalOpen} 
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedTD(null);
+          }} 
+          data={selectedTD} 
+        />
+      )}
     </motion.section>
   );
 }

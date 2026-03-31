@@ -9,8 +9,6 @@ import {
 import { useState, useEffect } from 'react';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import PendingPaymentsTable from '@/components/dashboard/comptable/PendingPaymentsTable';
-import { useSelection } from '@/hooks/useSelection';
-import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
 import { transferService } from '@/services/transfer.service';
 import { Transfer, Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
@@ -61,7 +59,6 @@ export default function AccountantDashboard() {
     }
   };
 
-  const selection = useSelection(terminedTDs);
 
   // ── Stats calculations ───────────────────────────────────────────────────────
   //
@@ -89,7 +86,7 @@ export default function AccountantDashboard() {
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="h-14 bg-white rounded-lg border border-neutral-300 flex items-center px-4 gap-3 shadow-sm min-w-[300px]">
+          <div className="h-14 bg-white rounded-lg border border-neutral-300 flex items-center px-4 gap-3 shadow-sm min-w-[500px]">
             <Search className="text-neutral-400" size={20} />
             <input 
               type="text" 
@@ -97,10 +94,10 @@ export default function AccountantDashboard() {
               className="bg-transparent outline-none text-base font-semibold placeholder:text-neutral-400 text-black w-full"
             />
           </div>
-          <button className="h-14 bg-sky-900 text-white px-6 rounded-lg font-semibold flex items-center gap-2 transition-all hover:bg-sky-950 shadow-lg shadow-sky-900/20 active:scale-95">
+          {/* <button className="h-14 bg-sky-900 text-white px-6 rounded-lg font-semibold flex items-center gap-2 transition-all hover:bg-sky-950 shadow-lg shadow-sky-900/20 active:scale-95">
             <Download size={20} />
             Exporter (.CSV)
-          </button>
+          </button> */}
         </div>
       </header>
 
@@ -141,19 +138,31 @@ export default function AccountantDashboard() {
         />
       </section>
 
-      {/* Pending Payments Table */}
-      <PendingPaymentsTable 
-        tds={terminedTDs}
-        isSelected={selection.isSelected}
-        toggleSelectOne={selection.toggleSelectOne}
-        isAllSelected={selection.isAllSelected}
-        isIndeterminate={selection.isIndeterminate}
-        toggleSelectAll={selection.toggleSelectAll}
-        onMarkAsPaid={handleMarkAsPaid}
-      />
-
       {/* Quick Actions / Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.8 }}
+          className="bg-sky-900 rounded-lg p-8 text-white shadow-xl shadow-sky-900/30"
+        >
+          <h2 className="text-xl font-bold font-montserrat mb-6">Actions rapides</h2>
+          <div className="space-y-4 font-montserrat">
+            <button className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-4 px-6 transition-all border border-white/10 active:scale-95">
+              <Plus size={24} />
+              <span className="font-semibold">Nouveau virement</span>
+            </button>
+            <button className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-4 px-6 transition-all border border-white/10 active:scale-95">
+              <FileText size={24} />
+              <span className="font-semibold">Générer rapport mensuel</span>
+            </button>
+            <button className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-4 px-6 transition-all border border-white/10 active:scale-95">
+              <Filter size={24} />
+              <span className="font-semibold">Filtres avancés</span>
+            </button>
+          </div>
+        </motion.div>
+        
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -162,10 +171,10 @@ export default function AccountantDashboard() {
         >
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-bold text-black font-montserrat tracking-tight">Trésorerie récente</h2>
-            <button className="text-sky-900 font-semibold flex items-center gap-2 hover:underline">
+            {/* <button className="text-sky-900 font-semibold flex items-center gap-2 hover:underline">
               Voir tout
               <ArrowUpRight size={18} />
-            </button>
+            </button> */}
           </div>
           <div className="space-y-6">
             {!isLoading && transfers.length === 0 ? (
@@ -194,41 +203,14 @@ export default function AccountantDashboard() {
             )}
           </div>
         </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.8 }}
-          className="bg-sky-900 rounded-lg p-8 text-white shadow-xl shadow-sky-900/30"
-        >
-          <h2 className="text-xl font-bold font-montserrat mb-6">Actions rapides</h2>
-          <div className="space-y-4 font-montserrat">
-            <button className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-4 px-6 transition-all border border-white/10 active:scale-95">
-              <Plus size={24} />
-              <span className="font-semibold">Nouveau virement</span>
-            </button>
-            <button className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-4 px-6 transition-all border border-white/10 active:scale-95">
-              <FileText size={24} />
-              <span className="font-semibold">Générer rapport mensuel</span>
-            </button>
-            <button className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-4 px-6 transition-all border border-white/10 active:scale-95">
-              <Filter size={24} />
-              <span className="font-semibold">Filtres avancés</span>
-            </button>
-          </div>
-        </motion.div>
       </div>
 
-      {/* Bulk Actions Bar */}
-      <BulkActionsBar 
-        count={selection.selectionCount} 
-        onClear={selection.clearSelection}
-        primaryAction={{
-          label: 'Marquer payé',
-          icon: Check,
-          onClick: () => console.log('Marking selected as paid...')
-        }}
+      {/* Pending Payments Table */}
+      <PendingPaymentsTable 
+        tds={terminedTDs}
       />
+
+
     </>
   );
 }

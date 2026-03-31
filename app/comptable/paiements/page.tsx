@@ -1,207 +1,131 @@
 "use client";
 
-import { motion } from 'framer-motion';
-import { 
-  Search, Download, Plus, Filter, Check, SearchSlash
-} from 'lucide-react';
-import { useConfirm } from '@/hooks/useConfirm';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import StatCard from '@/components/dashboard/enseignant/StatCard';
-import PaymentManagementTable from '@/components/dashboard/comptable/PaymentManagementTable';
-import { useSelection } from '@/hooks/useSelection';
-import BulkActionsBar from '@/components/dashboard/admin/BulkActionsBar';
-import { paymentService } from '@/services/payment.service';
+import { BookOpen, Search, Filter, ShieldAlert } from 'lucide-react';
+import PaymentStatsCards from '@/components/dashboard/comptable/PaymentStatsCards';
+import AdvancedSearch from '@/components/dashboard/comptable/AdvancedSearch';
+import MatrixPaymentTable from '@/components/dashboard/comptable/MatrixPaymentTable';
+import { transferService } from '@/services/transfer.service';
 import { Payment } from '@/types/financial.types';
-import { exportToCSV } from '@/lib/export.utils';
-
-import { tdService } from '@/services/td.service';
 import { TD } from '@/types/td.types';
 
 export default function AccountantPaymentsPage() {
-  const confirm = useConfirm();
-  const [tds, setTds] = useState<TD[]>([]);
-  const selection = useSelection(tds.filter(t => t.status === 'terminé' || t.status === 'payé'));
-  const { selectionCount, clearSelection, selectedIds, isSelected, toggleSelectOne, isAllSelected, isIndeterminate, toggleSelectAll } = selection;
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState<string>('');
+  const [allTDs, setAllTDs] = useState<TD[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    tdService.getTDs().then(all => {
-      setTds(all.filter(t => t.status === 'terminé' || t.status === 'payé'));
-    });
-  }, []);
-
-  const handleStatusUpdate = async (id: string, status: any) => {
+  const fetchData = async () => {
     try {
-      await tdService.updateStatus(id, status);
-      const updated = await tdService.getTDs();
-      setTds(updated.filter(t => t.status === 'terminé' || t.status === 'payé'));
+      const [tdsRes, paymentsRes] = await Promise.all([
+        fetch('/api/tds', { cache: 'no-store' }).then(r => r.json()),
+        fetch('/api/payments', { cache: 'no-store' }).then(r => r.json()),
+      ]);
+      setAllTDs(tdsRes as TD[]);
+      setPayments(paymentsRes as Payment[]);
     } catch (error) {
-       console.error('Error updating status:', error);
-       alert('Erreur lors de la mise à jour du statut.');
+      console.error('Error fetching accountant data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleBulkPay = async () => {
-    try {
-      await tdService.bulkUpdateStatus(selectedIds, 'payé');
-      const updated = await tdService.getTDs();
-      setTds(updated.filter(t => t.status === 'terminé' || t.status === 'payé'));
-      clearSelection();
-    } catch (error) {
-       console.error('Bulk pay error:', error);
-       alert('Erreur lors du paiement groupé.');
-    }
-  };
+  useEffect(() => { fetchData(); }, []);
 
-  const filteredTDs = tds.filter(td => 
-    td.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    td.classe.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Helper: parse French-formatted amount strings (e.g. "15.000" → 15000)
+  const parseAmount = (raw: string) =>
+    parseInt(raw?.replace(/\./g, '').replace(/\D/g, '') || '0', 10);
+
+  // ── Stats calculations ───────────────────────────────────────────────────────
+  const montantTotal = payments.reduce((sum, p) => sum + parseAmount(p.amount), 0);
+  const montantDu    = payments
+    .filter(p => p.status === 'En attente')
+    .reduce((sum, p) => sum + parseAmount(p.amount), 0);
+  const tdTermines = allTDs.filter(t => t.status === 'terminé').length;
+  const tdPayes    = allTDs.filter(t => t.status === 'payé').length;
 
   return (
-    <>
-      {/* Header */}
-      <header className="flex justify-between items-end pb-8">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold text-black tracking-tight font-montserrat">Gestion des Paiements</h1>
-          <p className="text-xl font-normal text-black/60 font-montserrat">Validez et suivez les règlements des enseignants</p>
-        </div>
+    <div className="space-y-10 pb-20">
+      {/* Header Section */}
+      <header className="space-y-2">
+        <motion.h1 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-[32px] font-bold text-black font-montserrat tracking-tight leading-none"
+        >
+          Gestion de paiement
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-black text-xl font-normal font-montserrat opacity-70"
+        >
+          Bienvenue dans votre espace comptable
+        </motion.p>
       </header>
 
-      {/* Filters & Search - Expand to full width */}
-      <div className="flex items-center gap-6 bg-white p-8 rounded-2xl border border-stone-100 shadow-[0px_0px_8.33px_0.83px_rgba(0,0,0,0.06)] mb-10 transition-all">
-        <div className="flex-1 h-[72px] bg-white rounded-xl border border-stone-300 flex items-center px-8 gap-4 focus-within:ring-4 focus-within:ring-sky-900/5 focus-within:border-sky-900 transition-all text-black group">
-          <Search className="text-neutral-400 group-focus-within:text-sky-900 transition-colors" size={28} />
-          <input 
-            type="text" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher par enseignant, matière, classe..." 
-            className="bg-transparent outline-none text-xl font-medium placeholder:text-neutral-400 w-full font-montserrat"
-          />
-        </div>
-        <button className="h-[72px] px-10 bg-white border border-stone-300 rounded-xl flex items-center gap-4 font-bold text-black hover:bg-slate-50 transition-all cursor-pointer shadow-sm active:scale-95 group font-montserrat">
-          <Filter size={24} className="group-hover:rotate-12 transition-transform" />
-          <span className="text-lg">Filtres avancés</span>
-        </button>
-      </div>
-
-      {/* Table Area - Taking up full available space */}
-      <section className="bg-white rounded-[20px] shadow-[0px_0px_15px_2px_rgba(0,0,0,0.08)] border border-stone-100 overflow-hidden mb-12">
-        <table className="w-full text-left table-auto border-separate border-spacing-0">
-          <thead className="bg-[#F8FBFC]">
-            <tr className="h-24">
-              <th className="pl-12 w-28">
-                <button 
-                  onClick={() => toggleSelectAll()}
-                  className={`w-8 h-8 rounded-lg border-2 border-sky-900 flex items-center justify-center transition-all ${isAllSelected ? 'bg-sky-900 shadow-lg shadow-sky-900/20' : 'bg-white hover:bg-sky-50'}`}
-                >
-                  {isAllSelected && <Check className="text-white" size={20} strokeWidth={4} />}
-                  {!isAllSelected && isIndeterminate && <div className="w-4 h-1 bg-sky-900 rounded-full" />}
-                </button>
-              </th>
-              <th className="px-8 py-6 text-sky-900 text-2xl font-bold font-montserrat">Détails de la séance</th>
-              <th className="px-8 py-6 text-sky-900 text-2xl font-bold text-center font-montserrat">Statut</th>
-              <th className="px-12 py-6 text-sky-900 text-2xl font-bold text-center whitespace-nowrap font-montserrat">Actions de paiement</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-stone-100">
-            {filteredTDs.length > 0 ? (
-              filteredTDs.map((td, idx) => {
-                const selected = isSelected(td.id);
-                return (
-                  <tr 
-                    key={td.id || idx} 
-                    onClick={(e) => toggleSelectOne(td.id, e.shiftKey)}
-                    className={`hover:bg-slate-50 transition-all duration-300 h-32 cursor-pointer group ${selected ? 'bg-sky-900/[0.02]' : ''}`}
-                  >
-                    <td className="pl-12">
-                      <div className={`w-8 h-8 rounded-lg border-2 border-sky-900 flex items-center justify-center transition-all ${selected ? 'bg-sky-900 shadow-md shadow-sky-900/10' : 'bg-white group-hover:bg-gray-50'}`}>
-                        {selected && <Check className="text-white" size={20} strokeWidth={4} />}
-                      </div>
-                    </td>
-                    <td className="px-8 py-8">
-                      <div className="flex flex-col gap-3">
-                        <span className="text-[28px] font-black text-black font-montserrat tracking-tight leading-tight">{td.subject}</span>
-                        <div className="flex items-center gap-5 text-lg text-stone-500 font-semibold font-montserrat">
-                           <span className="bg-sky-100 text-sky-900 px-4 py-1.5 rounded-lg text-sm font-black tracking-widest border border-sky-200 uppercase">{td.classe}</span>
-                           <span className="h-2 w-2 bg-stone-200 rounded-full" />
-                           <span>{td.date} à {td.time}</span>
-                           <span className="h-2 w-2 bg-stone-200 rounded-full" />
-                           <span className="italic font-normal opacity-80">Durée: {td.duration}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6 text-center">
-                       <span className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-[0.2em] border-2 shadow-sm font-montserrat transition-all whitespace-nowrap ${
-                         td.status === 'payé' ? 'bg-emerald-900 text-white border-emerald-950 px-10' : 'bg-amber-400 text-amber-950 border-amber-500'
-                       }`}>
-                         {td.status === 'payé' ? 'Confirmé' : 'À régler'}
-                       </span>
-                    </td>
-                  <td className="px-12 py-6">
-                    <div className="flex items-center justify-center gap-4" onClick={(e) => e.stopPropagation()}>
-                      {td.status === 'terminé' && (
-                        <button
-                          onClick={async () => {
-                            const ok = await confirm({
-                              title: "Confirmer le règlement ?",
-                              description: `Voulez-vous marquer le TD de ${td.subject} (${td.classe}) comme payé ? Cette action notifiera l'enseignant.`,
-                              confirmLabel: "Confirmer le paiement",
-                              variant: "success",
-                            });
-                            if (ok) handleStatusUpdate(td.id, 'payé');
-                          }}
-                          className="px-12 py-5 bg-emerald-900 text-white rounded-2xl font-black text-lg shadow-xl hover:bg-emerald-950 transition-all hover:scale-[1.03] active:scale-95 flex items-center gap-4 cursor-pointer font-montserrat shadow-emerald-900/10"
-                        >
-                          <Check size={28} strokeWidth={4} />
-                          Confirmer le Règlement
-                        </button>
-                      )}
-                      {td.status === 'payé' && (
-                        <div className="flex items-center gap-4 text-emerald-900 font-black text-2xl px-6 py-3 opacity-40 font-montserrat italic">
-                          <Check size={32} strokeWidth={4} />
-                          Règlement Effectué
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-              })
-            ) : (
-              <tr>
-                <td colSpan={4} className="py-44 text-center">
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center gap-8"
-                  >
-                     <div className="w-40 h-40 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 shadow-inner border border-stone-100">
-                        <SearchSlash size={80} strokeWidth={1.5} />
-                     </div>
-                     <div className="space-y-3">
-                        <h4 className="text-[40px] font-black text-sky-900 font-montserrat tracking-tight leading-none">Aucun paiement en attente</h4>
-                        <p className="text-2xl text-stone-400 font-medium font-montserrat tracking-tight opacity-80 uppercase leading-normal">Les nouvelles séances terminées apparaîtront ici.</p>
-                     </div>
-                  </motion.div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
-      
-      <BulkActionsBar 
-        count={selectionCount} 
-        onClear={clearSelection}
-        primaryAction={{
-          label: "Confirmer Paiements",
-          icon: Check,
-          onClick: handleBulkPay
-        }}
-        showDelete={false}
+      {/* Advanced Search (Always visible to select level) */}
+      <AdvancedSearch 
+        selectedLevel={selectedLevel} 
+        onLevelChange={setSelectedLevel} 
       />
-    </>
+
+      <AnimatePresence mode="wait">
+        {!selectedLevel ? (
+          <motion.div
+            key="initial-state"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-white rounded-2xl border-2 border-dashed border-sky-900/10 p-24 flex flex-col items-center justify-center text-center gap-6 shadow-sm"
+          >
+            <div className="w-24 h-24 bg-sky-900/5 rounded-full flex items-center justify-center text-sky-900 mb-2">
+              <BookOpen size={48} strokeWidth={1.5} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-3xl font-bold text-sky-900 font-montserrat tracking-tight">Sélectionner un niveau</h3>
+              <p className="text-xl text-stone-400 font-medium font-montserrat mx-auto">
+                Veuillez sélectionner le niveau d'enseignement pour afficher les données de paiement et les statistiques.
+              </p>
+            </div>
+          </motion.div>
+        ) : selectedLevel === 'secondaire' ? (
+          <motion.div
+            key="secondaire-content"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-10"
+          >
+            <PaymentStatsCards 
+              montantTotal={montantTotal}
+              montantDu={montantDu}
+              tdTermines={tdTermines}
+              tdPayes={tdPayes}
+              isLoading={isLoading}
+            />
+            <MatrixPaymentTable />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="primaire-placeholder"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl border border-black/5 p-24 flex flex-col items-center justify-center text-center gap-6"
+          >
+            <div className="w-20 h-20 bg-amber-400/10 rounded-full flex items-center justify-center text-amber-500 mb-2">
+              <ShieldAlert size={40} strokeWidth={1.5} />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-amber-700 font-montserrat tracking-tight">Gestion Primaire</h3>
+              <p className="text-xl text-stone-400 font-medium font-montserrat">
+                Le module de gestion des paiements pour le niveau primaire est en cours de développement.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
