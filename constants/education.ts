@@ -6,6 +6,11 @@ export const SUBJECTS_BY_CLASS: Record<string, string[]> = {
   'Tle': ['Français', 'Anglais', 'Math', 'SVT', 'Hist-Geo', 'Physique', 'Chimie', 'Philo']
 };
 
+export const SECONDARY_SUBJECTS = Array.from(new Set([
+  ...SUBJECTS_BY_CLASS['3ème'],
+  ...SUBJECTS_BY_CLASS['Tle']
+])).sort();
+
 export const SCHOOLS = [
   'SURU LERE', 'AKPAKPA CENTRE', 'SEGBEYA', 'GBEGAMEY', 'L\'OCEAN', 
   'FIYEGNON', 'LITTORAL', 'LES PYLÖNES', 'LES PYRAMIDES', 'ENTENTE'

@@ -9,21 +9,27 @@ import MatrixPaymentTable from '@/components/dashboard/comptable/MatrixPaymentTa
 import { transferService } from '@/services/transfer.service';
 import { Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
+import { User } from '@/types/user.types';
+import { SCHOOLS } from '@/constants/education';
 
 export default function AccountantPaymentsPage() {
   const [selectedLevel, setSelectedLevel] = useState<string>('');
+  const [selectedSchool, setSelectedSchool] = useState<string>(SCHOOLS[0]);
   const [allTDs, setAllTDs] = useState<TD[]>([]);
+  const [teachers, setTeachers] = useState<User[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      const [tdsRes, paymentsRes] = await Promise.all([
+      const [tdsRes, paymentsRes, teachersRes] = await Promise.all([
         fetch('/api/tds', { cache: 'no-store' }).then(r => r.json()),
         fetch('/api/payments', { cache: 'no-store' }).then(r => r.json()),
+        fetch('/api/teachers', { cache: 'no-store' }).then(r => r.json()),
       ]);
       setAllTDs(tdsRes as TD[]);
       setPayments(paymentsRes as Payment[]);
+      setTeachers(teachersRes as User[]);
     } catch (error) {
       console.error('Error fetching accountant data:', error);
     } finally {
@@ -69,7 +75,9 @@ export default function AccountantPaymentsPage() {
       {/* Advanced Search (Always visible to select level) */}
       <AdvancedSearch 
         selectedLevel={selectedLevel} 
-        onLevelChange={setSelectedLevel} 
+        onLevelChange={setSelectedLevel}
+        selectedSchool={selectedSchool}
+        onSchoolChange={setSelectedSchool}
       />
 
       <AnimatePresence mode="wait">
@@ -105,7 +113,11 @@ export default function AccountantPaymentsPage() {
               tdPayes={tdPayes}
               isLoading={isLoading}
             />
-            <MatrixPaymentTable />
+            <MatrixPaymentTable 
+              selectedSchool={selectedSchool} 
+              teachers={teachers} 
+              tds={allTDs} 
+            />
           </motion.div>
         ) : (
           <motion.div

@@ -15,8 +15,9 @@ export interface BaseAccount {
 export interface Teacher extends BaseAccount {
   role: 'enseignant';
   subject: string;
-  className: string;
+  className?: string;
   niveau: 'primaire' | 'secondaire';
+  genre?: 'M' | 'F';
   school: string;
   birthDate?: string;
   nationality?: string;

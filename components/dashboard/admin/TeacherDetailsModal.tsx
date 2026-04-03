@@ -99,34 +99,60 @@ export default function TeacherDetailsModal({ isOpen, onClose, teacher, onStatus
               <div className="px-10 pb-6 space-y-6">
                 {/* Personal Info */}
                 <SectionCard title="Informations personnelles">
-                  <InfoRow label="Nom :" value={teacher.name} />
-                  <InfoRow label="Email :" value={teacher.email} />
-                  <InfoRow label="Téléphone :" value={teacher.phone ?? '-'} />
-                  <InfoRow label="Date de naissance :" value={teacher.birthDate ?? '-'} />
-                  <InfoRow label="Nationalité :" value={teacher.nationality ?? '-'} />
-                  <InfoRow label="Localisation :" value={teacher.location ?? '-'} divider={false} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                    <div>
+                      <InfoRow label="Nom :" value={teacher.name} />
+                      <InfoRow label="Email :" value={teacher.email} />
+                      <InfoRow label="Téléphone :" value={teacher.phone ?? '-'} />
+                      <InfoRow label="Genre :" value={teacher.genre === 'M' ? 'Masculin' : teacher.genre === 'F' ? 'Féminin' : '-'} divider={false} />
+                    </div>
+                    <div>
+                      <InfoRow label="ID Unique :" value={teacher.id} />
+                      <InfoRow label="Nationalité :" value={teacher.nationality ?? '-'} />
+                      <InfoRow label="Date de naissance :" value={teacher.birthDate ?? '-'} />
+                      <InfoRow label="Date d'inscription :" value={new Date(teacher.createdAt).toLocaleDateString('fr-FR')} divider={false} />
+                    </div>
+                  </div>
                 </SectionCard>
 
                 {/* Pedagogical Info */}
                 <SectionCard title="Informations pédagogiques">
-                  <InfoRow label="Etablissement :" value={teacher.school} />
-                  <InfoRow label="Classe :" value={teacher.className} />
-                  <InfoRow label="Matière :" value={teacher.subject} divider={false} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                    <div>
+                      <InfoRow label="Niveau :" value={teacher.niveau.charAt(0).toUpperCase() + teacher.niveau.slice(1)} />
+                      <InfoRow label="Etablissement :" value={teacher.school} divider={false} />
+                    </div>
+                    <div>
+                      {teacher.niveau === 'primaire' && (
+                        <InfoRow label="Classe :" value={teacher.className ?? '-'} />
+                      )}
+                      <InfoRow label="Matière :" value={teacher.subject} divider={false} />
+                    </div>
+                  </div>
                 </SectionCard>
 
                 {/* Banking Info */}
-                <SectionCard title="Informations bancaires">
-                  <InfoRow label="Numéro bancaire :" value={teacher.bankAccount ?? '-'} />
-                  <InfoRow label="Numéro IFU :" value={teacher.ifu ?? '-'} />
-                  <InfoRow label="Banque :" value={teacher.bankName ?? '-'} divider={false} />
+                <SectionCard title="Informations financières">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                    <div>
+                      <InfoRow label="Numéro IFU :" value={teacher.ifu ?? '-'} />
+                      <InfoRow label="RIB / Compte :" value={teacher.bankAccount ?? '-'} divider={false} />
+                    </div>
+                    <div>
+                      <InfoRow label="Banque :" value={teacher.bankName ?? '-'} />
+                      <InfoRow label="Dernier Salaire :" value="0 F (N/A)" divider={false} />
+                    </div>
+                  </div>
                 </SectionCard>
 
                 {/* Status */}
-                <SectionCard title="Statut du compte">
+                <SectionCard title="Sûreté & Accès">
                   <div className="flex items-center justify-between py-3">
-                    <span className="text-neutral-400 text-lg font-semibold font-montserrat">Statut :</span>
-                    <span className="text-sky-900 text-lg font-semibold font-montserrat text-right">
-                      {teacher.status.charAt(0).toUpperCase() + teacher.status.slice(1)}
+                    <span className="text-neutral-400 text-lg font-semibold font-montserrat">Statut du compte :</span>
+                    <span className={`text-lg font-bold font-montserrat px-4 py-1 rounded-full ${
+                      teacher.status === 'actif' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {teacher.status.toUpperCase()}
                     </span>
                   </div>
                 </SectionCard>

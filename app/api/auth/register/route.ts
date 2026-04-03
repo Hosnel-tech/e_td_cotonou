@@ -19,10 +19,15 @@ export async function POST(req: Request) {
       role: 'enseignant',
       status: 'en attente',
       phone: data.phone,
+      genre: data.genre,
+      birthDate: data.birthDate,
+      nationality: data.nationality,
       subject: data.matiere,
       className: data.classe,
       niveau: data.niveau || 'secondaire',
       school: data.etablissement,
+      ifu: data.ifu,
+      bankAccount: data.bankNumber,
       createdAt: new Date().toISOString(),
     };
 

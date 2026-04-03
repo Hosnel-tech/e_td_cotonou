@@ -35,14 +35,20 @@ const Dropdown = ({ options, placeholder, value, onChange }: DropdownProps) => {
 interface AdvancedSearchProps {
   onLevelChange: (level: string) => void;
   selectedLevel: string;
+  selectedSchool: string;
+  onSchoolChange: (school: string) => void;
 }
 
-export default function AdvancedSearch({ onLevelChange, selectedLevel }: AdvancedSearchProps) {
+export default function AdvancedSearch({ 
+  onLevelChange, 
+  selectedLevel,
+  selectedSchool,
+  onSchoolChange 
+}: AdvancedSearchProps) {
   const [bank, setBank] = useState('');
-  const [school, setSchool] = useState('');
   const [search, setSearch] = useState('');
 
-  const BANKS = ["BOA", "BIIC", "NSIA", "ECOBANK"];
+  const BANKS = ["BOA", "BIIC", "NSIA", "UBA", "BGFI", "ECOBANK", "BCEAO"];
   const LEVELS = ["primaire", "secondaire"];
 
   return (
@@ -96,11 +102,11 @@ export default function AdvancedSearch({ onLevelChange, selectedLevel }: Advance
           <Dropdown 
             placeholder="Établissement" 
             options={[...SCHOOLS]} 
-            value={school} 
-            onChange={setSchool} 
+            value={selectedSchool} 
+            onChange={onSchoolChange} 
           />
           
-          <div className="flex flex-1 gap-6">
+          {/* <div className="flex flex-1 gap-6">
             <div className="relative flex-1 group">
               <input type="date" className="w-full h-14 bg-white rounded-lg border border-stone-200 px-6 text-lg font-medium text-black outline-none shadow-sm focus:border-sky-900 transition-all font-montserrat" />
               <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
@@ -109,7 +115,7 @@ export default function AdvancedSearch({ onLevelChange, selectedLevel }: Advance
               <input type="date" className="w-full h-14 bg-white rounded-lg border border-stone-200 px-6 text-lg font-medium text-black outline-none shadow-sm focus:border-sky-900 transition-all font-montserrat" />
               <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </motion.section>

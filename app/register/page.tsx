@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, User, BookOpen, CreditCard, ChevronDown, Calendar, Check, Loader2 } from 'lucide-react';
 import { authService } from '@/services/auth.service';
-import { CLASSES, SUBJECTS_BY_CLASS, SCHOOLS } from '@/constants/education';
+import { CLASSES, SUBJECTS_BY_CLASS, SECONDARY_SUBJECTS, SCHOOLS } from '@/constants/education';
 
 type Step = 1 | 2 | 3;
 
@@ -23,6 +23,7 @@ export default function RegisterPage() {
     phone: '',
     birthDate: '',
     nationality: 'Béninois',
+    niveau: '', // 'primaire' or 'secondaire'
     classe: '',
     matiere: '',
     etablissement: '',
@@ -52,7 +53,12 @@ export default function RegisterPage() {
     const { name, value } = e.target;
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
-      // Reset matiere if classe changes
+      
+      // Reset logic
+      if (name === 'niveau') {
+        newData.classe = value === 'primaire' ? 'CM2' : '';
+        newData.matiere = '';
+      }
       if (name === 'classe') {
         newData.matiere = '';
       }
@@ -213,28 +219,51 @@ export default function RegisterPage() {
                 className="space-y-8"
               >
                 <div className="space-y-3">
-                  <label className="text-xl font-semibold text-black font-montserrat">Classe <span className="text-red-600">*</span></label>
+                  <label className="text-xl font-semibold text-black font-montserrat">Niveau d'enseignement <span className="text-red-600">*</span></label>
                   <div className="relative">
-                    <select name="classe" value={formData.classe} onChange={handleInputChange} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.classe ? 'text-black' : 'text-stone-400'}`}>
-                      <option value="" disabled className="text-stone-400">Sélectionner votre classe</option>
-                      {CLASSES.map((c) => (
-                        <option key={c} value={c} className="text-black">{c}</option>
-                      ))}
+                    <select name="niveau" value={formData.niveau} onChange={handleInputChange} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.niveau ? 'text-black' : 'text-stone-400'}`}>
+                      <option value="" disabled className="text-stone-400">Sélectionner votre niveau</option>
+                      <option value="primaire" className="text-black">Primaire (CM2)</option>
+                      <option value="secondaire" className="text-black">Secondaire (Colleges / Lycées)</option>
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>
                 </div>
 
+                {formData.niveau === 'primaire' && (
+                  <div className="space-y-3">
+                    <label className="text-xl font-semibold text-black font-montserrat">Classe <span className="text-red-600">*</span></label>
+                    <div className="relative opacity-70">
+                      <select name="classe" value={formData.classe} disabled className="w-full h-16 px-6 rounded-lg border border-stone-200 bg-stone-50 font-montserrat text-lg outline-none appearance-none font-medium text-black cursor-not-allowed">
+                        <option value="CM2">CM2</option>
+                      </select>
+                      <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <label className="text-xl font-semibold text-black font-montserrat">Matière <span className="text-red-600">*</span></label>
                   <div className="relative">
-                    <select name="matiere" value={formData.matiere} onChange={handleInputChange} disabled={!formData.classe} className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.matiere ? 'text-black' : 'text-stone-400'} disabled:opacity-50 disabled:bg-stone-50`}>
+                    <select 
+                      name="matiere" 
+                      value={formData.matiere} 
+                      onChange={handleInputChange} 
+                      disabled={!formData.niveau} 
+                      className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.matiere ? 'text-black' : 'text-stone-400'} disabled:opacity-50 disabled:bg-stone-50`}
+                    >
                       <option value="" disabled className="text-stone-400">
-                        {formData.classe ? 'Sélectionner votre matière' : 'Sélectionnez d’abord une classe'}
+                        {formData.niveau ? 'Sélectionner votre matière' : 'Sélectionnez d’abord un niveau'}
                       </option>
-                      {formData.classe && SUBJECTS_BY_CLASS[formData.classe]?.map((m) => (
-                        <option key={m} value={m} className="text-black">{m}</option>
-                      ))}
+                      {formData.niveau === 'primaire' ? (
+                        SUBJECTS_BY_CLASS['CM2']?.map((m) => (
+                           <option key={m} value={m} className="text-black">{m}</option>
+                        ))
+                      ) : (
+                        SECONDARY_SUBJECTS.map((m) => (
+                          <option key={m} value={m} className="text-black">{m}</option>
+                        ))
+                      )}
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>

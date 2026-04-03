@@ -31,6 +31,7 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
   const [formData, setFormData] = useState({
     name: '',
     subject: '',
+    classe: '', // Added for flexible class selection
     startTime: '',
     endTime: '',
     date: '',
@@ -43,15 +44,24 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
       const user = await authService.getCurrentUser();
       if (user && user.role === 'enseignant') {
         setCurrentUser(user);
-        const className = user.className || 'Tle'; // Default to Tle if not set
-        setUserClass(className);
-        const subjects = SUBJECTS_BY_CLASS[className] || [];
+        
+        // Logic for class and subjects
+        let initialClass = '';
+        if (user.niveau === 'primaire') {
+          initialClass = 'CM2';
+        } else {
+          initialClass = '3ème'; // Default selection for secondary
+        }
+        
+        setUserClass(initialClass);
+        const subjects = SUBJECTS_BY_CLASS[initialClass] || [];
         setAvailableSubjects(subjects);
         
-        // Default the form subject if it's currently empty
-        if (!formData.subject && subjects.length > 0) {
-          setFormData(prev => ({ ...prev, subject: subjects[0] }));
-        }
+        setFormData(prev => ({ 
+          ...prev, 
+          classe: initialClass,
+          subject: subjects[0] || '' 
+        }));
       }
     };
 
@@ -83,7 +93,18 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      
+      // Update subjects if class changes (only for secondary)
+      if (name === 'classe') {
+        const subjects = SUBJECTS_BY_CLASS[value] || [];
+        setAvailableSubjects(subjects);
+        newData.subject = subjects[0] || '';
+      }
+      
+      return newData;
+    });
   };
 
   const handleFileClick = () => {
@@ -114,8 +135,8 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
     try {
       await tdService.createTD({
         subject: formData.subject,
-        classe: userClass, // Use the teacher's assigned class
-        niveau: userClass === 'CM2' ? 'primaire' : 'secondaire', // Automatic mapping
+        classe: formData.classe, 
+        niveau: formData.classe === 'CM2' ? 'primaire' : 'secondaire', 
         date: formData.date,
         time: formData.startTime,
         duration: formData.duration,
@@ -131,6 +152,7 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
       setFormData({
         name: '',
         subject: availableSubjects[0] || '',
+        classe: currentUser?.niveau === 'primaire' ? 'CM2' : '3ème',
         startTime: '',
         endTime: '',
         date: '',
@@ -193,10 +215,33 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
                   />
                 </div>
 
+                {/* Class selection (visible for Secondary only) */}
+                {currentUser?.niveau === 'secondaire' && (
+                  <div className="space-y-3">
+                    <label className="block text-base font-semibold font-montserrat text-black">
+                      Niveau de classe <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative group">
+                      <select 
+                        name="classe"
+                        value={formData.classe}
+                        onChange={handleChange}
+                        className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black appearance-none transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)]"
+                      >
+                        <option value="3ème">3ème</option>
+                        <option value="Tle">Tle</option>
+                      </select>
+                      <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
+                    </div>
+                  </div>
+                )}
+
                 {/* Subject */}
                 <div className="space-y-3">
                   <label className="block text-base font-semibold font-montserrat text-black">
-                    Matière <span className="text-red-600 font-normal opacity-50 ml-1">(Classe : {userClass})</span> <span className="text-red-600">*</span>
+                    Matière <span className="text-red-600 font-normal opacity-50 ml-1">
+                      (Actuel : {formData.classe || 'Chargement...'})
+                    </span> <span className="text-red-600">*</span>
                   </label>
                   <div className="relative group">
                     <select 
@@ -206,13 +251,9 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
                       disabled={availableSubjects.length === 0}
                       className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black appearance-none transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)] disabled:bg-gray-50 disabled:opacity-50"
                     >
-                      {availableSubjects.length === 0 ? (
-                        <option value="">Chargement...</option>
-                      ) : (
-                        availableSubjects.map(subject => (
-                          <option key={subject} value={subject}>{subject}</option>
-                        ))
-                      )}
+                      {availableSubjects.map(subject => (
+                        <option key={subject} value={subject}>{subject}</option>
+                      ))}
                     </select>
                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
                   </div>

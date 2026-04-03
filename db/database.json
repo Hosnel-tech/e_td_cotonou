@@ -25,10 +25,14 @@
       "role": "enseignant",
       "status": "actif",
       "phone": "0197756734",
+      "genre": "M",
+      "birthDate": "1985-06-12",
+      "nationality": "Béninois",
       "subject": "SVT",
-      "className": "3ème",
       "niveau": "secondaire",
       "school": "GBEGAMEY",
+      "ifu": "1234567890123",
+      "bankAccount": "BJ06201001001234567890",
       "createdAt": "2026-03-27T09:51:11.343Z"
     },
     {
@@ -38,10 +42,15 @@
       "role": "enseignant",
       "status": "actif",
       "phone": "0168236715",
+      "genre": "M",
+      "birthDate": "1990-11-20",
+      "nationality": "Béninois",
       "subject": "EST",
       "className": "CM2",
-      "niveau": "secondaire",
+      "niveau": "primaire",
       "school": "FIYEGNON",
+      "ifu": "9876543210987",
+      "bankAccount": "BJ06100100100987654321",
       "createdAt": "2026-03-30T09:27:25.750Z"
     }
   ],
@@ -59,6 +68,30 @@
       "epreuveUrl": "blob:http://localhost:3000/f9354827-0007-4519-8b9f-97081fd12cae",
       "id": "9hldfh",
       "createdAt": "2026-03-30T10:56:55.947Z"
+    },
+    {
+      "id": "td_paul_1",
+      "teacher": "Paul Gettry",
+      "subject": "SVT",
+      "classe": "3ème",
+      "niveau": "secondaire",
+      "date": "2024-04-27",
+      "time": "08:00",
+      "duration": "4h",
+      "status": "terminé",
+      "createdAt": "2026-04-03T10:00:00.000Z"
+    },
+    {
+      "id": "td_paul_2",
+      "teacher": "Paul Gettry",
+      "subject": "SVT",
+      "classe": "Tle",
+      "niveau": "secondaire",
+      "date": "2024-04-28",
+      "time": "10:00",
+      "duration": "2h 30min",
+      "status": "terminé",
+      "createdAt": "2026-04-03T10:05:00.000Z"
     }
   ],
   "payments": [
@@ -208,7 +241,7 @@
     "phone": "0168236715",
     "subject": "EST",
     "className": "CM2",
-    "niveau": "secondaire",
+    "niveau": "primaire",
     "school": "FIYEGNON",
     "createdAt": "2026-03-30T09:27:25.750Z"
   }

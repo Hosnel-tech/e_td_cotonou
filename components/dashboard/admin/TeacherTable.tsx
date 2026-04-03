@@ -82,7 +82,9 @@ export default function TeacherTable({
                   </td>
                   <td className="px-6 py-4 text-black text-xl font-normal">{teacher.name}</td>
                   <td className="px-6 py-4 text-black text-xl font-medium">{teacher.subject}</td>
-                  <td className="px-6 py-4 text-black text-xl font-normal text-center">{teacher.className}</td>
+                  <td className="px-6 py-4 text-black text-xl font-normal text-center italic opacity-60">
+                    {teacher.niveau === 'secondaire' ? '—' : teacher.className}
+                  </td>
                   <td className="px-6 py-4 text-center">
                     <span className={`px-4 py-1.5 rounded-full text-[12px] font-bold uppercase ${
                       teacher.niveau === 'primaire' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
