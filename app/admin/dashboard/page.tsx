@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { ClipboardList, Users, Wallet, CircleDollarSign, CheckCircle2, BadgeCheck, Timer, Hourglass } from 'lucide-react';
-import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import AdminHero from '@/components/dashboard/admin/AdminHero';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import ActivitySection from '@/components/dashboard/admin/ActivitySection';
@@ -64,12 +63,7 @@ export default function AdminDashboardPage() {
   const tdPayes     = tds.filter(t => t.status === 'payé').length;
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-montserrat">
-      {/* Permanent Admin Sidebar */}
-      <AdminSidebar />
-
-      {/* Main Content Area */}
-      <main className="flex-1 ml-72 p-10 space-y-10">
+    <div className="p-10 space-y-10">
         
         {/* Header Section */}
         <header className="space-y-2">
@@ -184,7 +178,6 @@ export default function AdminDashboardPage() {
           <AdminTDTable tds={tds} limit={4} />
         </div>
 
-      </main>
     </div>
   );
 }

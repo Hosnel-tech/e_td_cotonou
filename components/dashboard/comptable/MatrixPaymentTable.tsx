@@ -21,8 +21,6 @@ interface TeacherPayment {
   totalAmount: number;
 }
 
-const DATES = ['27/04/2024', '28/04/2024', '29/04/2024', '30/04/2024', '01/05/2024', '02/05/2024'];
-
 const durationToHours = (duration: string): number => {
   if (!duration) return 0;
   // Handle "1.5h" or "1h 30min" or "45min"
@@ -45,9 +43,12 @@ interface MatrixPaymentTableProps {
   selectedSchool: string;
   teachers: User[];
   tds: TD[];
+  dates?: string[];
 }
 
-export default function MatrixPaymentTable({ selectedSchool, teachers, tds }: MatrixPaymentTableProps) {
+export default function MatrixPaymentTable({ selectedSchool, teachers, tds, dates = [] }: MatrixPaymentTableProps) {
+  // Senior Pro: Strict enforcement of the 4-date limit for layout stability
+  const displayDates = dates.slice(0, 4);
   // 1. Filter specifically for TEACHERS by establishment
   const schoolTeachers = (teachers.filter(t => t.role === 'enseignant' && (t as Teacher).school === selectedSchool) as Teacher[]);
 
@@ -112,7 +113,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds }: Ma
             {/* Level 1 Header */}
             <tr className="bg-white">
               <th rowSpan={3} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat w-[280px]">NOM ET PRENOMS</th>
-              <th colSpan={14} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat">NOMBRE D'HEURES</th>
+              <th colSpan={displayDates.length * 2 + 2} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat">NOMBRE D'HEURES</th>
               <th rowSpan={3} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat">MATIERE</th>
               <th colSpan={2} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat w-[180px]">TAUX HORAIRE</th>
               <th rowSpan={3} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat w-[150px]">MONTANT</th>
@@ -120,7 +121,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds }: Ma
             
             {/* Level 2 Header: Dates */}
             <tr className="bg-white">
-              {DATES.map(date => (
+              {displayDates.map(date => (
                 <th key={date} colSpan={2} className="border border-black p-2 text-center text-black text-xs font-medium font-montserrat">{date}</th>
               ))}
               <th colSpan={2} className="border border-black p-2 text-center text-sky-900 text-sm font-bold font-montserrat bg-sky-50 uppercase tracking-tighter">HEURES</th>
@@ -128,7 +129,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds }: Ma
 
             {/* Level 3 Header: Sub-classes */}
             <tr className="bg-zinc-300">
-              {DATES.flatMap(date => [
+              {displayDates.flatMap((date: string) => [
                 <th key={`${date}-3e`} className="border border-black p-2 text-center text-black text-[9.7px] font-medium font-montserrat">3 ème</th>,
                 <th key={`${date}-Tle`} className="border border-black p-2 text-center text-black text-[9.7px] font-medium font-montserrat">Tle</th>
               ])}
@@ -140,7 +141,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds }: Ma
           <tbody>
             {/* Group Header: Establishment */}
             <tr className="bg-zinc-100">
-              <td colSpan={19} className="border border-black p-4 text-center text-black text-2xl font-bold font-montserrat uppercase tracking-widest">{selectedSchool}</td>
+              <td colSpan={displayDates.length * 2 + 7} className="border border-black p-4 text-center text-black text-2xl font-bold font-montserrat uppercase tracking-widest">{selectedSchool}</td>
             </tr>
 
             {tableData.map((teacher, idx) => (
@@ -148,7 +149,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds }: Ma
                 <td className="border border-black p-4 text-black text-lg font-semibold font-montserrat whitespace-nowrap">{teacher.name}</td>
                 
                 {/* Hours Matrix */}
-                {DATES.flatMap(date => {
+                {displayDates.flatMap((date: string) => {
                     const e3 = teacher.entries.find(e => e.date === date && e.classe === '3ème')?.hours ?? 0;
                     const eTle = teacher.entries.find(e => e.date === date && e.classe === 'Tle')?.hours ?? 0;
                     return [

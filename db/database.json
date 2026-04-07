@@ -232,6 +232,28 @@
     }
   ],
   "upcomingTDs": [],
+  "schedules": [
+    {
+      "id": "cc0q7w",
+      "date": "2026-04-15",
+      "createdAt": "2026-04-07T08:54:31.909Z"
+    },
+    {
+      "id": "g0ryir",
+      "date": "2026-04-22",
+      "createdAt": "2026-04-07T09:35:14.363Z"
+    },
+    {
+      "id": "r28be",
+      "date": "2026-04-24",
+      "createdAt": "2026-04-07T10:13:22.970Z"
+    },
+    {
+      "id": "9ngcra",
+      "date": "2026-04-18",
+      "createdAt": "2026-04-07T10:13:30.596Z"
+    }
+  ],
   "currentUser": {
     "id": "y3wfjg",
     "name": "Jean Paul",

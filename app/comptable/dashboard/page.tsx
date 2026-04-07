@@ -4,14 +4,18 @@ import { motion } from 'framer-motion';
 import { 
   Plus, Search, Filter, Download, 
   Wallet, CircleDollarSign, CheckCircle2, BadgeCheck,
-  FileText, ArrowUpRight, Check
+  FileText, ArrowUpRight, Check, Calendar
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import PendingPaymentsTable from '@/components/dashboard/comptable/PendingPaymentsTable';
 import { transferService } from '@/services/transfer.service';
+import { scheduleService } from '@/services/schedule.service';
 import { Transfer, Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
+import { Schedule } from '@/types/schedule.types';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 // Helper: parse French-formatted amount strings (e.g. "15.000" → 15000)
 const parseAmount = (raw: string) =>
@@ -22,21 +26,30 @@ export default function AccountantDashboard() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [allTDs, setAllTDs] = useState<TD[]>([]);
+  const [recentSchedules, setRecentSchedules] = useState<Schedule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      const [tdsRes, transData, paymentsRes] = await Promise.all([
+      const [tdsRes, transData, paymentsRes, schedulesData] = await Promise.all([
         fetch('/api/tds', { cache: 'no-store' }).then(r => r.json()),
         transferService.getTransfers(),
         fetch('/api/payments', { cache: 'no-store' }).then(r => r.json()),
+        scheduleService.getSchedules(),
       ]);
       const tdList = tdsRes as TD[];
       const payList = paymentsRes as Payment[];
+      
       setAllTDs(tdList);
       setTerminedTDs(tdList.filter(t => t.status === 'terminé'));
       setTransfers(transData);
       setPayments(payList);
+      
+      // Get the 4 most recent schedules
+      const sortedSchedules = (schedulesData as Schedule[]).sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      ).slice(0, 4);
+      setRecentSchedules(sortedSchedules);
     } catch (error) {
       console.error('Error fetching accountant data:', error);
     } finally {
@@ -61,14 +74,6 @@ export default function AccountantDashboard() {
 
 
   // ── Stats calculations ───────────────────────────────────────────────────────
-  //
-  // montantTotal : somme de TOUS les paiements ("En attente" + "Payé").
-  //   → Représente le montant cumulé de tous les TDs facturés (terminés + payés).
-  //   → Les TDs "en cours" ne génèrent pas encore de paiement, donc non inclus.
-  //
-  // montantDu : uniquement les paiements "En attente".
-  //   → Ce sont les TDs terminés qui n'ont pas encore été payés par l'administration.
-  //
   const montantTotal = payments.reduce((sum, p) => sum + parseAmount(p.amount), 0);
   const montantDu    = payments
     .filter(p => p.status === 'En attente')
@@ -77,7 +82,7 @@ export default function AccountantDashboard() {
   const tdPayes    = allTDs.filter(t => t.status === 'payé').length;
 
   return (
-    <>
+    <div className="space-y-10">
       {/* Header */}
       <header className="flex justify-between items-start">
         <div className="space-y-1">
@@ -94,10 +99,6 @@ export default function AccountantDashboard() {
               className="bg-transparent outline-none text-base font-semibold placeholder:text-neutral-400 text-black w-full"
             />
           </div>
-          {/* <button className="h-14 bg-sky-900 text-white px-6 rounded-lg font-semibold flex items-center gap-2 transition-all hover:bg-sky-950 shadow-lg shadow-sky-900/20 active:scale-95">
-            <Download size={20} />
-            Exporter (.CSV)
-          </button> */}
         </div>
       </header>
 
@@ -171,10 +172,6 @@ export default function AccountantDashboard() {
         >
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-xl font-bold text-black font-montserrat tracking-tight">Trésorerie récente</h2>
-            {/* <button className="text-sky-900 font-semibold flex items-center gap-2 hover:underline">
-              Voir tout
-              <ArrowUpRight size={18} />
-            </button> */}
           </div>
           <div className="space-y-6">
             {!isLoading && transfers.length === 0 ? (
@@ -205,12 +202,59 @@ export default function AccountantDashboard() {
         </motion.div>
       </div>
 
+      {/* Admin Schedules Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+        className="bg-white rounded-lg p-8 shadow-sm border border-stone-100 space-y-8"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center text-sky-900 shrink-0">
+              <Calendar size={20} />
+            </div>
+            <h2 className="text-xl font-bold text-black font-montserrat tracking-tight">Calendrier des Séances (Admin)</h2>
+          </div>
+          <span className="px-4 py-1.5 bg-sky-900/5 text-sky-900 rounded-full text-sm font-bold font-montserrat uppercase tracking-wider">
+            4 derniers
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {!isLoading && recentSchedules.length === 0 ? (
+            <div className="col-span-full py-12 flex flex-col items-center justify-center text-gray-400 gap-3 opacity-60">
+              <Calendar size={48} strokeWidth={1.5} />
+              <p className="text-lg font-medium font-montserrat">Aucune date renseignée par l'administration</p>
+            </div>
+          ) : (
+            recentSchedules.slice(0, 4).map((schedule) => (
+              <motion.div
+                key={schedule.id}
+                whileHover={{ scale: 1.02 }}
+                className="flex items-center gap-4 p-5 rounded-xl border border-stone-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all group"
+              >
+                <div className="w-14 h-14 rounded-xl bg-white shadow-sm flex flex-col items-center justify-center text-sky-900 group-hover:bg-sky-900 group-hover:text-white transition-colors">
+                  <span className="text-xs font-bold uppercase">{format(new Date(schedule.date), 'MMM', { locale: fr })}</span>
+                  <span className="text-2xl font-black leading-none">{format(new Date(schedule.date), 'dd')}</span>
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-black font-montserrat">
+                    {format(new Date(schedule.date), 'EEEE dd MMMM', { locale: fr })}
+                  </p>
+                  <p className="text-sm text-black/40 font-medium">Séance de TD programmée</p>
+                </div>
+                <ArrowUpRight size={20} className="text-black/20 group-hover:text-sky-900 transition-colors" />
+              </motion.div>
+            ))
+          )}
+        </div>
+      </motion.section>
+
       {/* Pending Payments Table */}
       <PendingPaymentsTable 
         tds={terminedTDs}
       />
-
-
-    </>
+    </div>
   );
 }

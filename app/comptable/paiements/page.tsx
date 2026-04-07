@@ -7,9 +7,11 @@ import PaymentStatsCards from '@/components/dashboard/comptable/PaymentStatsCard
 import AdvancedSearch from '@/components/dashboard/comptable/AdvancedSearch';
 import MatrixPaymentTable from '@/components/dashboard/comptable/MatrixPaymentTable';
 import { transferService } from '@/services/transfer.service';
+import { scheduleService } from '@/services/schedule.service';
 import { Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
 import { User } from '@/types/user.types';
+import { Schedule } from '@/types/schedule.types';
 import { SCHOOLS } from '@/constants/education';
 
 export default function AccountantPaymentsPage() {
@@ -18,18 +20,29 @@ export default function AccountantPaymentsPage() {
   const [allTDs, setAllTDs] = useState<TD[]>([]);
   const [teachers, setTeachers] = useState<User[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [adminDates, setAdminDates] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      const [tdsRes, paymentsRes, teachersRes] = await Promise.all([
+      const [tdsRes, paymentsRes, teachersRes, schedulesRes] = await Promise.all([
         fetch('/api/tds', { cache: 'no-store' }).then(r => r.json()),
         fetch('/api/payments', { cache: 'no-store' }).then(r => r.json()),
         fetch('/api/teachers', { cache: 'no-store' }).then(r => r.json()),
+        scheduleService.getSchedules(),
       ]);
       setAllTDs(tdsRes as TD[]);
       setPayments(paymentsRes as Payment[]);
       setTeachers(teachersRes as User[]);
+
+      // Process and set the 4 most recent admin dates formatted as DD/MM/YYYY
+      const formattedDates = (schedulesRes as Schedule[])
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 4)
+        .map(s => s.date.split('-').reverse().join('/')) // YYYY-MM-DD to DD/MM/YYYY
+        .reverse(); // Display oldest of the 4 on the left, newest on the right
+      
+      setAdminDates(formattedDates);
     } catch (error) {
       console.error('Error fetching accountant data:', error);
     } finally {
@@ -117,6 +130,7 @@ export default function AccountantPaymentsPage() {
               selectedSchool={selectedSchool} 
               teachers={teachers} 
               tds={allTDs} 
+              dates={adminDates}
             />
           </motion.div>
         ) : (

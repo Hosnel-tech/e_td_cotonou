@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useState, useEffect } from 'react';
-import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import { tdService } from '@/services/td.service';
 import { TD } from '@/types/td.types';
@@ -41,10 +40,7 @@ export default function AdminPaymentsPage() {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
-      <AdminSidebar />
-
-      <main className="flex-1 ml-72 p-10 space-y-10">
+    <div className="p-10 space-y-10">
         <header className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-sky-900">Paiements des TD</h1>
           <p className="text-xl font-normal text-gray-600">Suivez et validez les paiements des séances terminées</p>
@@ -151,7 +147,6 @@ export default function AdminPaymentsPage() {
              </motion.div>
            </AnimatePresence>
         </section>
-      </main>
     </div>
   );
 }

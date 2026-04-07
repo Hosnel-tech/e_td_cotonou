@@ -13,6 +13,8 @@ import { useConfirm } from '@/hooks/useConfirm';
 import { tdService } from '@/services/td.service';
 import { authService } from '@/services/auth.service';
 import { SUBJECTS_BY_CLASS } from '@/constants/education';
+import { scheduleService } from '@/services/schedule.service';
+import { Schedule } from '@/types/schedule.types';
 
 interface NewTDModalProps {
   isOpen: boolean;
@@ -37,6 +39,8 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
     date: '',
     duration: ''
   });
+  const [adminSchedules, setAdminSchedules] = useState<Schedule[]>([]);
+  const [isFetchingSchedules, setIsFetchingSchedules] = useState(false);
 
   // Fetch current user and class on mount
   useEffect(() => {
@@ -67,6 +71,29 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
 
     if (isOpen) {
       fetchUser();
+      
+      // Fetch the 4 latest admin schedules
+      const fetchSchedules = async () => {
+        setIsFetchingSchedules(true);
+        try {
+          const schedules = await scheduleService.getSchedules();
+          const sorted = [...schedules]
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .slice(0, 4);
+          
+          setAdminSchedules(sorted);
+          
+          // Auto-select the first (most recent) date if none selected
+          if (sorted.length > 0) {
+            setFormData(prev => ({ ...prev, date: sorted[0].date }));
+          }
+        } catch (err) {
+          console.error("Failed to fetch schedules:", err);
+        } finally {
+          setIsFetchingSchedules(false);
+        }
+      };
+      fetchSchedules();
     }
   }, [isOpen]);
 
@@ -310,22 +337,49 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
                   </div>
                 </div>
 
-                {/* Date */}
+                {/* Date Dropdown (Admin Schedules) */}
                 <div className="space-y-3">
                   <label className="block text-base font-semibold font-montserrat text-black">
-                    Date <span className="text-red-600">*</span>
+                    Date du TD <span className="text-red-600 font-normal opacity-50 ml-1">(Planifiées par l'Admin)</span> <span className="text-red-600">*</span>
                   </label>
-                  <div className="relative">
-                    <input 
-                      type="date" 
+                  <div className="relative group">
+                    <select 
                       name="date"
-                      min={new Date().toISOString().split('T')[0]}
                       value={formData.date}
                       onChange={handleChange}
-                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)] custom-date-input"
-                    />
-                    <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={20} />
+                      disabled={isFetchingSchedules || adminSchedules.length === 0}
+                      className="w-full h-14 px-6 bg-white rounded-lg border-[0.83px] border-sky-900 outline-none font-medium font-montserrat text-black appearance-none transition-shadow focus:shadow-[0px_0px_8px_rgba(0,75,112,0.2)] disabled:bg-gray-50 disabled:opacity-50"
+                    >
+                      {isFetchingSchedules ? (
+                        <option>Chargement des dates...</option>
+                      ) : adminSchedules.length > 0 ? (
+                        adminSchedules.map((s) => {
+                          // Format: "Lun. 14 Avr. 2026"
+                          const d = new Date(s.date);
+                          const formatted = d.toLocaleDateString('fr-FR', {
+                            weekday: 'short',
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          });
+                          return (
+                            <option key={s.id} value={s.date}>
+                              {formatted.charAt(0).toUpperCase() + formatted.slice(1)}
+                            </option>
+                          );
+                        })
+                      ) : (
+                        <option value="">Aucune date planifiée</option>
+                      )}
+                    </select>
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                      <Calendar size={20} className="text-black/40" />
+                      <ChevronDown size={20} className="text-black" />
+                    </div>
                   </div>
+                  {adminSchedules.length === 0 && !isFetchingSchedules && (
+                    <p className="text-xs text-red-500 font-medium italic mt-1">Contactez l'administration pour définir des dates.</p>
+                  )}
                 </div>
               </div>
 

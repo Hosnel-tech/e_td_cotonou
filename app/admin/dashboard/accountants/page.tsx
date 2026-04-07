@@ -5,7 +5,6 @@ import {
   Users, Search, ChevronDown, SearchSlash
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AccountantTable from '@/components/dashboard/admin/AccountantTable';
 import AccountantDetailsModal from '@/components/dashboard/admin/AccountantDetailsModal';
@@ -100,12 +99,7 @@ export default function AccountantsPage() {
 
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
-      {/* Permanent Admin Sidebar */}
-      <AdminSidebar />
-
-      {/* Main Content */}
-      <main className="flex-1 ml-72 p-10 space-y-10">
+    <div className="p-10 space-y-10">
         <header className="flex items-center justify-between">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tight">Gestion des Comptables</h1>
@@ -215,8 +209,6 @@ export default function AccountantsPage() {
           />
         </section>
         
-
-      </main>
 
       {/* Accountant Details Modal */}
       <AccountantDetailsModal 

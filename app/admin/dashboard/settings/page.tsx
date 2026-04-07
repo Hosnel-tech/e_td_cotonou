@@ -5,19 +5,13 @@ import { motion } from 'framer-motion';
 import { 
   User, 
   Lock, 
-  Mail, 
-  UserCircle 
 } from 'lucide-react';
-import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<'profil' | 'securite'>('profil');
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-montserrat">
-      <AdminSidebar />
-
-      <main className="flex-1 ml-72 p-10 space-y-10">
+    <div className="p-10 space-y-10">
         {/* Header */}
         <header className="space-y-1">
           <h1 className="text-3xl font-bold text-black font-montserrat">Paramètres</h1>
@@ -169,7 +163,6 @@ export default function AdminSettingsPage() {
             </motion.div>
           </section>
         </div>
-      </main>
     </div>
   );
 }

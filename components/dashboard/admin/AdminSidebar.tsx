@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   BookOpenCheck, 
@@ -11,11 +12,13 @@ import {
   Wallet, 
   Settings, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Calendar
 } from 'lucide-react';
 
 const navItems = [
   { name: 'Tableau de bord', href: '/admin/dashboard', icon: LayoutDashboard },
+  { name: 'Horaire', href: '/admin/dashboard/horaires', icon: Calendar },
   { name: 'Gestion des TD', href: '/admin/dashboard/td-management', icon: BookOpenCheck },
   { name: 'Enseignants', href: '/admin/dashboard/teachers', icon: Users },
   { name: 'Comptables', href: '/admin/dashboard/accountants', icon: Users },
@@ -25,6 +28,28 @@ const navItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Hydration safety: Return a placeholder or the background to avoid layout shift
+  if (!mounted) {
+    return (
+      <div className="w-72 h-screen bg-white shadow-[0px_0px_8.33px_0px_rgba(0,0,0,0.10)] flex flex-col fixed left-0 top-0 z-50">
+        <div className="p-8 flex items-center gap-4">
+          <div className="relative w-16 h-16 bg-gray-50 rounded-lg animate-pulse" />
+          <div className="h-6 w-32 bg-gray-50 rounded animate-pulse" />
+        </div>
+        <div className="flex-1 px-4 py-8 space-y-4">
+          {navItems.map((item, i) => (
+            <div key={i} className="h-12 bg-gray-50 rounded-md animate-pulse mx-2" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-72 h-screen bg-white shadow-[0px_0px_8.33px_0px_rgba(0,0,0,0.10)] flex flex-col fixed left-0 top-0 z-50">

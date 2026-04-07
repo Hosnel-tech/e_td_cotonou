@@ -12,6 +12,7 @@ export interface Database {
   transfers: any[];
   notifications: any[];
   upcomingTDs: any[];
+  schedules: any[];
   currentUser: User;
 }
 

@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import AdminSidebar from '@/components/dashboard/admin/AdminSidebar';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import TeacherTable from '@/components/dashboard/admin/TeacherTable';
 import { useSelection } from '@/hooks/useSelection';
@@ -117,12 +116,7 @@ function TeachersPageContent() {
 
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-montserrat text-black">
-      {/* Permanent Admin Sidebar */}
-      <AdminSidebar />
-
-      {/* Main Content */}
-      <main className="flex-1 ml-72 p-10 space-y-10">
+    <div className="p-10 space-y-10">
         <header className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Gestion des Enseignants</h1>
           <p className="text-xl font-normal text-gray-600">Gérez les comptes et les affectations des enseignants</p>
@@ -231,15 +225,13 @@ function TeachersPageContent() {
           onClear={clearSelection}
           onDelete={handleBulkDelete}
         />
-      </main>
 
-      {/* Teacher Details Modal */}
-      <TeacherDetailsModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        teacher={selectedTeacher}
-        onStatusUpdate={handleStatusUpdate}
-      />
+        <TeacherDetailsModal 
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          teacher={selectedTeacher}
+          onStatusUpdate={handleStatusUpdate}
+        />
     </div>
   );
 }
