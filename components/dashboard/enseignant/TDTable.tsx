@@ -154,7 +154,6 @@ export default function TDTable({
                           <span className={`px-4 py-1.5 rounded-[30px] inline-flex items-center justify-center text-xs font-semibold text-white w-fit whitespace-nowrap ${
                             td.status.toLowerCase() === 'en cours' ? 'bg-[#004B70]' : 
                             td.status.toLowerCase() === 'terminé' ? 'bg-[#0F673B]' :
-                            td.status.toLowerCase() === 'payé' ? 'bg-[#EE2E33]' :
                             'bg-[#EE2E33]'
                           }`}>
                             {td.status}

@@ -117,6 +117,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
               <th rowSpan={3} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat">MATIERE</th>
               <th colSpan={2} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat w-[180px]">TAUX HORAIRE</th>
               <th rowSpan={3} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat w-[150px]">MONTANT</th>
+              <th rowSpan={3} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat w-[130px]">ACTIONS</th>
             </tr>
             
             {/* Level 2 Header: Dates */}
@@ -125,6 +126,8 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
                 <th key={date} colSpan={2} className="border border-black p-2 text-center text-black text-xs font-medium font-montserrat">{date}</th>
               ))}
               <th colSpan={2} className="border border-black p-2 text-center text-sky-900 text-sm font-bold font-montserrat bg-sky-50 uppercase tracking-tighter">HEURES</th>
+              <th rowSpan={2} className="border border-black p-2 text-center text-black text-[14px] font-medium font-montserrat">3 ème</th>
+              <th rowSpan={2} className="border border-black p-2 text-center text-black text-[14px] font-medium font-montserrat">Tle</th>
             </tr>
 
             {/* Level 3 Header: Sub-classes */}
@@ -141,7 +144,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
           <tbody>
             {/* Group Header: Establishment */}
             <tr className="bg-zinc-100">
-              <td colSpan={displayDates.length * 2 + 7} className="border border-black p-4 text-center text-black text-2xl font-bold font-montserrat uppercase tracking-widest">{selectedSchool}</td>
+              <td colSpan={displayDates.length * 2 + 8} className="border border-black p-4 text-center text-black text-2xl font-bold font-montserrat uppercase tracking-widest">{selectedSchool}</td>
             </tr>
 
             {tableData.map((teacher, idx) => (
@@ -175,6 +178,16 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
                 
                 {/* Total */}
                 <td className="border border-black p-2 text-center text-black text-lg font-bold font-montserrat shadow-inner">{teacher.totalAmount.toLocaleString('fr-FR')} F</td>
+
+                {/* Actions */}
+                <td className="border border-black p-2 text-center">
+                  <button 
+                    onClick={() => alert(`Paiement de ${teacher.totalAmount.toLocaleString('fr-FR')} F pour ${teacher.name} initié.`)}
+                    className="w-full py-2.5 bg-green-800 hover:bg-green-900 text-white rounded-md text-sm font-bold font-montserrat transition-all active:scale-95 shadow-sm uppercase tracking-wider"
+                  >
+                    Payer
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

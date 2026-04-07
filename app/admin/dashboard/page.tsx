@@ -46,8 +46,8 @@ export default function AdminDashboardPage() {
 
   // ── Stats calculations ───────────────────────────────────────────────────────
   //
-  // montantTotal : somme de TOUS les paiements ("En attente" + "Payé").
-  //   → Représente le chiffre d'affaires total cumulé des TDs terminés + payés.
+  // montantTotal : somme de TOUS les paiements ("En attente" + "Payé" dans le système financier).
+  //   → Représente le chiffre d'affaires total cumulé des TDs validés.
   //   → Les TDs "en cours" ne sont pas encore facturés, donc sans montant trackable.
   //
   // montantDu : uniquement les paiements "En attente".
@@ -60,7 +60,6 @@ export default function AdminDashboardPage() {
   const tdEnAttente = tds.filter(t => t.status === 'en attente').length;
   const tdEnCours   = tds.filter(t => t.status === 'en cours').length;
   const tdTermines  = tds.filter(t => t.status === 'terminé').length;
-  const tdPayes     = tds.filter(t => t.status === 'payé').length;
 
   return (
     <div className="p-10 space-y-10">
@@ -155,14 +154,6 @@ export default function AdminDashboardPage() {
               variant="sky"
               trend={tdTermines > 0 ? "En attente paiement" : "Aucun"}
               staggerIndex={6}
-            />
-            <StatCard
-              label="TD payés"
-              value={isLoading ? "..." : tdPayes.toString()}
-              icon={BadgeCheck}
-              variant="red"
-              trend={tdPayes > 0 ? "Confirmés" : "Aucun"}
-              staggerIndex={7}
             />
           </section>
         </div>

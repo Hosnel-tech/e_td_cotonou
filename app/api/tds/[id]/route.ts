@@ -43,12 +43,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         serverNotifyRole('admin', 'TD Terminé', `${oldTD.teacher} a terminé son TD de ${oldTD.subject}.`, 'info');
         serverNotifyRole('comptable', 'TD à payer', `Un nouveau TD est prêt pour le paiement (${oldTD.subject}).`, 'info');
         break;
-      case 'payé': // Paid by Accountant
-        if (teacherId) {
-          serverNotify(teacherId, 'Paiement Reçu', `Votre TD de ${oldTD.subject} a été marqué comme payé.`, 'success', '/enseignant/dashboard/payments');
-        }
-        serverNotifyRole('admin', 'Paiement Effectué', `Le TD de ${oldTD.subject} (${oldTD.teacher}) a été payé.`, 'info');
-        break;
     }
   }
 

@@ -59,18 +59,6 @@ export default function AccountantDashboard() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const handleMarkAsPaid = async (tdId: string) => {
-    try {
-      await fetch(`/api/tds/${tdId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'payé' }),
-      });
-      await fetchData();
-    } catch (error) {
-      console.error('Error marking TD as paid:', error);
-    }
-  };
 
 
   // ── Stats calculations ───────────────────────────────────────────────────────
@@ -79,7 +67,6 @@ export default function AccountantDashboard() {
     .filter(p => p.status === 'En attente')
     .reduce((sum, p) => sum + parseAmount(p.amount), 0);
   const tdTermines = allTDs.filter(t => t.status === 'terminé').length;
-  const tdPayes    = allTDs.filter(t => t.status === 'payé').length;
 
   return (
     <div className="space-y-10">
@@ -128,14 +115,6 @@ export default function AccountantDashboard() {
           variant="sky"
           trend={tdTermines > 0 ? "En attente paiement" : "Aucun"}
           staggerIndex={2}
-        />
-        <StatCard
-          label="TD payés"
-          value={isLoading ? "..." : tdPayes.toString()}
-          icon={BadgeCheck}
-          variant="red"
-          trend={tdPayes > 0 ? "Confirmés" : "Aucun"}
-          staggerIndex={3}
         />
       </section>
 

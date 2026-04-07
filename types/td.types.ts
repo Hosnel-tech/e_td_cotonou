@@ -1,4 +1,4 @@
-export type TDStatus = 'en attente' | 'en cours' | 'terminé' | 'payé' | 'rejeté';
+export type TDStatus = 'en attente' | 'en cours' | 'terminé' | 'rejeté';
 
 export interface TD {
   id: string;

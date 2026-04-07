@@ -15,7 +15,6 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   'en cours':   { label: 'En cours',   color: 'text-sky-900'   },
   'terminé':    { label: 'Terminé',    color: 'text-green-800' },
   'en attente': { label: 'En attente', color: 'text-amber-500' },
-  'payé':       { label: 'Payé',       color: 'text-red-600'   },
   'rejeté':     { label: 'Rejeté',     color: 'text-red-800'   },
 };
 

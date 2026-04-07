@@ -62,7 +62,6 @@ export default function AccountantPaymentsPage() {
     .filter(p => p.status === 'En attente')
     .reduce((sum, p) => sum + parseAmount(p.amount), 0);
   const tdTermines = allTDs.filter(t => t.status === 'terminé').length;
-  const tdPayes    = allTDs.filter(t => t.status === 'payé').length;
 
   return (
     <div className="space-y-10 pb-20">
@@ -123,7 +122,6 @@ export default function AccountantPaymentsPage() {
               montantTotal={montantTotal}
               montantDu={montantDu}
               tdTermines={tdTermines}
-              tdPayes={tdPayes}
               isLoading={isLoading}
             />
             <MatrixPaymentTable 

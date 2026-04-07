@@ -6,7 +6,7 @@ import {
   ClipboardList, 
   FileText, 
   CreditCard,
-  FileX
+  CheckCircle2
 } from 'lucide-react';
 import Sidebar from '@/components/dashboard/enseignant/Sidebar';
 import HeroBanner from '@/components/dashboard/enseignant/HeroBanner';
@@ -86,7 +86,7 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <StatCard 
-            label="Travaux Dirigés" 
+            label="Total TD" 
             value={tds.length.toString()} 
             icon={ClipboardList} 
             variant="green" 
@@ -94,28 +94,27 @@ export default function DashboardPage() {
             staggerIndex={0} 
           />
           <StatCard 
-            label="Epreuves" 
-            value="0" 
+            label="En attente" 
+            value={tds.filter(t => t.status === 'en attente').length.toString()} 
             icon={FileText} 
-            variant="red" 
-            trend="Initialisé"
-            trendUp={false}
+            variant="orange" 
+            trend="À valider"
             staggerIndex={1} 
           />
           <StatCard 
-            label="TD payés" 
-            value={tds.filter(t => t.status === 'payé').length.toString()} 
+            label="En cours" 
+            value={tds.filter(t => t.status === 'en cours').length.toString()} 
             icon={CreditCard} 
-            variant="orange" 
-            trend="Initialisé"
+            variant="red" 
+            trend="Actif"
             staggerIndex={2} 
           />
           <StatCard 
-            label="TD non payés" 
-            value={tds.filter(t => t.status !== 'payé').length.toString()} 
-            icon={FileX} 
+            label="Terminés" 
+            value={tds.filter(t => t.status === 'terminé').length.toString()} 
+            icon={CheckCircle2} 
             variant="sky" 
-            trend="Initialisé"
+            trend="Complété"
             staggerIndex={3} 
           />
         </section>

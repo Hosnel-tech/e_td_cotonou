@@ -61,7 +61,6 @@ export default function AdminTDTable({
     'en attente': 'bg-amber-400',
     'en cours': 'bg-sky-900',
     'terminé': 'bg-green-800',
-    'payé': 'bg-sky-400',
     'rejeté': 'bg-red-600'
   };
 

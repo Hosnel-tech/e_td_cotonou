@@ -59,7 +59,7 @@ export default function PendingPaymentsTable({
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center">Niveau</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Date</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Durée</th>
-                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center last:rounded-r-lg">Actions</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center last:rounded-r-lg w-[200px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -92,13 +92,21 @@ export default function PendingPaymentsTable({
                     <td className="text-black/80 text-xl font-normal px-4 font-montserrat">{td.date}</td>
                     <td className="text-black/80 text-xl font-normal px-4 font-montserrat font-mono">{td.duration}</td>
                     <td className="px-4 text-center">
-                      <button 
-                        onClick={() => handleOpenDetails(td)}
-                        className="w-12 h-12 flex items-center justify-center bg-slate-100 text-sky-900 rounded-xl hover:bg-sky-900 hover:text-white transition-all active:scale-90 shadow-sm mx-auto"
-                        title="Détails"
-                      >
-                        <Eye size={24} />
-                      </button>
+                      <div className="flex items-center justify-center gap-3">
+                        <button 
+                          onClick={() => handleOpenDetails(td)}
+                          className="w-12 h-12 flex items-center justify-center bg-slate-100 text-sky-900 rounded-xl hover:bg-sky-900 hover:text-white transition-all active:scale-90 shadow-sm"
+                          title="Détails"
+                        >
+                          <Eye size={24} />
+                        </button>
+                        <button 
+                          onClick={() => alert(`Paiement initié pour le TD de ${td.subject} (${td.teacher}).`)}
+                          className="px-6 py-3 bg-green-800 hover:bg-green-900 text-white rounded-xl text-sm font-bold font-montserrat transition-all active:scale-95 shadow-md uppercase tracking-wider"
+                        >
+                          Payer
+                        </button>
+                      </div>
                     </td>
                   </motion.tr>
                 ))

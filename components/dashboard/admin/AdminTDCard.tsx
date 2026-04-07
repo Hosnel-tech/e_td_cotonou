@@ -17,7 +17,6 @@ const statusConfig: Record<string, { pill: string; label: string }> = {
   'en cours':   { pill: 'bg-sky-900 text-white',   label: 'En cours'   },
   'terminé':    { pill: 'bg-green-800 text-white', label: 'Terminé'   },
   'en attente': { pill: 'bg-amber-400 text-white', label: 'En attente' },
-  'payé':       { pill: 'bg-sky-400 text-white',    label: 'Payé'       },
   'rejeté':     { pill: 'bg-red-600 text-white',    label: 'Rejeté'     },
 };
 

@@ -103,7 +103,7 @@ export default function TDManagementPage() {
         </header>
 
         {/* Stats Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
           <StatCard 
             label="Nombre total" 
             value={tds.length.toString()} 
@@ -128,14 +128,6 @@ export default function TDManagementPage() {
             variant="orange" 
             trend="Initialisé"
             staggerIndex={2} 
-          />
-          <StatCard 
-            label="Payés" 
-            value={tds.filter(t => t.status === 'payé').length.toString()} 
-            icon={Wallet} 
-            variant="sky" 
-            trend="Initialisé"
-            staggerIndex={3} 
           />
         </section>
 

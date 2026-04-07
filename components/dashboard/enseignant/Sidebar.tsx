@@ -16,7 +16,7 @@ import {
 const navItems = [
   { name: 'Tableau de bord', href: '/enseignant/dashboard', icon: LayoutDashboard },
   { name: 'Gestion des TD', href: '/enseignant/dashboard/td-management', icon: BookOpenCheck },
-  { name: 'Paiements', href: '/enseignant/dashboard/payments', icon: CreditCard },
+  { name: 'Mes Séances', href: '/enseignant/dashboard/payments', icon: CreditCard },
   { name: 'Paramètres', href: '/enseignant/dashboard/settings', icon: Settings },
 ];
 

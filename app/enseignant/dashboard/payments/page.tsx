@@ -23,10 +23,10 @@ export default function PaymentsPage() {
     tdService.getTDs().then(setTds);
   }, []);
 
-  const paidTDs = tds.filter(td => {
+  const finishedTDs = tds.filter(td => {
     const matchesSearch = td.subject.toLowerCase().includes(searchQuery.toLowerCase()) || 
                         td.classe.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch && td.status === 'payé';
+    return matchesSearch && td.status === 'terminé';
   });
 
   return (
@@ -44,7 +44,7 @@ export default function PaymentsPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-3xl font-semibold text-black font-montserrat"
           >
-            Paiements
+            Séances Terminées
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, x: -20 }}
@@ -52,12 +52,12 @@ export default function PaymentsPage() {
             transition={{ delay: 0.1 }}
             className="text-xl font-normal text-black font-montserrat"
           >
-            Gérez vos travaux dirigés et séances
+            Historique de vos séances complétées
           </motion.p>
         </header>
 
         {/* Stats Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
           <StatCard 
             label="Nombre total" 
             value={tds.length.toString()} 
@@ -82,14 +82,6 @@ export default function PaymentsPage() {
             trend="Initialisé"
             staggerIndex={2} 
           />
-          <StatCard 
-            label="Payés" 
-            value={tds.filter(t => t.status === 'payé').length.toString()} 
-            icon={Wallet} 
-            variant="sky" 
-            trend="Initialisé"
-            staggerIndex={3} 
-          />
         </section>
 
         {/* Advanced Search */}
@@ -109,7 +101,7 @@ export default function PaymentsPage() {
         <section>
           <TDTable 
             showActions={true}
-            data={paidTDs} 
+            data={finishedTDs} 
           />
         </section>
 

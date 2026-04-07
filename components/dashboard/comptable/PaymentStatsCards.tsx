@@ -76,7 +76,6 @@ interface PaymentStatsCardsProps {
   montantTotal: number;
   montantDu: number;
   tdTermines: number;
-  tdPayes: number;
   isLoading: boolean;
 }
 
@@ -84,11 +83,10 @@ export default function PaymentStatsCards({
   montantTotal,
   montantDu,
   tdTermines,
-  tdPayes,
   isLoading
 }: PaymentStatsCardsProps) {
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-2">
+    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 py-2">
       <StatCard 
         label="Montant total" 
         value={isLoading ? "..." : `${montantTotal.toLocaleString('fr-FR')} F`} 
@@ -112,14 +110,6 @@ export default function PaymentStatsCards({
         variant="sky" 
         icon={CheckCircle2} 
         staggerIndex={2} 
-      />
-      <StatCard 
-        label="TD payés" 
-        value={isLoading ? "..." : tdPayes.toString()} 
-        trend="5%" 
-        variant="red" 
-        icon={BadgeCheck} 
-        staggerIndex={3} 
       />
     </section>
   );

@@ -73,7 +73,7 @@ export default function PaymentManagementTable({
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Durée</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat">Montant</th>
                 <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center">Statut</th>
-                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center last:rounded-r-lg">Actions</th>
+                <th className="text-sky-900 text-xl font-semibold px-4 font-montserrat text-center last:rounded-r-lg w-[180px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-300">
@@ -125,11 +125,11 @@ export default function PaymentManagementTable({
                         <button 
                           onClick={(e) => { 
                             e.stopPropagation(); 
-                            alert('Paiement marqué comme effectué'); 
+                            alert(`Paiement de ${payment.amount} F pour ${payment.teacher} validé.`); 
                           }}
-                          className="px-5 py-2 bg-sky-900 rounded-[5px] text-white text-xs font-semibold font-montserrat hover:bg-sky-950 transition-colors shadow-md active:scale-95 whitespace-nowrap"
+                          className="px-6 py-2.5 bg-green-800 hover:bg-green-900 text-white rounded-md text-xs font-bold font-montserrat transition-all active:scale-95 shadow-md uppercase tracking-wider"
                         >
-                          {payment.action || 'Marquer payé'}
+                          Payer
                         </button>
                       </div>
                     </td>

@@ -110,14 +110,6 @@ export default function AdminTDManagementPage() {
           trend={allTds.filter(t => t.status === 'terminé').length > 0 ? "Effectué" : "Initialisé"}
           staggerIndex={2}
         />
-        <StatCard
-          label="Payés"
-          value={allTds.filter(t => t.status === 'payé').length.toString()}
-          icon={Wallet}
-          variant="sky"
-          trend={allTds.filter(t => t.status === 'payé').length > 0 ? "Confirmé" : "Initialisé"}
-          staggerIndex={3}
-        />
       </section>
 
       <section className="bg-white rounded-[10px] p-6 space-y-4 shadow-sm border border-stone-100">
