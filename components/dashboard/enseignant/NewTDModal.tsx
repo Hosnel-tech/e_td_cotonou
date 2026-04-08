@@ -15,6 +15,7 @@ import { authService } from '@/services/auth.service';
 import { SUBJECTS_BY_CLASS } from '@/constants/education';
 import { scheduleService } from '@/services/schedule.service';
 import { Schedule } from '@/types/schedule.types';
+import { getSaturdaysOfCurrentMonth } from '@/lib/date-utils';
 
 interface NewTDModalProps {
   isOpen: boolean;
@@ -72,28 +73,20 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
     if (isOpen) {
       fetchUser();
       
-      // Fetch the 4 latest admin schedules
-      const fetchSchedules = async () => {
-        setIsFetchingSchedules(true);
-        try {
-          const schedules = await scheduleService.getSchedules();
-          const sorted = [...schedules]
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 4);
-          
-          setAdminSchedules(sorted);
-          
-          // Auto-select the first (most recent) date if none selected
-          if (sorted.length > 0) {
-            setFormData(prev => ({ ...prev, date: sorted[0].date }));
-          }
-        } catch (err) {
-          console.error("Failed to fetch schedules:", err);
-        } finally {
-          setIsFetchingSchedules(false);
-        }
-      };
-      fetchSchedules();
+      // Get dynamic Saturdays for the current month
+      const saturdays = getSaturdaysOfCurrentMonth();
+      const mockSchedules: Schedule[] = saturdays.map(date => ({
+        id: date,
+        date: date,
+        createdAt: new Date().toISOString()
+      }));
+      
+      setAdminSchedules(mockSchedules);
+      
+      // Auto-select the first Saturday if none selected
+      if (mockSchedules.length > 0) {
+        setFormData(prev => ({ ...prev, date: mockSchedules[0].date }));
+      }
     }
   }, [isOpen]);
 
@@ -340,7 +333,7 @@ export default function NewTDModal({ isOpen, onClose, onSuccess }: NewTDModalPro
                 {/* Date Dropdown (Admin Schedules) */}
                 <div className="space-y-3">
                   <label className="block text-base font-semibold font-montserrat text-black">
-                    Date du TD <span className="text-red-600 font-normal opacity-50 ml-1">(Planifiées par l'Admin)</span> <span className="text-red-600">*</span>
+                    Date du TD <span className="text-red-600 font-normal opacity-50 ml-1">(Samedis du mois)</span> <span className="text-red-600">*</span>
                   </label>
                   <div className="relative group">
                     <select 

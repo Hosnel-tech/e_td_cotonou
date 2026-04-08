@@ -95,9 +95,10 @@ function TeachersPageContent() {
       // Refresh local state
       const updatedTeachers = await teacherService.getTeachers();
       setTeachers(updatedTeachers);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating status:', error);
-      alert('Une erreur est survenue lors de la mise à jour du statut.');
+      const msg = error.message || "Une erreur est survenue lors de la mise à jour du statut.";
+      alert(msg);
     }
   };
 

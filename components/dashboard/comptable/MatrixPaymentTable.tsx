@@ -19,6 +19,7 @@ interface TeacherPayment {
   rates: { [key: string]: number };
   entries: HourEntry[];
   totalAmount: number;
+  paymentPreference: string;
 }
 
 const durationToHours = (duration: string): number => {
@@ -47,24 +48,29 @@ interface MatrixPaymentTableProps {
 }
 
 export default function MatrixPaymentTable({ selectedSchool, teachers, tds, dates = [] }: MatrixPaymentTableProps) {
-  // Senior Pro: Strict enforcement of the 4-date limit for layout stability
-  const displayDates = dates.slice(0, 4);
+  // Senior Pro: Use all provided dates (allowing for months with 5 Saturdays)
+  const displayDates = dates;
+  
   // 1. Filter specifically for TEACHERS by establishment
   const schoolTeachers = (teachers.filter(t => t.role === 'enseignant' && (t as Teacher).school === selectedSchool) as Teacher[]);
 
-  // 2. Map real data to TeacherPayment format
   const tableData: TeacherPayment[] = schoolTeachers.map(teacher => {
+    // Extract payment preference
+    const paymentPreference = teacher.paymentPreference || 'électronique';
+
     // Find all TDs for this teacher
-    // (Joining by name as per current system logic)
     const teacherTDs = tds.filter(t => t.teacher === teacher.name && t.status === 'terminé');
 
-    const entries: HourEntry[] = teacherTDs.map(td => ({
-      date: td.date.split('-').reverse().join('/'), // YYYY-MM-DD to DD/MM/YYYY
-      classe: td.classe,
-      hours: durationToHours(td.duration)
-    }));
+    // Senior Pro: Only include entries that match the displayed Saturdays
+    const entries: HourEntry[] = teacherTDs
+      .map(td => ({
+        date: td.date.split('-').reverse().join('/'), // YYYY-MM-DD to DD/MM/YYYY
+        classe: td.classe,
+        hours: durationToHours(td.duration)
+      }))
+      .filter(entry => displayDates.includes(entry.date));
 
-    // Calculate total amount
+    // Calculate total amount based ONLY on the filtered monthly entries
     const totalAmount = entries.reduce((sum, entry) => {
       const rate = STANDARD_RATES[entry.classe] || STANDARD_RATES.default;
       return sum + (entry.hours * rate);
@@ -77,9 +83,22 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
       subject: teacher.subject || 'N/A',
       rates: STANDARD_RATES,
       entries,
-      totalAmount
+      totalAmount,
+      paymentPreference
     };
   });
+
+  // 3. Calculate Global Totals for the Summary Row
+  const grandTotals = {
+    byDate: displayDates.map(date => {
+      const h3 = tableData.reduce((sum, t) => sum + (t.entries.find(e => e.date === date && e.classe === '3ème')?.hours ?? 0), 0);
+      const hTle = tableData.reduce((sum, t) => sum + (t.entries.find(e => e.date === date && e.classe === 'Tle')?.hours ?? 0), 0);
+      return { date, h3, hTle };
+    }),
+    total3e: tableData.reduce((sum, t) => sum + t.entries.filter(e => e.classe === '3ème').reduce((s, e) => s + e.hours, 0), 0),
+    totalTle: tableData.reduce((sum, t) => sum + t.entries.filter(e => e.classe === 'Tle').reduce((s, e) => s + e.hours, 0), 0),
+    amount: tableData.reduce((sum, t) => sum + t.totalAmount, 0)
+  };
 
   if (schoolTeachers.length === 0) {
     return (
@@ -100,6 +119,12 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
       </motion.section>
     );
   }
+
+  // Helper to format date headers (e.g. 04/04/2026)
+  const formatDateHeader = (dateStr: string) => {
+    return dateStr;
+  };
+
   return (
     <motion.section 
       initial={{ opacity: 0, y: 10 }}
@@ -109,7 +134,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
     >
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
-          <thead>
+          <thead className="sticky top-0 z-20 bg-white">
             {/* Level 1 Header */}
             <tr className="bg-white">
               <th rowSpan={3} className="border border-black p-4 text-center text-black text-xl font-semibold font-montserrat w-[280px]">NOM ET PRENOMS</th>
@@ -123,9 +148,11 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
             {/* Level 2 Header: Dates */}
             <tr className="bg-white">
               {displayDates.map(date => (
-                <th key={date} colSpan={2} className="border border-black p-2 text-center text-black text-xs font-medium font-montserrat">{date}</th>
+                <th key={date} colSpan={2} className="border border-black p-2 text-center text-black text-xs font-bold font-montserrat uppercase bg-slate-50">
+                  {formatDateHeader(date)}
+                </th>
               ))}
-              <th colSpan={2} className="border border-black p-2 text-center text-sky-900 text-sm font-bold font-montserrat bg-sky-50 uppercase tracking-tighter">HEURES</th>
+              <th colSpan={2} className="border border-black p-2 text-center text-sky-900 text-sm font-bold font-montserrat uppercase tracking-tighter">HEURES</th>
               <th rowSpan={2} className="border border-black p-2 text-center text-black text-[14px] font-medium font-montserrat">3 ème</th>
               <th rowSpan={2} className="border border-black p-2 text-center text-black text-[14px] font-medium font-montserrat">Tle</th>
             </tr>
@@ -181,15 +208,43 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
 
                 {/* Actions */}
                 <td className="border border-black p-2 text-center">
-                  <button 
-                    onClick={() => alert(`Paiement de ${teacher.totalAmount.toLocaleString('fr-FR')} F pour ${teacher.name} initié.`)}
-                    className="w-full py-2.5 bg-green-800 hover:bg-green-900 text-white rounded-md text-sm font-bold font-montserrat transition-all active:scale-95 shadow-sm uppercase tracking-wider"
-                  >
-                    Payer
-                  </button>
+                  {teacher.paymentPreference === 'électronique' && (
+                    <button 
+                      onClick={() => alert(`Paiement de ${teacher.totalAmount.toLocaleString('fr-FR')} F pour ${teacher.name} initié.`)}
+                      className="w-full py-2.5 bg-green-800 hover:bg-green-900 text-white rounded-md text-sm font-bold font-montserrat transition-all active:scale-95 shadow-sm uppercase tracking-wider"
+                    >
+                      Payer
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
+
+            {/* GRAND TOTALS ROW */}
+            <tr className="bg-slate-50 text-black font-bold uppercase tracking-wider">
+              <td className="border border-black p-4 text-xl">TOTAL GENERAL</td>
+              
+              {/* Grand Total Matrix - Professional Spacers */}
+              {displayDates.map(date => (
+                <td key={`gt-${date}`} colSpan={2} className="border border-black bg-slate-50/50"></td>
+              ))}
+
+              {/* Grand Total Hours - Spacers */}
+              <td className="border border-black bg-slate-50/50"></td>
+              <td className="border border-black bg-slate-50/50"></td>
+
+              {/* Spacer empty cells for Subject/Rates */}
+              <td className="border border-black bg-slate-50/50"></td>
+              <td className="border border-black bg-slate-50/50"></td>
+              <td className="border border-black bg-slate-50/50"></td>
+
+              {/* GRAND TOTAL AMOUNT - High-end financial display with green text */}
+              <td className="border border-black p-4 text-center text-2xl font-black text-emerald-700 font-montserrat tracking-tight whitespace-nowrap bg-white">
+                {grandTotals.amount.toLocaleString('fr-FR')} F
+              </td>
+              
+              <td className="border border-black bg-slate-50/50"></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -197,7 +252,7 @@ export default function MatrixPaymentTable({ selectedSchool, teachers, tds, date
       {/* Pagination Footer */}
       <div className="p-10 border-t border-black/10 flex items-center justify-between bg-white">
         <div className="text-black text-2xl font-normal font-montserrat">
-          Total {tableData.length}
+          Total {tableData.length} Enseignants
         </div>
         
         <div className="flex items-center gap-4">

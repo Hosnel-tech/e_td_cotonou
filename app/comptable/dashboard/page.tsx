@@ -10,12 +10,13 @@ import { useState, useEffect } from 'react';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import PendingPaymentsTable from '@/components/dashboard/comptable/PendingPaymentsTable';
 import { transferService } from '@/services/transfer.service';
-import { scheduleService } from '@/services/schedule.service';
+
 import { Transfer, Payment } from '@/types/financial.types';
 import { TD } from '@/types/td.types';
 import { Schedule } from '@/types/schedule.types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { getSaturdaysOfCurrentMonth } from '@/lib/date-utils';
 
 // Helper: parse French-formatted amount strings (e.g. "15.000" → 15000)
 const parseAmount = (raw: string) =>
@@ -31,11 +32,10 @@ export default function AccountantDashboard() {
 
   const fetchData = async () => {
     try {
-      const [tdsRes, transData, paymentsRes, schedulesData] = await Promise.all([
+      const [tdsRes, transData, paymentsRes] = await Promise.all([
         fetch('/api/tds', { cache: 'no-store' }).then(r => r.json()),
         transferService.getTransfers(),
         fetch('/api/payments', { cache: 'no-store' }).then(r => r.json()),
-        scheduleService.getSchedules(),
       ]);
       const tdList = tdsRes as TD[];
       const payList = paymentsRes as Payment[];
@@ -45,11 +45,14 @@ export default function AccountantDashboard() {
       setTransfers(transData);
       setPayments(payList);
       
-      // Get the 4 most recent schedules
-      const sortedSchedules = (schedulesData as Schedule[]).sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      ).slice(0, 4);
-      setRecentSchedules(sortedSchedules);
+      // Get dynamic Saturdays for the current month
+      const saturdays = getSaturdaysOfCurrentMonth();
+      const mockSchedules: Schedule[] = saturdays.map(date => ({
+        id: date,
+        date: date,
+        createdAt: new Date().toISOString()
+      }));
+      setRecentSchedules(mockSchedules);
     } catch (error) {
       console.error('Error fetching accountant data:', error);
     } finally {
@@ -193,7 +196,7 @@ export default function AccountantDashboard() {
             <div className="w-10 h-10 rounded-full bg-sky-50 flex items-center justify-center text-sky-900 shrink-0">
               <Calendar size={20} />
             </div>
-            <h2 className="text-xl font-bold text-black font-montserrat tracking-tight">Calendrier des Séances (Admin)</h2>
+            <h2 className="text-xl font-bold text-black font-montserrat tracking-tight">Calendrier des Samedis (TD)</h2>
           </div>
           <span className="px-4 py-1.5 bg-sky-900/5 text-sky-900 rounded-full text-sm font-bold font-montserrat uppercase tracking-wider">
             4 derniers

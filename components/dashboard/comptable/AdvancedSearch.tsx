@@ -37,19 +37,24 @@ interface AdvancedSearchProps {
   selectedLevel: string;
   selectedSchool: string;
   onSchoolChange: (school: string) => void;
+  selectedPreference: string;
+  onPreferenceChange: (pref: string) => void;
 }
 
 export default function AdvancedSearch({ 
   onLevelChange, 
   selectedLevel,
   selectedSchool,
-  onSchoolChange 
+  onSchoolChange,
+  selectedPreference,
+  onPreferenceChange
 }: AdvancedSearchProps) {
   const [bank, setBank] = useState('');
   const [search, setSearch] = useState('');
 
   const BANKS = ["BOA", "BIIC", "NSIA", "UBA", "BGFI", "ECOBANK", "BCEAO"];
   const LEVELS = ["primaire", "secondaire"];
+  const PREFERENCES = ["électronique", "bancaire"];
 
   return (
     <motion.section 
@@ -97,7 +102,7 @@ export default function AdvancedSearch({
           </div>
         </div>
 
-        {/* Row 2: Schools and Dates */}
+        {/* Row 2: Schools and Payment Preference */}
         <div className="flex flex-col xl:flex-row gap-6">
           <Dropdown 
             placeholder="Établissement" 
@@ -105,17 +110,13 @@ export default function AdvancedSearch({
             value={selectedSchool} 
             onChange={onSchoolChange} 
           />
-          
-          {/* <div className="flex flex-1 gap-6">
-            <div className="relative flex-1 group">
-              <input type="date" className="w-full h-14 bg-white rounded-lg border border-stone-200 px-6 text-lg font-medium text-black outline-none shadow-sm focus:border-sky-900 transition-all font-montserrat" />
-              <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
-            </div>
-            <div className="relative flex-1 group">
-              <input type="date" className="w-full h-14 bg-white rounded-lg border border-stone-200 px-6 text-lg font-medium text-black outline-none shadow-sm focus:border-sky-900 transition-all font-montserrat" />
-              <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
-            </div>
-          </div> */}
+
+          <Dropdown 
+            placeholder="Préférence de paiement" 
+            options={PREFERENCES} 
+            value={selectedPreference} 
+            onChange={onPreferenceChange} 
+          />
         </div>
       </div>
     </motion.section>

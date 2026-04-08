@@ -29,6 +29,7 @@ export default function RegisterPage() {
     etablissement: '',
     ifu: '',
     bankNumber: '',
+    paymentPreference: '',
     password: ''
   });
 
@@ -300,6 +301,23 @@ export default function RegisterPage() {
                 <div className="space-y-3">
                   <label className="text-xl font-semibold text-black font-montserrat">Numéro banquaire <span className="text-red-600">*</span></label>
                   <input name="bankNumber" value={formData.bankNumber} onChange={handleInputChange} placeholder="Votre RIB ou numéro de compte" className="w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg text-black placeholder:text-stone-400 outline-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium" />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xl font-semibold text-black font-montserrat">Préférence de paiement <span className="text-red-600">*</span></label>
+                  <div className="relative">
+                    <select 
+                      name="paymentPreference" 
+                      value={formData.paymentPreference} 
+                      onChange={handleInputChange} 
+                      className={`w-full h-16 px-6 rounded-lg border border-stone-200 bg-white font-montserrat text-lg outline-none appearance-none focus:ring-2 focus:ring-sky-900/10 transition-all font-medium ${formData.paymentPreference ? 'text-black' : 'text-stone-400'}`}
+                    >
+                      <option value="" disabled className="text-stone-400">Sélectionner votre préférence</option>
+                      <option value="électronique" className="text-black">Paiement électronique</option>
+                      <option value="bancaire" className="text-black">Paiement bancaire</option>
+                    </select>
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-black pointer-events-none" size={24} />
+                  </div>
                 </div>
 
                 <div className="space-y-3">

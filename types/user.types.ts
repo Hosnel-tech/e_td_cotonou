@@ -25,6 +25,7 @@ export interface Teacher extends BaseAccount {
   ifu?: string;
   bankAccount?: string;
   bankName?: string;
+  paymentPreference?: 'électronique' | 'bancaire';
 }
 
 export interface Accountant extends BaseAccount {

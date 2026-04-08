@@ -18,7 +18,6 @@ import {
 
 const navItems = [
   { name: 'Tableau de bord', href: '/admin/dashboard', icon: LayoutDashboard },
-  { name: 'Horaire', href: '/admin/dashboard/horaires', icon: Calendar },
   { name: 'Gestion des TD', href: '/admin/dashboard/td-management', icon: BookOpenCheck },
   { name: 'Enseignants', href: '/admin/dashboard/teachers', icon: Users },
   { name: 'Comptables', href: '/admin/dashboard/accountants', icon: Users },
