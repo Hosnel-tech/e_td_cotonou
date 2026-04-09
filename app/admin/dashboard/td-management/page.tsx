@@ -2,21 +2,17 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ClipboardList, Clock, CheckCircle2, Wallet,
-  Search, ChevronDown, 
-  List, LayoutGrid
+  ClipboardList, Clock, CheckCircle2,
+  Search, ChevronDown
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import StatCard from '@/components/dashboard/enseignant/StatCard';
 import AdminTDTable from '@/components/dashboard/admin/AdminTDTable';
-import AdminTDCard from '@/components/dashboard/admin/AdminTDCard';
 import AdminTDDetailsModal from '@/components/dashboard/admin/AdminTDDetailsModal';
-import { exportToCSV } from '@/lib/export.utils';
-import { Check } from 'lucide-react'; // For primary action icon
-
-import Pagination from '@/components/dashboard/admin/Pagination';
 import { tdService } from '@/services/td.service';
 import { TD } from '@/types/td.types';
+
+import Pagination from '@/components/dashboard/admin/Pagination';
 
 const STATUS_FILTERS = ['Tous', 'En attente', 'En cours', 'Terminé', 'Rejeté'] as const;
 type StatusFilter = typeof STATUS_FILTERS[number];
@@ -25,7 +21,6 @@ const ITEMS_PER_PAGE = 8;
 
 export default function AdminTDManagementPage() {
   const [allTds, setAllTds] = useState<TD[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<StatusFilter>('Tous');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -164,14 +159,6 @@ export default function AdminTDManagementPage() {
       <section className="bg-white rounded-lg shadow-sm border border-stone-100 p-8 space-y-8">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-black font-montserrat">Mes travaux dirigés</h2>
-          <div className="flex items-center gap-2.5">
-            <button onClick={() => setViewMode('list')} className={`w-11 h-11 flex items-center justify-center rounded-md border transition-all ${viewMode === 'list' ? 'bg-sky-900 text-white border-sky-900 shadow-lg' : 'text-black/40 border-stone-200'}`}>
-              <List size={26} />
-            </button>
-            <button onClick={() => setViewMode('grid')} className={`w-11 h-11 flex items-center justify-center rounded-md border transition-all ${viewMode === 'grid' ? 'bg-sky-900 text-white border-sky-900 shadow-lg' : 'text-black/40 border-stone-200'}`}>
-              <LayoutGrid size={24} />
-            </button>
-          </div>
         </div>
 
         <AdminTDTable
